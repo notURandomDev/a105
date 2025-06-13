@@ -1,5 +1,4 @@
 import { User } from "@/models/user";
-import { STORAGE_KEYS } from "@/storages";
 import {
   getStorageSync,
   removeStorageSync,
@@ -28,7 +27,7 @@ export const useUserStore = create(
       },
     }),
     {
-      name: STORAGE_KEYS.USER_CACHE_KEY,
+      name: "user_cache",
       storage: createJSONStorage(() => ({
         getItem: (key) => getStorageSync(key),
         setItem: (key, value) => setStorageSync(key, value),
