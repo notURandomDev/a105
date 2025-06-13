@@ -36,6 +36,7 @@
   "author": "",
   "dependencies": {
     "@babel/runtime": "^7.24.4",
+    "@cloudbase/wx-cloud-client-sdk": "^1.6.1",
     "@taroify/core": "^0.8.1",
     "@tarojs/components": "4.1.2",
     "@tarojs/helper": "4.1.2",
@@ -53,7 +54,8 @@
     "@tarojs/shared": "4.1.2",
     "@tarojs/taro": "4.1.2",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
@@ -68,10 +70,12 @@
     "@types/webpack-env": "^1.13.6",
     "babel-plugin-import": "^1.13.8",
     "babel-preset-taro": "4.1.2",
+    "dotenv-webpack": "^8.1.0",
     "eslint": "^8.57.0",
     "eslint-config-taro": "4.1.2",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.4.0",
+    "miniprogram-api-typings": "^4.0.7",
     "postcss": "^8.4.38",
     "react-refresh": "^0.14.0",
     "sass": "^1.75.0",

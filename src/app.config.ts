@@ -1,6 +1,6 @@
 export default defineAppConfig({
   pages: [
-    "pages/table/index",
+    "pages/calendar/index",
     "pages/reserve/index",
     "pages/profile-edit/index",
     "pages/index/index",
@@ -30,8 +30,8 @@ export default defineAppConfig({
         selectedIconPath: "assets/icons/home-active.png",
       },
       {
-        pagePath: "pages/table/index",
-        text: "排练预约",
+        pagePath: "pages/calendar/index",
+        text: "日历",
         iconPath: "assets/icons/calendar.png",
         selectedIconPath: "assets/icons/calendar-active.png",
       },
