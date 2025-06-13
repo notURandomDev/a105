@@ -1,0 +1,57 @@
+page {
+  height: 100%;
+}
+
+.container-h {
+  display: flex;
+  flex-direction: row;
+}
+
+.container-v {
+  display: flex;
+  flex-direction: column;
+}
+
+.center-v {
+  justify-content: center;
+}
+
+.center-h {
+  align-items: center;
+}
+
+.border {
+  border: 1px black solid;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 90vh;
+}
+
+.grow {
+  flex: 1;
+}
+
+.bg-gray {
+  background-color: #f7f8fa;
+}
+
+.config-page {
+  background-color: #f7f8fa;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 16px;
+  position: relative;
+}
+
+.button-container {
+  padding: 48px 32px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
