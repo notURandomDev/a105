@@ -111,11 +111,15 @@ export default function Reserve() {
 
     const res = await createReservation({
       bandName: band.name,
+      bandID: band._id,
       date,
       startTime,
       endTime,
     });
-    if (res) Taro.showToast({ icon: "success", title: "预约成功" });
+    if (res) {
+      Taro.showToast({ icon: "success", title: "预约成功" });
+      Taro.navigateBack();
+    }
   };
 
   return (
