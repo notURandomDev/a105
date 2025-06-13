@@ -51,6 +51,7 @@ export default function Auth() {
         avatarUrl: null,
         nickName: null,
         avatarFileID: null,
+        bandIDs: [],
       });
     } else {
       // 用户已注册，根据返回的用户数据初始化全局 userInfo
