@@ -1,3 +1,4 @@
+import { JX_COLOR, JXColor } from "@/constants/colors/theme";
 import { View } from "@tarojs/components";
 import { CSSProperties, ReactNode } from "react";
 
@@ -6,13 +7,17 @@ interface JXCardContainerProps {
   horizontal?: boolean;
   style?: CSSProperties;
   onClick?: () => void;
+  color?: JXColor;
 }
+
+// #eceeed
 
 function JXCardContainer({
   children,
   horizontal = false,
   style,
   onClick,
+  color = "gray",
 }: JXCardContainerProps) {
   return (
     <View
@@ -21,10 +26,10 @@ function JXCardContainer({
       style={{
         borderRadius: 16,
         padding: 16,
-        borderColor: "#eceeed",
-        gap: 4,
+        borderColor: JX_COLOR[color].backgroundColor,
+        gap: 5,
         backgroundColor: "#fff",
-        boxShadow: "10px 10px 5px #f9fafe",
+        boxShadow: `10px 10px 5px ${JX_COLOR[color].color}05`,
         ...style,
       }}
     >

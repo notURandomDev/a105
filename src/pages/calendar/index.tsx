@@ -11,6 +11,7 @@ import { getMockReservation } from "@/constants/database/reservation";
 import JXCardContainer from "@/components/JXCardContainer";
 import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
 import JXTitleLabel from "@/components/Labels/JXTitleLabel";
+import JXRehearsalCard from "@/components/JXRehearsalCard";
 
 export default function Table() {
   useLoad(() => {
@@ -51,28 +52,27 @@ export default function Table() {
   return (
     <ScrollView className="reserve">
       <JXCalendar onChange={handleDateChange} />
-      <View className="container-h" style={{ paddingTop: 16, paddingLeft: 16 }}>
-        <Text style={{ fontWeight: 500 }}>
-          {getMDfromDate(selectedDate)}｜{reservations.length}支已预约乐队
-        </Text>
+      <View
+        className="container-h grow"
+        style={{
+          padding: 16,
+
+          justifyContent: "space-between",
+        }}
+      >
+        <Text style={{ fontWeight: 500 }}>{getMDfromDate(selectedDate)}</Text>
+        <Text style={{ fontWeight: 500 }}>预约乐队：{reservations.length}</Text>
       </View>
       <View
         className="container-v"
         style={{
-          padding: "24px 12px",
+          paddingBottom: 24,
+          padding: "0 12px",
           gap: 12,
         }}
       >
-        {reservations.map(({ bandName, startTime, endTime }) => {
-          const startHM = getHMfromDate(startTime);
-          const endHM = getHMfromDate(endTime);
-
-          return (
-            <JXCardContainer>
-              <JXTitleLabel>{`${startHM} - ${endHM}`}</JXTitleLabel>
-              <JXSecondaryLabel>{bandName}</JXSecondaryLabel>
-            </JXCardContainer>
-          );
+        {reservations.map((reservation) => {
+          return <JXRehearsalCard hideDate reservation={reservation} />;
         })}
       </View>
       <JXFloatingBubble onClick={navigate} />

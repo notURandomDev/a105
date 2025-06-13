@@ -1,10 +1,14 @@
 import { View, Text } from "@tarojs/components";
 import { useLoad } from "@tarojs/taro";
 import "./index.scss";
-import JXTitleLabel from "@/components/Labels/JXTitleLabel";
-import JXCardContainer from "@/components/JXCardContainer";
-import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
 import { useUserStore } from "@/stores/userStore";
+import { getReservationsByBandIDs } from "@/services/reservationsService";
+import { useEffect, useState } from "react";
+import { Reservation } from "@/models/reservation";
+import { getHMfromDate, getMDfromDate } from "@/utils/DatetimeHelper";
+import JXRehearsalCard, {
+  JXRehearsalState,
+} from "@/components/JXRehearsalCard";
 
 export default function Index() {
   useLoad(() => {
@@ -12,6 +16,38 @@ export default function Index() {
   });
 
   const { userInfo } = useUserStore();
+
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+
+  const fetchReservations = async () => {
+    if (!userInfo?.bandIDs) return;
+
+    const res = await getReservationsByBandIDs({
+      bandIDs: userInfo?.bandIDs,
+    });
+    if (res) setReservations(res);
+  };
+
+  const getRehearsalState = (
+    startTime: Date,
+    endTime: Date
+  ): JXRehearsalState => {
+    const now = new Date();
+    let state: JXRehearsalState;
+    if (now < startTime) {
+      state = "pending";
+    } else if (now >= startTime && now <= endTime) {
+      state = "active";
+    } else {
+      state = "over";
+    }
+
+    return state;
+  };
+
+  useEffect(() => {
+    fetchReservations();
+  }, []);
 
   return (
     <View className="index page">
@@ -32,13 +68,16 @@ export default function Index() {
       </View>
 
       <View style={{ padding: "16px 0" }}>
-        <Text style={{ fontWeight: 600, fontSize: 40 }}>我的排练预约</Text>
+        <Text style={{ fontWeight: 600, fontSize: 40 }}>
+          {reservations.length
+            ? `本周 ${reservations.length} 次排练`
+            : "本周暂无排练"}
+        </Text>
       </View>
-      <View className="grow">
-        <JXCardContainer>
-          <JXTitleLabel>{`${"6月15日"}｜${"21:00-23:00"}`}</JXTitleLabel>
-          <JXSecondaryLabel>if we could stay</JXSecondaryLabel>
-        </JXCardContainer>
+      <View className="grow container-v" style={{ gap: 16 }}>
+        {reservations.map((reservation) => (
+          <JXRehearsalCard reservation={reservation} />
+        ))}
       </View>
     </View>
   );
