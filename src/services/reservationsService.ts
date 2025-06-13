@@ -102,5 +102,40 @@ export const getReservationsByDateRange = async (
   }
 };
 
+// 参数：可以传入单个乐队id，也可以是多个
+
+interface GetReservationsByBandIDsOptions {
+  bandIDs: string[];
+  production?: boolean;
+}
+export const getReservationsByBandIDs = async ({
+  bandIDs,
+  production = false,
+}: GetReservationsByBandIDsOptions): Promise<Reservation[] | null> => {
+  const QUERY_BY_BAND_IDS = "根据排练乐队ID获取预约数据";
+
+  if (!production)
+    return MOCK_RESERVATIONS.DEFAULT.sort(
+      (a, b) => a.startTime.getTime() - b.startTime.getTime()
+    );
+
+  try {
+    const res = await reservationsCollection
+      .where({ bandID: _.in(bandIDs) })
+      .orderBy("date", "desc")
+      .get();
+
+    if (res.errMsg !== DB_ERRMSG_OK) {
+      throw new Error(QUERY_BY_BAND_IDS + `失败：${res.errMsg}`);
+    }
+
+    console.log(QUERY_BY_BAND_IDS + "成功：", res);
+    return res.data as Reservation[];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 /* UPDATE */
 /* DELETE */
