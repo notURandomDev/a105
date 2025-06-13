@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '首页'
-})
+  navigationBarTitleText: "杭电吉协｜首页",
+});
