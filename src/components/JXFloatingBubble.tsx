@@ -1,5 +1,4 @@
 import { FloatingBubble } from "@taroify/core";
-import React from "react";
 import { Plus } from "@taroify/icons";
 
 interface JXFloatingBubble {
@@ -9,8 +8,10 @@ interface JXFloatingBubble {
 function JXFloatingBubble({ onClick }) {
   return (
     <FloatingBubble
+      offset={{ x: -1, y: 450 }}
+      magnetic="x"
+      axis="xy"
       style={{ backgroundColor: "black" }}
-      axis="lock"
       icon={<Plus />}
       onClick={onClick}
     />
