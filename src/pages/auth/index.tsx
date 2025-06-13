@@ -54,13 +54,7 @@ export default function Auth() {
       });
     } else {
       // 用户已注册，根据返回的用户数据初始化全局 userInfo
-      if (!user.avatarFileID) {
-        setUserInfo(user);
-        return;
-      }
-
-      const tempAvatarUrl = await getCloudFileByID(user.avatarFileID);
-      setUserInfo({ ...user, avatarUrl: tempAvatarUrl ?? null });
+      setUserInfo(user);
     }
 
     Taro.hideLoading();
