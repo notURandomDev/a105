@@ -35,7 +35,6 @@ function JXBandPicker({
   };
 
   useEffect(() => {
-    // bands.current = MOCK_BANDS.DEFAULT;
     fetchBands();
   }, []);
 
