@@ -35,7 +35,7 @@ export default function Index() {
   };
 
   return (
-    <View className="index page">
+    <View className="index page page-padding">
       <View
         className="container-v"
         style={{
@@ -59,7 +59,7 @@ export default function Index() {
             : "本周暂无排练"}
         </Text>
       </View>
-      <View className="grow container-v" style={{ gap: 16 }}>
+      <View className="grow container-v list-gap">
         {reservations.map((reservation) => (
           <JXReservationCard reservation={reservation} />
         ))}
