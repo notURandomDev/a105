@@ -1,9 +1,11 @@
 export default defineAppConfig({
   pages: [
+    "pages/band/index",
+    "pages/musician/index",
     "pages/calendar/index",
     "pages/reserve/index",
-    "pages/profile-edit/index",
     "pages/index/index",
+    "pages/profile-edit/index",
     "pages/profile/index",
     "pages/auth/index",
   ],
@@ -26,20 +28,32 @@ export default defineAppConfig({
       {
         pagePath: "pages/index/index", // 页面路径（基于src目录）
         text: "首页", // 显示文字
-        iconPath: "assets/icons/home.png",
-        selectedIconPath: "assets/icons/home-active.png",
+        iconPath: "assets/icons/tab/home.png",
+        selectedIconPath: "assets/icons/tab/home-active.png",
       },
       {
         pagePath: "pages/calendar/index",
         text: "日历",
-        iconPath: "assets/icons/calendar.png",
-        selectedIconPath: "assets/icons/calendar-active.png",
+        iconPath: "assets/icons/tab/calendar.png",
+        selectedIconPath: "assets/icons/tab/calendar-active.png",
+      },
+      {
+        pagePath: "pages/band/index",
+        text: "乐队",
+        iconPath: "assets/icons/tab/band.png",
+        selectedIconPath: "assets/icons/tab/band-active.png",
+      },
+      {
+        pagePath: "pages/musician/index",
+        text: "乐手",
+        iconPath: "assets/icons/tab/musician.png",
+        selectedIconPath: "assets/icons/tab/musician-active.png",
       },
       {
         pagePath: "pages/profile/index",
         text: "我的",
-        iconPath: "assets/icons/profile.png",
-        selectedIconPath: "assets/icons/profile-active.png",
+        iconPath: "assets/icons/tab/profile.png",
+        selectedIconPath: "assets/icons/tab/profile-active.png",
       },
     ],
   },
