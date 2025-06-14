@@ -1,18 +1,20 @@
 import { View, Text } from "@tarojs/components";
-import { useLoad } from "@tarojs/taro";
+import { useDidShow, useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { useUserStore } from "@/stores/userStore";
 import { getReservationsByBandIDs } from "@/services/reservationsService";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Reservation } from "@/models/reservation";
-import { getHMfromDate, getMDfromDate } from "@/utils/DatetimeHelper";
-import JXRehearsalCard, {
-  JXRehearsalState,
-} from "@/components/JXRehearsalCard";
+import JXReservationCard from "@/components/JXReservationCard";
+import { sortReservationsOnState } from "@/utils/reservation";
 
 export default function Index() {
   useLoad(() => {
-    console.log("Page loaded.");
+    console.log("Home Page loaded.");
+  });
+
+  useDidShow(() => {
+    fetchReservations();
   });
 
   const { userInfo } = useUserStore();
@@ -24,30 +26,13 @@ export default function Index() {
 
     const res = await getReservationsByBandIDs({
       bandIDs: userInfo?.bandIDs,
+      sortByDate: false,
     });
-    if (res) setReservations(res);
-  };
-
-  const getRehearsalState = (
-    startTime: Date,
-    endTime: Date
-  ): JXRehearsalState => {
-    const now = new Date();
-    let state: JXRehearsalState;
-    if (now < startTime) {
-      state = "pending";
-    } else if (now >= startTime && now <= endTime) {
-      state = "active";
-    } else {
-      state = "over";
+    if (res) {
+      const sortedReservations = sortReservationsOnState(res);
+      setReservations(sortedReservations);
     }
-
-    return state;
   };
-
-  useEffect(() => {
-    fetchReservations();
-  }, []);
 
   return (
     <View className="index page">
@@ -76,7 +61,7 @@ export default function Index() {
       </View>
       <View className="grow container-v" style={{ gap: 16 }}>
         {reservations.map((reservation) => (
-          <JXRehearsalCard reservation={reservation} />
+          <JXReservationCard reservation={reservation} />
         ))}
       </View>
     </View>
