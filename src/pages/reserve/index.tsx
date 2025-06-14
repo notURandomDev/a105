@@ -15,10 +15,8 @@ import {
   createReservation,
   getReservationsByDate,
 } from "@/services/reservationsService";
-import JXCardContainer from "@/components/JXCardContainer";
-import JXTitleLabel from "@/components/Labels/JXTitleLabel";
-import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
 import JXBandPicker from "@/components/JXBandPicker";
+import JXReservationCard from "@/components/JXReservationCard";
 
 export default function Reserve() {
   useLoad((options: Record<string, string>) => {
@@ -109,6 +107,7 @@ export default function Reserve() {
       return;
     }
 
+    Taro.showLoading();
     const res = await createReservation({
       bandName: band.name,
       bandID: band._id,
@@ -117,8 +116,9 @@ export default function Reserve() {
       endTime,
     });
     if (res) {
+      Taro.hideLoading();
       Taro.showToast({ icon: "success", title: "预约成功" });
-      Taro.navigateBack();
+      setTimeout(() => Taro.navigateBack(), 2000);
     }
   };
 
@@ -189,12 +189,16 @@ export default function Reserve() {
         <>
           <JXFormLabel>请确认预约信息</JXFormLabel>
           <View style={{ padding: "0 16px" }}>
-            <JXCardContainer>
-              <JXTitleLabel>{`${getMDfromDate(formData.date)}｜${getHMfromDate(
-                formData.startTime
-              )}-${getHMfromDate(formData.endTime)}`}</JXTitleLabel>
-              <JXSecondaryLabel>{formData.band?.name}</JXSecondaryLabel>
-            </JXCardContainer>
+            <JXReservationCard
+              hideState
+              reservation={{
+                bandName: formData.band?.name ?? "",
+                date: formData.date,
+                startTime: formData.startTime ?? new Date(),
+                endTime: formData.endTime ?? new Date(),
+                bandID: "",
+              }}
+            />
           </View>
         </>
       )}
