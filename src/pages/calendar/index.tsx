@@ -11,7 +11,7 @@ import { getMockReservation } from "@/constants/database/reservation";
 import JXCardContainer from "@/components/JXCardContainer";
 import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
 import JXTitleLabel from "@/components/Labels/JXTitleLabel";
-import JXRehearsalCard from "@/components/JXRehearsalCard";
+import JXReservationCard from "@/components/JXReservationCard";
 
 export default function Table() {
   useLoad(() => {
@@ -72,7 +72,7 @@ export default function Table() {
         }}
       >
         {reservations.map((reservation) => {
-          return <JXRehearsalCard hideDate reservation={reservation} />;
+          return <JXReservationCard hideDate reservation={reservation} />;
         })}
       </View>
       <JXFloatingBubble onClick={navigate} />

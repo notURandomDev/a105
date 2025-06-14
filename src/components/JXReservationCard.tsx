@@ -2,58 +2,45 @@ import { Text, View } from "@tarojs/components";
 import JXCardContainer from "./JXCardContainer";
 import JXTitleLabel from "./Labels/JXTitleLabel";
 import JXChip from "./JXChip";
-import { JXColor } from "@/constants/colors/theme";
 import { Reservation } from "@/models/reservation";
 import { getHMfromDate, getMDfromDate } from "@/utils/DatetimeHelper";
+import { getReservationState, JXReservationState } from "@/utils/reservation";
+import { JXColor } from "@/constants/colors/theme";
 
-export type JXRehearsalState = "pending" | "active" | "over";
-
-type RehearsalStateValue = {
+type ReservationStateValue = {
   label: string;
   color: JXColor;
 };
 
-const REHEARSAL_STATE: Record<JXRehearsalState, RehearsalStateValue> = {
-  pending: { label: "待开始", color: "blue" },
+const RESERVATION_STATE: Record<JXReservationState, ReservationStateValue> = {
   active: { label: "进行中", color: "green" },
+  pending: { label: "待开始", color: "blue" },
   over: { label: "已结束", color: "gray" },
 };
 
-const getRehearsalState = (
-  startTime: Date,
-  endTime: Date
-): RehearsalStateValue => {
-  const now = new Date();
-  let state: JXRehearsalState;
-  if (now < startTime) {
-    state = "pending";
-  } else if (now >= startTime && now <= endTime) {
-    state = "active";
-  } else {
-    state = "over";
-  }
-
-  return REHEARSAL_STATE[state];
-};
-
-interface JXRehearsalCardProps {
+interface JXReservationCardProps {
   reservation: Reservation;
   hideDate?: boolean;
   hideTime?: boolean;
+  hideState?: boolean;
 }
-function JXRehearsalCard({
+function JXReservationCard({
   reservation,
   hideDate = false,
   hideTime = false,
-}: JXRehearsalCardProps) {
+  hideState = false,
+}: JXReservationCardProps) {
   const { startTime, endTime, bandName, date } = reservation;
-  const { color, label } = getRehearsalState(startTime, endTime);
+  const { color, label } =
+    RESERVATION_STATE[
+      hideState ? "over" : getReservationState(startTime, endTime)
+    ];
 
   return (
     <JXCardContainer color={color}>
       <JXTitleLabel>{bandName}</JXTitleLabel>
       <View className="container-h" style={{ alignItems: "center" }}>
-        <JXChip color={color}>{label}</JXChip>
+        {!hideState && <JXChip color={color}>{label}</JXChip>}
         <View
           className="container-h grow"
           style={{
@@ -76,4 +63,4 @@ function JXRehearsalCard({
   );
 }
 
-export default JXRehearsalCard;
+export default JXReservationCard;
