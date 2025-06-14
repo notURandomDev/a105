@@ -8,9 +8,8 @@ interface JXCardContainerProps {
   style?: CSSProperties;
   onClick?: () => void;
   color?: JXColor;
+  className?: string;
 }
-
-// #eceeed
 
 function JXCardContainer({
   children,
@@ -18,11 +17,14 @@ function JXCardContainer({
   style,
   onClick,
   color = "gray",
+  className,
 }: JXCardContainerProps) {
   return (
     <View
       onClick={onClick}
-      className={`${horizontal ? "container-h" : "container-v"} border`}
+      className={`${
+        horizontal ? "container-h" : "container-v"
+      } border ${className}`}
       style={{
         borderRadius: 16,
         padding: 16,
