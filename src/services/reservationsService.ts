@@ -2,6 +2,7 @@ import { db, _ } from "@/cloud/cloudClient";
 import { DB_ERRMSG_OK } from "@/constants/database/config";
 import { MOCK_RESERVATIONS } from "@/constants/database/reservation";
 import { Reservation } from "@/models/reservation";
+import { DB } from "@tarojs/taro";
 
 const reservationsCollection = db.collection("reservation");
 
@@ -107,10 +108,12 @@ export const getReservationsByDateRange = async (
 interface GetReservationsByBandIDsOptions {
   bandIDs: string[];
   production?: boolean;
+  sortByDate?: boolean;
 }
 export const getReservationsByBandIDs = async ({
   bandIDs,
   production = false,
+  sortByDate = true,
 }: GetReservationsByBandIDsOptions): Promise<Reservation[] | null> => {
   const QUERY_BY_BAND_IDS = "根据排练乐队ID获取预约数据";
 
@@ -120,10 +123,15 @@ export const getReservationsByBandIDs = async ({
     );
 
   try {
-    const res = await reservationsCollection
-      .where({ bandID: _.in(bandIDs) })
-      .orderBy("date", "desc")
-      .get();
+    let res: DB.Query.IQueryResult;
+    if (sortByDate) {
+      res = await reservationsCollection
+        .where({ bandID: _.in(bandIDs) })
+        .orderBy("date", "desc")
+        .get();
+    } else {
+      res = await reservationsCollection.where({ bandID: _.in(bandIDs) }).get();
+    }
 
     if (res.errMsg !== DB_ERRMSG_OK) {
       throw new Error(QUERY_BY_BAND_IDS + `失败：${res.errMsg}`);
