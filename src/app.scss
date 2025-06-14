@@ -3,6 +3,11 @@
 page {
   font-family: "poppins";
   height: 100%;
+  --tabs-active-color: #000;
+}
+
+.page-padding {
+  padding: 48px;
 }
 
 .container-h {
@@ -34,6 +39,10 @@ page {
   min-height: 90vh;
 }
 
+.list-gap {
+  gap: 16px;
+}
+
 .grow {
   flex: 1;
 }
@@ -57,4 +66,24 @@ page {
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.tab-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 90vh;
+}
+
+.tab-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 8px 0;
+  gap: 24px;
+}
+
+.cc {
+  justify-content: center;
+  align-items: center;
 }
