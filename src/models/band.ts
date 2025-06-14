@@ -1,5 +1,62 @@
+import { MusicianType } from "@/constants/utils/musician";
+
+export type BandStatus = "recruiting" | "active" | "disbanded";
+
 export interface Band {
   _id: string | number;
   name: string;
   members?: string[];
+  bio?: string;
+  genre?: BandGenre[];
 }
+
+// 用于乐队卡片的展示
+export interface BandPreview {
+  name: string;
+  description?: string;
+  missingPositions: MusicianType[]; // 必须有，可以为空
+  activePositions: MusicianType[]; // 必须有，可以为空
+  genre: BandGenre[]; // 不可为空
+  formedAt: Date;
+  status: BandStatus;
+}
+
+export type BandGenre =
+  // 主流流行风格
+  | "Pop" // 流行乐（如 Taylor Swift、Billie Eilish）
+  | "Rock" // 摇滚（经典风格，如 The Beatles、Queen）
+  | "Alternative" // 另类摇滚（如 Radiohead、Arcade Fire）
+  | "Indie" // 独立音乐（非主流厂牌，如 Tame Impala）
+
+  // 重型/高能量风格
+  | "HardRock" // 硬摇滚（如 AC/DC、Guns N' Roses）
+  | "Punk" // 朋克（如 The Clash、Green Day）
+  | "Metal" // 金属（如 Metallica、Iron Maiden）
+  | "Grunge" // 垃圾摇滚（如 Nirvana、Pearl Jam）
+
+  // 爵士/灵魂/节奏类
+  | "Jazz" // 爵士（如 Miles Davis、John Coltrane）
+  | "Funk" // 放克（节奏驱动，如 James Brown、Prince）
+  | "Soul" // 灵魂乐（如 Aretha Franklin、Marvin Gaye）
+  | "R&B" // 节奏布鲁斯（现代变种，如 Beyoncé、The Weeknd）
+
+  // 古典/实验性
+  | "Classical" // 古典（器乐为主，如交响乐、室内乐）
+  | "Experimental" // 实验音乐（先锋派，如 Björk）
+  | "Fusion" // 融合风格（如爵士摇滚融合）
+
+  // 电子/合成器
+  | "Electronic" // 电子乐（广义，如 Daft Punk）
+  | "Synthpop" // 合成器流行（如 Depeche Mode、The Weeknd）
+  | "Ambient" // 氛围音乐（如 Brian Eno）
+
+  // 民谣/地域风格
+  | "Folk" // 民谣（如 Bob Dylan、Joni Mitchell）
+  | "Reggae" // 雷鬼（牙买加风格，如 Bob Marley）
+  | "Latin" // 拉丁音乐（如 Shakira）
+  | "Blues" // 布鲁斯（根源风格，如 B.B. King）
+
+  // 现代都市/舞曲
+  | "HipHop" // 嘻哈（如 Kendrick Lamar）
+  | "EDM" // 电子舞曲（如 Martin Garrix）
+  | "LoFi"; // 低传真音乐（放松/学习场景）
