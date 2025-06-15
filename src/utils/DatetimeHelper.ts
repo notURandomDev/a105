@@ -5,7 +5,14 @@ export const getHMfromDate = (date: Date | null) => {
   return `${hours}:${minutes}`;
 };
 
-export const getMDfromDate = (date: Date) => {
+export const getYMDfromDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const _date = date.getDate();
+  return `${year}-${month}-${_date}`;
+};
+
+export const getMDWfromDate = (date: Date) => {
   const month = date.getMonth() + 1;
   const _date = date.getDate();
   const day = date.toLocaleDateString("zh-CN", { weekday: "short" });
