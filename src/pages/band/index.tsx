@@ -1,12 +1,13 @@
 import { View } from "@tarojs/components";
-import { useLoad } from "@tarojs/taro";
+import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
 import { useState } from "react";
-import JXCardContainer from "@/components/JXCardContainer";
-import JXMetricCard from "@/components/JXMetricCard";
-import JXActiveBand from "@/components/JXBandCard";
+import JXBandCard from "@/components/JXBandCard";
 import { MOCK_BAND_PREVIEW } from "@/constants/database/bands";
+import { BandPreview } from "@/models/band";
+import JXFloatingBubble from "@/components/JXFloatingBubble";
+import JXMetricCardSM from "@/components/JXMetricCardSM";
 
 export default function Band() {
   useLoad(() => {
@@ -15,20 +16,35 @@ export default function Band() {
 
   const [tabIndex, setTabIndex] = useState(0);
 
+  const [activeBands, setActiveBands] = useState<BandPreview[]>(
+    MOCK_BAND_PREVIEW.active
+  );
+  const [recruitingBands, setRecruitingBands] = useState<BandPreview[]>(
+    MOCK_BAND_PREVIEW.recruiting
+  );
+
+  // 发送网络请求；将从数据库中返回的乐队Band类型，转换为乐队卡片的BandPreview类型
+
   return (
     <View className="band page page-padding">
       <View className="container-h" style={{ gap: 20 }}>
-        <JXMetricCard
+        <JXMetricCardSM
           active={tabIndex === 0}
+          label="我的乐队"
+          emoji="👤"
+          value={3}
+        />
+        <JXMetricCardSM
+          active={tabIndex === 1}
           label="活跃乐队"
           emoji="🎉"
-          value={14}
+          value={activeBands.length}
         />
-        <JXMetricCard
-          active={tabIndex === 1}
-          label="招募中乐队"
+        <JXMetricCardSM
+          active={tabIndex === 2}
+          label="乐队招募"
           emoji="🔥"
-          value={3}
+          value={recruitingBands.length}
         />
       </View>
       <Tabs
@@ -39,15 +55,31 @@ export default function Band() {
         value={tabIndex}
         onChange={setTabIndex}
       >
+        <Tabs.TabPane title="我的" className="tab-pane">
+          <View className="tab-container">
+            {activeBands.map((b) => (
+              <JXBandCard bandInfo={b} />
+            ))}
+          </View>
+        </Tabs.TabPane>
         <Tabs.TabPane title="活跃" className="tab-pane">
           <View className="tab-container">
-            <JXActiveBand bandInfo={MOCK_BAND_PREVIEW.active} />
+            {activeBands.map((b) => (
+              <JXBandCard bandInfo={b} />
+            ))}
           </View>
         </Tabs.TabPane>
         <Tabs.TabPane title="招募中" className="tab-pane">
-          <JXActiveBand bandInfo={MOCK_BAND_PREVIEW.recruiting} />
+          <View className="tab-container">
+            {recruitingBands.map((b) => (
+              <JXBandCard bandInfo={b} />
+            ))}
+          </View>
         </Tabs.TabPane>
       </Tabs>
+      <JXFloatingBubble
+        onClick={() => Taro.navigateTo({ url: "/pages/band-create/index" })}
+      />
     </View>
   );
 }
