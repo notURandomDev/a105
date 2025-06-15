@@ -28,7 +28,7 @@ function JXCardContainer({
       style={{
         borderRadius: 16,
         padding: 16,
-        borderColor: JX_COLOR[color].backgroundColor,
+        borderColor: JX_COLOR[color].borderColor,
         gap: 5,
         backgroundColor: "#fff",
         boxShadow: `10px 10px 5px ${JX_COLOR[color].color}05`,
