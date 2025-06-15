@@ -9,7 +9,7 @@ import JXFormLabel from "@/components/Labels/JXFormLabel";
 import {
   compareHM,
   getHMfromDate,
-  getMDfromDate,
+  getMDWfromDate,
 } from "@/utils/DatetimeHelper";
 import {
   createReservation,
@@ -159,7 +159,7 @@ export default function Reserve() {
           <Input
             readonly
             placeholder="选择日期"
-            value={getMDfromDate(formData.date)}
+            value={getMDWfromDate(formData.date)}
           />
         </Field>
         <Field

@@ -3,7 +3,7 @@ import JXCardContainer from "./JXCardContainer";
 import JXTitleLabel from "./Labels/JXTitleLabel";
 import JXChip from "./JXChip";
 import { Reservation } from "@/models/reservation";
-import { getHMfromDate, getMDfromDate } from "@/utils/DatetimeHelper";
+import { getHMfromDate, getMDWfromDate } from "@/utils/DatetimeHelper";
 import { getReservationState, JXReservationState } from "@/utils/reservation";
 import { JXColor } from "@/constants/colors/theme";
 
@@ -50,7 +50,7 @@ function JXReservationCard({
           }}
         >
           {!hideDate && (
-            <Text style={{ fontSize: 13 }}>{`${getMDfromDate(date)}`}</Text>
+            <Text style={{ fontSize: 13 }}>{`${getMDWfromDate(date)}`}</Text>
           )}
           {!hideTime && (
             <Text style={{ fontSize: 13 }}>{`${getHMfromDate(
