@@ -6,14 +6,11 @@ import JXFloatingBubble from "@/components/JXFloatingBubble";
 import { useEffect, useState } from "react";
 import { getReservationsByDate } from "@/services/reservationsService";
 import { Reservation } from "@/models/reservation";
-import { getHMfromDate, getMDfromDate } from "@/utils/DatetimeHelper";
+import { getMDWfromDate } from "@/utils/DatetimeHelper";
 import { getMockReservation } from "@/constants/database/reservation";
-import JXCardContainer from "@/components/JXCardContainer";
-import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
-import JXTitleLabel from "@/components/Labels/JXTitleLabel";
 import JXReservationCard from "@/components/JXReservationCard";
 
-export default function Table() {
+export default function Calendar() {
   useLoad(() => {
     console.log("Page loaded.");
   });
@@ -60,7 +57,7 @@ export default function Table() {
           justifyContent: "space-between",
         }}
       >
-        <Text style={{ fontWeight: 500 }}>{getMDfromDate(selectedDate)}</Text>
+        <Text style={{ fontWeight: 500 }}>{getMDWfromDate(selectedDate)}</Text>
         <Text style={{ fontWeight: 500 }}>预约乐队：{reservations.length}</Text>
       </View>
       <View
@@ -75,7 +72,7 @@ export default function Table() {
           return <JXReservationCard hideDate reservation={reservation} />;
         })}
       </View>
-      <JXFloatingBubble onClick={navigate} />
+      <JXFloatingBubble offset={{ x: -1, y: 450 }} onClick={navigate} />
     </ScrollView>
   );
 }
