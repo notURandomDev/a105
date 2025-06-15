@@ -83,6 +83,14 @@ page {
   gap: 24px;
 }
 
+.chip-container {
+  display: flex;
+  flex-direction: row;
+  column-gap: 16px;
+  row-gap: 8px;
+  flex-wrap: wrap;
+}
+
 .cc {
   justify-content: center;
   align-items: center;
