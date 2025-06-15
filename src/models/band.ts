@@ -12,10 +12,10 @@ export interface Band {
 
 // 用于乐队卡片的展示
 export interface BandPreview {
-  name: string;
+  name?: string;
   description?: string;
   missingPositions: MusicianType[]; // 必须有，可以为空
-  activePositions: MusicianType[]; // 必须有，可以为空
+  occupiedPositions: MusicianType[]; // 必须有，可以为空
   genre: BandGenre[]; // 不可为空
   formedAt: Date;
   status: BandStatus;
@@ -60,3 +60,15 @@ export type BandGenre =
   | "HipHop" // 嘻哈（如 Kendrick Lamar）
   | "EDM" // 电子舞曲（如 Martin Garrix）
   | "LoFi"; // 低传真音乐（放松/学习场景）
+
+/**
+ * 乐队音乐流派分组键（显式联合类型）
+ */
+export type BandGenreGroup =
+  | "POP" // 流行与摇滚
+  | "HEAVY" // 重型音乐
+  | "JAZZ_SOUL" // 爵士与节奏
+  | "ELECTRONIC" // 电子与合成
+  | "EXPERIMENTAL" // 古典与实验
+  | "WORLD" // 地域与文化
+  | "URBAN"; // 现代都市
