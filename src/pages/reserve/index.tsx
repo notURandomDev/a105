@@ -1,138 +1,43 @@
 import { View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import { useLoad } from "@tarojs/taro";
 import "./index.scss";
-import { Button, Cell, Field, Input, Toast } from "@taroify/core";
-import { useEffect, useState } from "react";
-import JXDateTimePicker from "@/components/JXDateTimePicker";
-import { FieldType, FormDataProps } from "./types";
+import { Button, Cell, Field, Input } from "@taroify/core";
+import JXDateTimePicker from "@/components/Pickers/JXDateTimePicker";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
-import {
-  compareHM,
-  getHMfromDate,
-  getMDWfromDate,
-} from "@/utils/DatetimeHelper";
-import {
-  createReservation,
-  getReservationsByDate,
-} from "@/services/reservationsService";
-import JXBandPicker from "@/components/JXBandPicker";
-import JXReservationCard from "@/components/JXReservationCard";
+import { getHMfromDate, getMDWfromDate } from "@/utils/DatetimeHelper";
+import JXBandPicker from "@/components/Pickers/JXBandPicker";
+import JXReservationCard from "@/components/Cards/JXReservationCard";
+import { useReservationForm } from "@/hooks/reservation/useReservationForm";
 
 export default function Reserve() {
   useLoad((options: Record<string, string>) => {
-    const dateString = JSON.parse(options.date);
-    const parsedDate = new Date(dateString);
+    const dateIntent = JSON.parse(options.date);
+    const defaultDate = new Date(dateIntent);
     setFormData((prev) => ({
       ...prev,
-      date: parsedDate,
+      date: defaultDate,
     }));
   });
 
-  const [popupVisible, setPopupVisible] = useState(false);
-  const [bandPickerVisible, setBandPickerVisible] = useState(false);
-  const [toastVisible, setToastVisible] = useState(false);
-  const [ctaEnabled, setCtaEnabled] = useState(false);
-  const [popupTitle, setPopupTitle] = useState("");
-  const [activeFieldType, setActiveFieldType] = useState<FieldType | null>(
-    null
-  );
-  const [formData, setFormData] = useState<FormDataProps>({
-    startTime: null,
-    endTime: null,
-    date: new Date(),
-    band: null,
-  });
-
-  useEffect(() => {
-    setCtaEnabled(validateFormFields());
-  }, [formData]);
-
-  const showPopup = (title: string, fieldType: FieldType) => {
-    // pass data
-    setPopupVisible(true);
-    setPopupTitle(title);
-    setActiveFieldType(fieldType);
-  };
-
-  const updateFieldValue = (value: Date) => {
-    if (!activeFieldType) return;
-
-    setFormData((prev) => ({
-      ...prev,
-      [activeFieldType]: value,
-    }));
-  };
-
-  const validateEndTime = (endTime: Date) => {
-    const startTime = formData.startTime;
-    if (!startTime) return true;
-
-    if (!compareHM(startTime, endTime)) {
-      setToastVisible(true);
-      return false;
-    }
-
-    return true;
-  };
-
-  const validateFormFields = () => {
-    return (
-      formData.startTime !== null &&
-      formData.endTime !== null &&
-      formData.band !== null
-    );
-  };
-
-  const checkReservationConflict = async (
-    date: Date,
-    startTime: Date,
-    endTime: Date
-  ) => {
-    const allReservations = await getReservationsByDate(date);
-    return allReservations.some((reservation) => {
-      const noConflict =
-        endTime <= reservation.startTime || startTime >= reservation.endTime;
-
-      if (!noConflict) console.log("与该预约冲突：", reservation);
-      return !noConflict;
-    });
-  };
-
-  const submitFormData = async () => {
-    const { band, date, startTime, endTime } = formData;
-    if (!date || !startTime || !endTime || !band) return;
-
-    if (await checkReservationConflict(date, startTime, endTime)) {
-      Taro.showToast({ icon: "error", title: "预约时间冲突" });
-      return;
-    }
-
-    Taro.showLoading();
-    const res = await createReservation({
-      bandName: band.name,
-      bandID: band._id,
-      date,
-      startTime,
-      endTime,
-    });
-    if (res) {
-      Taro.hideLoading();
-      Taro.showToast({ icon: "success", title: "预约成功" });
-      setTimeout(() => Taro.navigateBack(), 2000);
-    }
-  };
+  const {
+    formData,
+    setFormData,
+    activePicker,
+    setActivePicker,
+    getPickerTitle,
+    isFormDataValid,
+    submitFormData,
+    isDateTimePickerActive,
+    updateDatetimePicker,
+    updateBandPicker,
+    getReservationPreview,
+  } = useReservationForm();
 
   return (
     <View className="reserve config-page">
       <JXFormLabel>乐队信息</JXFormLabel>
       <Cell.Group inset>
-        <Field
-          isLink
-          label="乐队名称"
-          onClick={() => {
-            setBandPickerVisible(true);
-          }}
-        >
+        <Field isLink label="乐队名称" onClick={() => setActivePicker("band")}>
           <Input
             readonly
             value={formData.band?.name ?? ""}
@@ -141,21 +46,13 @@ export default function Reserve() {
         </Field>
       </Cell.Group>
       <JXBandPicker
-        open={bandPickerVisible}
-        onConfirm={(band) => {
-          console.log(band);
-          setBandPickerVisible(false);
-          setFormData((prev) => ({ ...prev, band }));
-        }}
-        onCancel={() => setBandPickerVisible(false)}
+        open={activePicker === "band"}
+        onConfirm={updateBandPicker}
+        onCancel={() => setActivePicker(null)}
       />
       <JXFormLabel>排练信息</JXFormLabel>
       <Cell.Group inset>
-        <Field
-          label="排练日期"
-          isLink
-          onClick={() => showPopup("选择排练日期", FieldType.Date)}
-        >
+        <Field label="排练日期" isLink onClick={() => setActivePicker("date")}>
           <Input
             readonly
             placeholder="选择日期"
@@ -165,7 +62,7 @@ export default function Reserve() {
         <Field
           label="排练开始时间"
           isLink
-          onClick={() => showPopup("选择排练开始时间", FieldType.Start)}
+          onClick={() => setActivePicker("startTime")}
         >
           <Input
             readonly
@@ -176,7 +73,7 @@ export default function Reserve() {
         <Field
           label="排练结束时间"
           isLink
-          onClick={() => showPopup("选择排练结束时间", FieldType.End)}
+          onClick={() => setActivePicker("endTime")}
         >
           <Input
             readonly
@@ -185,19 +82,13 @@ export default function Reserve() {
           />
         </Field>
       </Cell.Group>
-      {ctaEnabled && (
+      {isFormDataValid() && (
         <>
           <JXFormLabel>请确认预约信息</JXFormLabel>
           <View style={{ padding: "0 16px" }}>
             <JXReservationCard
               hideState
-              reservation={{
-                bandName: formData.band?.name ?? "",
-                date: formData.date,
-                startTime: formData.startTime ?? new Date(),
-                endTime: formData.endTime ?? new Date(),
-                bandID: "",
-              }}
+              reservation={getReservationPreview()}
             />
           </View>
         </>
@@ -205,36 +96,23 @@ export default function Reserve() {
 
       <JXDateTimePicker
         date={formData.date}
-        type={activeFieldType === FieldType.Date ? "month-day" : "hour-minute"}
-        title={popupTitle}
-        open={popupVisible}
-        onCancel={() => setPopupVisible(false)}
-        onConfirm={(value) => {
-          if (activeFieldType === FieldType.End && !validateEndTime(value))
-            return;
-          setPopupVisible(false);
-          updateFieldValue(value);
-        }}
+        type={activePicker === "date" ? "month-day" : "hour-minute"}
+        title={getPickerTitle()}
+        open={isDateTimePickerActive()}
+        onCancel={() => setActivePicker(null)}
+        onConfirm={updateDatetimePicker}
       />
 
       <View className="button-container">
         <Button
           className="reserve-btn"
-          disabled={!ctaEnabled}
+          disabled={!isFormDataValid()}
           block
           onClick={submitFormData}
         >
           马上预约！
         </Button>
       </View>
-      <Toast
-        open={toastVisible}
-        onClose={setToastVisible}
-        type="fail"
-        duration={1500}
-      >
-        结束时间应晚于开始时间
-      </Toast>
     </View>
   );
 }
