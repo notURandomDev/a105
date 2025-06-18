@@ -1,0 +1,19 @@
+export const DB_OK_CODES: Record<DBMethod, string> = {
+  add: "collection.add:ok",
+  get: "collection.get:ok",
+  update: "collection.update:ok",
+  remove: "collection.remove:ok",
+};
+
+type DBMethod = "get" | "add" | "update" | "remove";
+export const handleDBResult = <T extends { errMsg: string }>(
+  res: T,
+  method: DBMethod,
+  msg: string
+) => {
+  if (res.errMsg !== DB_OK_CODES[method]) {
+    throw new Error(msg + `失败：${res.errMsg}`);
+  }
+
+  console.log(msg + "成功：", res);
+};
