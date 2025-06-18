@@ -5,7 +5,7 @@ import { useUserStore } from "@/stores/userStore";
 import { getReservationsByBandIDs } from "@/services/reservationsService";
 import { useState } from "react";
 import { Reservation } from "@/models/reservation";
-import JXReservationCard from "@/components/JXReservationCard";
+import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { sortReservationsOnState } from "@/utils/reservation";
 
 export default function Index() {

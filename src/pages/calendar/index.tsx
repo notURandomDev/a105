@@ -8,7 +8,7 @@ import { getReservationsByDate } from "@/services/reservationsService";
 import { Reservation } from "@/models/reservation";
 import { getMDWfromDate } from "@/utils/DatetimeHelper";
 import { getMockReservation } from "@/constants/database/reservation";
-import JXReservationCard from "@/components/JXReservationCard";
+import JXReservationCard from "@/components/Cards/JXReservationCard";
 
 export default function Calendar() {
   useLoad(() => {
