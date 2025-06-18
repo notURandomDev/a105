@@ -3,25 +3,21 @@ import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
 import { useState } from "react";
-import JXBandCard from "@/components/JXBandCard";
-import { MOCK_BAND_PREVIEW } from "@/constants/database/bands";
-import { BandPreview } from "@/models/band";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
-import JXMetricCardSM from "@/components/JXMetricCardSM";
+import JXBandCard from "@/components/Cards/JXBandCard";
+import JXMetricCardSM from "@/components/Cards/JXMetricCardSM";
+import { useBandPreviewData } from "@/hooks/useBandPreviewData";
 
 export default function Band() {
   useLoad(() => {
     console.log("Page loaded.");
   });
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(1);
 
-  const [activeBands, setActiveBands] = useState<BandPreview[]>(
-    MOCK_BAND_PREVIEW.active
-  );
-  const [recruitingBands, setRecruitingBands] = useState<BandPreview[]>(
-    MOCK_BAND_PREVIEW.recruiting
-  );
+  const { myBands, activeBands, recruitingBands } = useBandPreviewData({
+    production: false,
+  });
 
   // 发送网络请求；将从数据库中返回的乐队Band类型，转换为乐队卡片的BandPreview类型
 
@@ -32,7 +28,7 @@ export default function Band() {
           active={tabIndex === 0}
           label="我的乐队"
           emoji="👤"
-          value={3}
+          value={myBands.length}
         />
         <JXMetricCardSM
           active={tabIndex === 1}
