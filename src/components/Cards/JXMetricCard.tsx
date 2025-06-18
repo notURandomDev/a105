@@ -1,4 +1,4 @@
-import JXCardContainer from "./JXCardContainer";
+import JXCardContainer from "../JXCardContainer";
 import { Text, View } from "@tarojs/components";
 
 interface JXMetricCardProps {

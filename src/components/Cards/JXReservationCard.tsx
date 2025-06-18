@@ -1,11 +1,12 @@
 import { Text, View } from "@tarojs/components";
-import JXCardContainer from "./JXCardContainer";
-import JXTitleLabel from "./Labels/JXTitleLabel";
-import JXChip from "./JXChip";
+
 import { Reservation } from "@/models/reservation";
 import { getHMfromDate, getMDWfromDate } from "@/utils/DatetimeHelper";
 import { getReservationState, JXReservationState } from "@/utils/reservation";
 import { JXColor } from "@/constants/colors/theme";
+import JXCardContainer from "../JXCardContainer";
+import JXChip from "../JXChip";
+import JXTitleLabel from "../Labels/JXTitleLabel";
 
 type ReservationStateValue = {
   label: string;

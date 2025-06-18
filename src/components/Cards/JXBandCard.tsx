@@ -1,12 +1,12 @@
 import { View, Text } from "@tarojs/components";
-import JXCardContainer from "./JXCardContainer";
-import JXSecondaryLabel from "./Labels/JXSecondaryLabel";
-import JXButton from "./JXButton";
 import { BandPreview } from "@/models/band";
 import { MUSICIAN_DISPLAY, MusicianType } from "@/constants/utils/musician";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
-import JXGenreChip from "./JXGenreChip";
-import JXBodyLabel from "./Labels/JXBodyLabel";
+import JXButton from "../JXButton";
+import JXCardContainer from "../JXCardContainer";
+import JXGenreChip from "../JXGenreChip";
+import JXBodyLabel from "../Labels/JXBodyLabel";
+import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 
 const getPositionEmojis = (positions: MusicianType[]): string[] | undefined => {
   if (!positions.length) return undefined;
@@ -59,7 +59,11 @@ const JXBandCardEmojis = ({
   );
 };
 
-const JXBandCard = ({ bandInfo }: { bandInfo: BandPreview }) => {
+interface JXBandCardProps {
+  bandInfo: BandPreview;
+  addBtnDisabled?: boolean;
+}
+const JXBandCard = ({ bandInfo, addBtnDisabled }: JXBandCardProps) => {
   const {
     status,
     missingPositions,
@@ -67,8 +71,7 @@ const JXBandCard = ({ bandInfo }: { bandInfo: BandPreview }) => {
     name,
     genre,
     description,
-    formedOn,
-    postedOn,
+    statusUpdatedAt,
   } = bandInfo;
 
   const missingEmojis = getPositionEmojis(missingPositions);
@@ -108,12 +111,12 @@ const JXBandCard = ({ bandInfo }: { bandInfo: BandPreview }) => {
           }}
         >
           <JXSecondaryLabel>
-            {isRecruiting
-              ? `发布时间：${getYMDfromDate(postedOn)}`
-              : `成立时间：${getYMDfromDate(formedOn)}`}
+            {`${isRecruiting ? "发布时间" : "成立时间"}：${getYMDfromDate(
+              statusUpdatedAt
+            )}`}
           </JXSecondaryLabel>
           {isRecruiting ? (
-            <JXButton>加入</JXButton>
+            <JXButton disabled={addBtnDisabled}>加入</JXButton>
           ) : (
             <JXBandCardEmojis
               isRecruiting={isRecruiting}

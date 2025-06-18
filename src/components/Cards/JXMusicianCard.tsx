@@ -1,10 +1,10 @@
 import { View } from "@tarojs/components";
-import JXCardContainer from "./JXCardContainer";
-import JXAvatar from "./JXAvatar";
-import JXTitleLabel from "./Labels/JXTitleLabel";
-import JXGenreChip from "./JXGenreChip";
-import JXSecondaryLabel from "./Labels/JXSecondaryLabel";
-import JXBodyLabel from "./Labels/JXBodyLabel";
+import JXAvatar from "../JXAvatar";
+import JXCardContainer from "../JXCardContainer";
+import JXGenreChip from "../JXGenreChip";
+import JXBodyLabel from "../Labels/JXBodyLabel";
+import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
+import JXTitleLabel from "../Labels/JXTitleLabel";
 
 function JXMusicianCard() {
   return (
