@@ -1,24 +1,50 @@
 import { MusicianType } from "@/constants/utils/musician";
 
-export type BandStatus = "recruiting" | "active" | "disbanded";
+export type BandStatus = "recruiting" | "active" | "paused" | "disbanded";
+export type BandStatusLog = {
+  status: BandStatus;
+  at: Date;
+};
 
 export interface Band {
   _id: string | number;
   name: string;
-  members?: string[];
-  bio?: string;
-  genre?: BandGenre[];
+  members: string[];
+  description: string;
+  genre: BandGenre[];
+  missingPositions: MusicianType[]; // 必须有，可以为空
+  occupiedPositions: MusicianType[]; // 必须有，可以为空
+  formedAt: Date;
+  status: BandStatus;
+  statusUpdatedAt: Date;
+  statusLogs: BandStatusLog[];
+}
+
+export interface CreateBandInput {
+  name?: string;
+  description: string;
+  genre: BandGenre[];
+  missingPositions: MusicianType[];
+  occupiedPositions: MusicianType[];
+  status: BandStatus;
+  statusUpdatedAt: Date;
+  statusLogs: BandStatusLog[];
+}
+
+export interface BandPickerConfig {
+  _id: number | string;
+  name: string;
 }
 
 // 用于乐队卡片的展示
 export interface BandPreview {
-  name?: string;
-  description?: string;
-  missingPositions: MusicianType[]; // 必须有，可以为空
-  occupiedPositions: MusicianType[]; // 必须有，可以为空
-  genre: BandGenre[]; // 不可为空
-  formedAt: Date;
   status: BandStatus;
+  name?: string;
+  genre: BandGenre[];
+  description: string;
+  missingPositions: MusicianType[];
+  occupiedPositions: MusicianType[];
+  statusUpdatedAt: Date;
 }
 
 export type BandGenre =
