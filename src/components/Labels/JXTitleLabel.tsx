@@ -6,7 +6,7 @@ interface JXTitleLabelProps {
 }
 function JXTitleLabel({ children, color = "black" }: JXTitleLabelProps) {
   return (
-    <Text style={{ fontSize: 16, fontWeight: 600, color }}>{children}</Text>
+    <Text style={{ fontSize: 18, fontWeight: 600, color }}>{children}</Text>
   );
 }
 
