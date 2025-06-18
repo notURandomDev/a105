@@ -10,6 +10,11 @@ page {
   padding: 48px;
 }
 
+.page-padding-h {
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
 .container-h {
   display: flex;
   flex-direction: row;
@@ -55,9 +60,11 @@ page {
   background-color: #f7f8fa;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 0 16px;
+  min-height: 100%;
+  padding: 40px 16px;
+  padding-bottom: 80px;
   position: relative;
+  flex: 1;
 }
 
 .button-container {
@@ -81,6 +88,10 @@ page {
   flex: 1;
   padding: 8px 0;
   gap: 24px;
+}
+
+.tab-pane {
+  padding: 16px 0;
 }
 
 .chip-container {
