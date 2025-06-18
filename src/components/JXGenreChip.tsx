@@ -4,10 +4,13 @@ import { BandGenre } from "@/models/band";
 
 interface JXGenreProps {
   genre: BandGenre;
+  active?: boolean;
 }
-function JXGenreChip({ genre }: JXGenreProps) {
+function JXGenreChip({ genre, active = true }: JXGenreProps) {
   return (
-    <JXChip color={BAND_GENRE_COLOR_MAP[BAND_GENRES[genre].group]}>
+    <JXChip
+      color={active ? BAND_GENRE_COLOR_MAP[BAND_GENRES[genre].group] : "gray"}
+    >
       {`${BAND_GENRES[genre].label}｜${genre}`}
     </JXChip>
   );
