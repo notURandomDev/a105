@@ -1,20 +1,17 @@
-import { BandGenre, BandGenreGroup } from "@/models/band";
+import { Genre, GenreGroup } from "@/models/genre";
 import { JXColor } from "../colors/theme";
 
-export interface BandGenreOption {
-  value: BandGenre;
+export interface GenreOption {
   label: string;
-  category: string;
+  emoji?: string;
+  group: GenreGroup;
 }
 
 /**
  * 乐队音乐流派常量集合（带分组字段）
  * 每个风格明确标注所属的大类分组，便于直接查询
  */
-export const BAND_GENRES: Record<
-  BandGenre,
-  { label: string; emoji?: string; group: BandGenreGroup }
-> = {
+export const GENRES: Record<Genre, GenreOption> = {
   // 主流流行风格（POP组）
   Pop: { label: "流行", emoji: "🎵", group: "POP" },
   Rock: { label: "摇滚", emoji: "🎸", group: "POP" },
@@ -55,12 +52,14 @@ export const BAND_GENRES: Record<
   HipHop: { label: "嘻哈", emoji: "🎤", group: "URBAN" },
 } as const;
 
-export const BAND_GENRE_COLOR_MAP: Record<BandGenreGroup, JXColor> = {
+export const POP_GENRES = GENRES;
+
+export const GENRE_COLOR_MAP: Record<GenreGroup, JXColor> = {
   POP: "yellow",
   HEAVY: "pink",
   JAZZ_SOUL: "purple",
   ELECTRONIC: "purple",
-  EXPERIMENTAL: "gray",
+  EXPERIMENTAL: "blue",
   WORLD: "green",
   URBAN: "blue",
 };

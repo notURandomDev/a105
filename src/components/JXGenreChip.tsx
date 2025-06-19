@@ -1,17 +1,15 @@
-import { BAND_GENRE_COLOR_MAP, BAND_GENRES } from "@/constants/utils/genre";
+import { GENRE_COLOR_MAP, GENRES } from "@/constants/utils/genre";
 import JXChip from "./JXChip";
-import { BandGenre } from "@/models/band";
+import { Genre } from "@/models/genre";
 
 interface JXGenreProps {
-  genre: BandGenre;
+  genre: Genre;
   active?: boolean;
 }
 function JXGenreChip({ genre, active = true }: JXGenreProps) {
   return (
-    <JXChip
-      color={active ? BAND_GENRE_COLOR_MAP[BAND_GENRES[genre].group] : "gray"}
-    >
-      {`${BAND_GENRES[genre].label}｜${genre}`}
+    <JXChip color={active ? GENRE_COLOR_MAP[GENRES[genre].group] : "gray"}>
+      {`${GENRES[genre].label}｜${genre}`}
     </JXChip>
   );
 }

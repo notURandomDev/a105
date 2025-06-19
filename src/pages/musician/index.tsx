@@ -1,18 +1,19 @@
-import { View } from "@tarojs/components";
+import { Text, View } from "@tarojs/components";
 import { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
-import { useMemo, useState } from "react";
-import JXCardContainer from "@/components/JXCardContainer";
-import JXMetricCard from "@/components/JXMetricCard";
-import { MusicianType } from "@/models/user";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { useState } from "react";
+import { MUSICIAN_TAB_DISPLAY, MusicianTabs } from "@/constants/utils/musician";
+import JXMetricCard from "@/components/Cards/JXMetricCard";
+import JXMusicianCard from "@/components/Cards/JXMusicianCard";
+import JXMusicianProfileCard from "@/components/Cards/JXMusicianProfileCard";
 
-const MUSICIAN_TAB: MusicianType[] = [
+const MUSICIAN_TABS: MusicianTabs[] = [
+  "all",
   "vocalist",
   "guitarist",
-  "bassist",
   "keyboardist",
+  "bassist",
   "drummer",
 ];
 
@@ -29,8 +30,8 @@ export default function Musician() {
         <JXMetricCard label="吉协总人数" emoji="🧑‍🧑‍🧒" value={87} />
         <JXMetricCard
           active
-          label={`${MUSICIAN_DISPLAY[MUSICIAN_TAB[tabIndex]].label}人数`}
-          emoji={MUSICIAN_DISPLAY[MUSICIAN_TAB[tabIndex]].emoji}
+          label={`${MUSICIAN_TAB_DISPLAY[MUSICIAN_TABS[tabIndex]].label}人数`}
+          emoji={MUSICIAN_TAB_DISPLAY[MUSICIAN_TABS[tabIndex]].emoji}
           value={87}
         />
       </View>
@@ -41,10 +42,18 @@ export default function Musician() {
         value={tabIndex}
         onChange={setTabIndex}
       >
-        {MUSICIAN_TAB.map((type) => {
-          const { label } = MUSICIAN_DISPLAY[type];
+        {MUSICIAN_TABS.map((type) => {
+          const { emoji } = MUSICIAN_TAB_DISPLAY[type];
           return (
-            <Tabs.TabPane title={label} className="tab-pane"></Tabs.TabPane>
+            <Tabs.TabPane
+              title={<Text style={{ fontSize: 20 }}>{emoji}</Text>}
+              className="tab-pane"
+            >
+              <View className="tab-container">
+                <JXMusicianProfileCard />
+                <JXMusicianCard />
+              </View>
+            </Tabs.TabPane>
           );
         })}
       </Tabs>

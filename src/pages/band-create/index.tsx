@@ -4,14 +4,14 @@ import "./index.scss";
 import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
 import JXGenreChip from "@/components/JXGenreChip";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
-import { BAND_GENRES } from "@/constants/utils/genre";
-import { BandGenre } from "@/models/band";
+import { GENRES } from "@/constants/utils/genre";
 import JXButton from "@/components/JXButton";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { Close } from "@taroify/icons";
 import JXBandCard from "@/components/Cards/JXBandCard";
 import { useBandForm } from "@/hooks/useBandForm";
+import { Genre } from "@/models/genre";
 
 export default function BandCreate() {
   useLoad(() => {
@@ -80,7 +80,7 @@ export default function BandCreate() {
         className="chip-container"
         style={{ padding: "0 16px" }}
       >
-        {Object.keys(BAND_GENRES).map((g: BandGenre) => (
+        {Object.keys(GENRES).map((g: Genre) => (
           <Checkbox
             name={g}
             icon={<JXGenreChip genre={g} active={formData.genre.includes(g)} />}

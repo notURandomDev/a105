@@ -1,16 +1,17 @@
-import { MusicianType } from "@/constants/utils/musician";
-import { BandGenre, BandPreview } from "@/models/band";
+import { Position } from "@/models/musician";
+import { BandPreview } from "@/models/band";
 import { createBand, getAllBands } from "@/services/bandsService";
 import { JXToast } from "@/utils/toast";
 import Taro from "@tarojs/taro";
 import { useEffect, useRef, useState } from "react";
+import { Genre } from "@/models/genre";
 
 interface FormData {
   name: string;
   description: string;
-  genre: BandGenre[];
-  missingPositions: MusicianType[];
-  occupiedPositions: MusicianType[];
+  genre: Genre[];
+  missingPositions: Position[];
+  occupiedPositions: Position[];
 }
 
 type ActivePickerState = "missing" | "occupied" | null;
@@ -52,7 +53,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     return "";
   };
 
-  const updatePositions = (position: MusicianType) => {
+  const updatePositions = (position: Position) => {
     if (activePicker === "occupied") {
       setFormData((prev) => ({
         ...prev,

@@ -1,14 +1,17 @@
 import { View, Text } from "@tarojs/components";
 import { BandPreview } from "@/models/band";
-import { MUSICIAN_DISPLAY, MusicianType } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
 import JXButton from "../JXButton";
 import JXCardContainer from "../JXCardContainer";
 import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
+import Taro from "@tarojs/taro";
+import { Position } from "@/models/musician";
+import JXTitleLabel from "../Labels/JXTitleLabel";
 
-const getPositionEmojis = (positions: MusicianType[]): string[] | undefined => {
+const getPositionEmojis = (positions: Position[]): string[] | undefined => {
   if (!positions.length) return undefined;
   return positions.map((p) => MUSICIAN_DISPLAY[p].emoji);
 };
@@ -79,8 +82,12 @@ const JXBandCard = ({ bandInfo, addBtnDisabled }: JXBandCardProps) => {
 
   const isRecruiting = status === "recruiting";
 
+  const navigate = () => {
+    Taro.navigateTo({ url: `/pages/band-detail/index?name=${name}` });
+  };
+
   return (
-    <JXCardContainer style={{ gap: 8 }}>
+    <JXCardContainer onClick={navigate} style={{ gap: 8 }}>
       <View className="container-v" style={{ gap: isRecruiting ? 4 : 0 }}>
         {isRecruiting ? (
           <JXBandCardEmojis
@@ -89,7 +96,7 @@ const JXBandCard = ({ bandInfo, addBtnDisabled }: JXBandCardProps) => {
             missingEmojis={missingEmojis}
           />
         ) : (
-          <Text style={{ fontWeight: 600, fontSize: 24 }}>{name}</Text>
+          <JXTitleLabel lg>{name ?? ""}</JXTitleLabel>
         )}
 
         <View className="chip-container">
