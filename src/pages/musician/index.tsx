@@ -1,4 +1,4 @@
-import { Text, View } from "@tarojs/components";
+import { View } from "@tarojs/components";
 import { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
@@ -7,6 +7,7 @@ import { MUSICIAN_TAB_DISPLAY, MusicianTabs } from "@/constants/utils/musician";
 import JXMetricCard from "@/components/Cards/JXMetricCard";
 import JXMusicianCard from "@/components/Cards/JXMusicianCard";
 import JXMusicianProfileCard from "@/components/Cards/JXMusicianProfileCard";
+import JXEmoji from "@/components/JXEmoji";
 
 const MUSICIAN_TABS: MusicianTabs[] = [
   "all",
@@ -46,7 +47,7 @@ export default function Musician() {
           const { emoji } = MUSICIAN_TAB_DISPLAY[type];
           return (
             <Tabs.TabPane
-              title={<Text style={{ fontSize: 20 }}>{emoji}</Text>}
+              title={<JXEmoji size="sm">{emoji}</JXEmoji>}
               className="tab-pane"
             >
               <View className="tab-container">

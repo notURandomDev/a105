@@ -10,6 +10,7 @@ import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import Taro from "@tarojs/taro";
 import { Position } from "@/models/musician";
 import JXTitleLabel from "../Labels/JXTitleLabel";
+import JXEmoji from "../JXEmoji";
 
 const getPositionEmojis = (positions: Position[]): string[] | undefined => {
   if (!positions.length) return undefined;
@@ -39,10 +40,9 @@ const JXBandCardEmojis = ({
     >
       <View className="container-h" style={{ gap: emojiGap }}>
         {occupiedEmojis.map((emoji) => (
-          <Text style={{ fontSize: emojiSize }}>{emoji}</Text>
+          <JXEmoji size={isRecruiting ? "lg" : "sm"}>{emoji}</JXEmoji>
         ))}
       </View>
-
       {isRecruiting && (
         <View className="container-h" style={{ gap: emojiGap }}>
           {missingEmojis.map((emoji) => (
