@@ -7,6 +7,7 @@ import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
 import { Arrow } from "@taroify/icons";
 import { useUserStore } from "@/stores/userStore";
 import JXAvatar from "@/components/JXAvatar";
+import JXTitleLabel from "@/components/Labels/JXTitleLabel";
 
 export default function Profile() {
   useLoad(() => {
@@ -44,9 +45,7 @@ export default function Profile() {
           horizontal
           style={{ alignItems: "center" }}
         >
-          {/* <Avatar src={userInfo ? userInfo.avatarUrl : AVATAR_PLACEHOLDER} /> */}
-
-          <JXAvatar>{userInfo?.nickName}</JXAvatar>
+          <JXAvatar>{userInfo?.nickName ?? ""}</JXAvatar>
           <View
             className="container-v grow"
             style={{ gap: 0, padding: "0 8px", justifyContent: "center" }}
@@ -55,10 +54,7 @@ export default function Profile() {
               className="container-h"
               style={{ alignItems: "center", gap: 2 }}
             >
-              <Text style={{ fontSize: 16, fontWeight: 500 }}>
-                {getFullNickname()}
-                {/* <Image height={100} width={100} src={userProfile.avatarUrl} round /> */}
-              </Text>
+              <JXTitleLabel> {getFullNickname() ?? ""}</JXTitleLabel>
               {!userInfo && <Arrow />}
             </View>
             <JXSecondaryLabel>
