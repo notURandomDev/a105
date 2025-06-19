@@ -23,7 +23,7 @@ export default function Band() {
 
   return (
     <View className="band page page-padding">
-      <View className="container-h" style={{ gap: 20 }}>
+      <View className="container-h card-gap">
         <JXMetricCardSM
           active={tabIndex === 0}
           label="我的乐队"
