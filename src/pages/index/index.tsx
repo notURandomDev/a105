@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Reservation } from "@/models/reservation";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { sortReservationsOnState } from "@/utils/reservation";
+import JXAvatar from "@/components/JXAvatar";
 
 export default function Index() {
   useLoad(() => {
@@ -36,21 +37,9 @@ export default function Index() {
 
   return (
     <View className="index page page-padding">
-      <View
-        className="container-v"
-        style={{
-          backgroundColor: "#000",
-          width: 125,
-          height: 125,
-          borderRadius: 16,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Text style={{ color: "white", fontSize: 56 }}>
-          {userInfo?.nickName ? userInfo?.nickName[0].toUpperCase() : "?"}
-        </Text>
-      </View>
+      <JXAvatar size="xl" shape="rounded">
+        {userInfo?.nickName ? userInfo?.nickName[0].toUpperCase() : "?"}
+      </JXAvatar>
 
       <View style={{ padding: "16px 0" }}>
         <Text style={{ fontWeight: 600, fontSize: 40 }}>

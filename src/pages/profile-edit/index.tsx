@@ -60,7 +60,7 @@ export default function ProfileEdit() {
         style={{ justifyContent: "center", alignItems: "center", height: 160 }}
         className="container-v"
       >
-        <JXAvatar size="large" shape="rounded">
+        <JXAvatar size="lg" shape="rounded">
           {formData.nickName}
         </JXAvatar>
       </View>
