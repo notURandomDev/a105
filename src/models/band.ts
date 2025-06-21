@@ -1,5 +1,5 @@
 import { Genre } from "./genre";
-import { Position } from "./musician";
+import { PositionType } from "./position";
 
 export type BandStatus = "recruiting" | "active" | "paused" | "disbanded";
 export type BandStatusLog = {
@@ -13,8 +13,8 @@ export interface Band {
   members: string[];
   description: string;
   genre: Genre[];
-  missingPositions: Position[]; // 必须有，可以为空
-  occupiedPositions: Position[]; // 必须有，可以为空
+  missingPositions: PositionType[]; // 必须有，可以为空
+  occupiedPositions: PositionType[]; // 必须有，可以为空
   formedAt: Date;
   status: BandStatus;
   statusUpdatedAt: Date;
@@ -25,8 +25,8 @@ export interface CreateBandInput {
   name?: string;
   description: string;
   genre: Genre[];
-  missingPositions: Position[];
-  occupiedPositions: Position[];
+  missingPositions: PositionType[];
+  occupiedPositions: PositionType[];
   status: BandStatus;
   statusUpdatedAt: Date;
   statusLogs: BandStatusLog[];
@@ -43,7 +43,7 @@ export interface BandPreview {
   name?: string;
   genre: Genre[];
   description: string;
-  missingPositions: Position[];
-  occupiedPositions: Position[];
+  missingPositions: PositionType[];
+  occupiedPositions: PositionType[];
   statusUpdatedAt: Date;
 }

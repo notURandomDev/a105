@@ -8,11 +8,11 @@ import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import Taro from "@tarojs/taro";
-import { Position } from "@/models/musician";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
+import { PositionType } from "@/models/position";
 
-const getPositionEmojis = (positions: Position[]): string[] | undefined => {
+const getPositionEmojis = (positions: PositionType[]): string[] | undefined => {
   if (!positions.length) return undefined;
   return positions.map((p) => MUSICIAN_DISPLAY[p].emoji);
 };

@@ -2,13 +2,13 @@ import { JX_COLOR } from "@/constants/colors/theme";
 import { View } from "@tarojs/components";
 import JXCardContainer from "../JXCardContainer";
 import { Arrow } from "@taroify/icons";
-import { Position } from "@/models/musician";
 import Taro from "@tarojs/taro";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
+import { PositionType } from "@/models/position";
 
 interface JXBandCardSMProps {
-  positions: Position[];
+  positions: PositionType[];
   name: string;
 }
 

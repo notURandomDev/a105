@@ -1,5 +1,5 @@
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
-import { Position } from "@/models/musician";
+import { PositionType } from "@/models/position";
 import { Picker, Popup } from "@taroify/core";
 import { PickerOptionData } from "@taroify/core/picker/picker.shared";
 
@@ -13,7 +13,7 @@ const BAND_POS_COLUMNS: PickerOptionData[] = Object.keys(MUSICIAN_DISPLAY).map(
 interface JXBandPosPickerProps {
   title: string;
   open: boolean;
-  onConfirm?: (position: Position) => void;
+  onConfirm?: (position: PositionType) => void;
   onCancel?: () => void;
 }
 
@@ -24,7 +24,7 @@ function JXBandPosPicker({
   onCancel = () => {},
 }: JXBandPosPickerProps) {
   const handleConfirm = (position: string) => {
-    onConfirm(position as Position);
+    onConfirm(position as PositionType);
   };
 
   return (

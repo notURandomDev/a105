@@ -1,17 +1,17 @@
-import { Position } from "@/models/musician";
 import { BandPreview } from "@/models/band";
 import { createBand, getAllBands } from "@/services/bandsService";
 import { JXToast } from "@/utils/toast";
 import Taro from "@tarojs/taro";
 import { useEffect, useRef, useState } from "react";
 import { Genre } from "@/models/genre";
+import { PositionType } from "@/models/position";
 
 interface FormData {
   name: string;
   description: string;
   genre: Genre[];
-  missingPositions: Position[];
-  occupiedPositions: Position[];
+  missingPositions: PositionType[];
+  occupiedPositions: PositionType[];
 }
 
 type ActivePickerState = "missing" | "occupied" | null;
@@ -27,7 +27,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     name: "",
     description: "",
     genre: [],
-    missingPositions: [],
+    missingPositions: ["bassist"],
     occupiedPositions: ["vocalist"],
   });
   // feedback 字段将来可扩展
@@ -53,7 +53,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     return "";
   };
 
-  const updatePositions = (position: Position) => {
+  const updatePositions = (position: PositionType) => {
     if (activePicker === "occupied") {
       setFormData((prev) => ({
         ...prev,
