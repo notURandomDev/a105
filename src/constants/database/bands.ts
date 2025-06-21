@@ -1,4 +1,5 @@
 import { Band, BandStatus } from "@/models/band";
+import { PositionStatus } from "@/models/band-position";
 import { Genre } from "@/models/genre";
 
 const MOCK_BAND_BASE_DATA = {
@@ -12,62 +13,67 @@ const MOCK_BAND_BASE_DATA = {
   formedAt: new Date(),
 };
 
-const MOCK_BAND_ACTIVE: Band = {
+const MOCK_RECRUITING_BAND_POSITION_BASE_DATA = {
+  _id: "",
+  nickname: "Kyle",
+  status: "recruiting" as PositionStatus,
+  recruitNote:
+    "这是一串招募信息，招募的乐手应该符合这些条件;这是一串招募信息，招募的乐手应该符合这些条件",
+};
+
+const MOCK_OCCUPIED_BAND_POSITION_BASE_DATA = {
+  _id: "",
+  nickname: "Kyle",
+  status: "occupied" as PositionStatus,
+};
+
+export const MOCK_BAND_ACTIVE: Band = {
   ...MOCK_BAND_BASE_DATA,
   status: "active",
   formedAt: new Date(),
   positions: [
     {
-      _id: "",
+      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "vocalist",
-      status: "occupied",
     },
     {
-      _id: "",
+      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "bassist",
-      status: "occupied",
     },
     {
-      _id: "",
+      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "drummer",
-      status: "occupied",
     },
     {
-      _id: "",
+      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "guitarist_rhythm",
-      status: "occupied",
     },
   ],
 };
 
-const MOCK_BAND_RECRUITING: Band = {
+export const MOCK_BAND_RECRUITING: Band = {
   ...MOCK_BAND_BASE_DATA,
   status: "recruiting",
   positions: [
     {
-      _id: "",
+      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "vocalist",
-      status: "recruiting",
     },
     {
-      _id: "",
+      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "bassist",
-      status: "recruiting",
     },
     {
-      _id: "",
+      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "drummer",
-      status: "recruiting",
     },
     {
-      _id: "",
+      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "guitarist_rhythm",
-      status: "recruiting",
     },
     {
-      _id: "",
+      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "keyboardist",
-      status: "occupied",
     },
   ],
 };

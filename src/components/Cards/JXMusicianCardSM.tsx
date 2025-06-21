@@ -3,30 +3,30 @@ import JXCardContainer from "../JXCardContainer";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
+import { BandPosition } from "@/models/band-position";
+import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { getYMDfromDate } from "@/utils/DatetimeHelper";
 
 interface JXMusicianCardSMProps {
-  title?: string;
-  emoji?: string;
-  leftLabel?: string;
-  rightLabel?: string;
+  musician: BandPosition;
 }
 
-function JXMusicianCardSM({
-  title = "标题",
-  emoji = "😃",
-  leftLabel = "左侧内容",
-  rightLabel,
-}: JXMusicianCardSMProps) {
+function JXMusicianCardSM({ musician }: JXMusicianCardSMProps) {
+  const { position, nickname, joinedAt } = musician;
+  const { emoji, label } = MUSICIAN_DISPLAY[position];
+
   return (
     <JXCardContainer horizontal style={{ gap: 12, alignItems: "center" }}>
       <JXEmoji size="lg">{emoji}</JXEmoji>
       <View className="container-v grow">
-        <JXTitleLabel>{title}</JXTitleLabel>
+        <JXTitleLabel>{nickname ?? ""}</JXTitleLabel>
         <View className="container-h">
           <View className="container-h grow">
-            <JXSecondaryLabel>{leftLabel}</JXSecondaryLabel>
+            <JXSecondaryLabel>{label}</JXSecondaryLabel>
           </View>
-          {rightLabel && <JXSecondaryLabel>{rightLabel}</JXSecondaryLabel>}
+          <JXSecondaryLabel>
+            {`加入时间：${getYMDfromDate(joinedAt ?? new Date())}`}
+          </JXSecondaryLabel>
         </View>
       </View>
     </JXCardContainer>

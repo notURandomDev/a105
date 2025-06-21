@@ -1,5 +1,9 @@
 import { _, db } from "@/cloud/cloudClient";
-import { MOCK_BANDS } from "@/constants/database/bands";
+import {
+  MOCK_BAND_ACTIVE,
+  MOCK_BAND_RECRUITING,
+  MOCK_BANDS,
+} from "@/constants/database/bands";
 
 import { Band, BandStatus, CreateBandInput } from "@/models/band";
 import { handleDBResult } from "@/utils/database";
@@ -71,7 +75,7 @@ export const getBandsByStatus = async ({
       res = await bandsCollection.where({ status: _.eq(status) }).get();
     }
 
-    handleDBResult(res, "get", "获取乐队数据");
+    handleDBResult(res, "get", `根据乐队状态(${status})获取乐队数据`);
     return res.data as Band[];
   } catch (error) {
     console.error(error);
@@ -83,5 +87,28 @@ interface GetMyBandsParams {
   userID: string;
   production?: boolean;
 }
+
+const getBandsByUserId = () => {};
+
+interface GetBandByIdParams {
+  _id: string | number;
+  production?: boolean;
+}
+
+export const getBandById = async ({
+  _id,
+  production = false,
+}: GetBandByIdParams): Promise<Band | null> => {
+  if (!production) return MOCK_BAND_ACTIVE;
+
+  try {
+    const res = await bandsCollection.where({ _id: _.eq(_id) }).get();
+    handleDBResult(res, "get", `根据乐队ID(${_id})获取乐队数据`);
+    return res.data[0] as Band;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
 /* UPDATE */
 /* DELETE */

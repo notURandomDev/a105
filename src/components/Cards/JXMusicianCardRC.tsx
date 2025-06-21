@@ -4,20 +4,25 @@ import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import { Plus } from "@taroify/icons";
 import JXEmoji from "../JXEmoji";
+import { BandPosition } from "@/models/band-position";
+import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 
-function JXMusicianCardRC() {
+interface JXMusicianCardRCProps {
+  musician: BandPosition;
+}
+
+function JXMusicianCardRC({ musician }: JXMusicianCardRCProps) {
+  const { position, recruitNote } = musician;
+  const { emoji, label } = MUSICIAN_DISPLAY[position];
+
   return (
     <JXCardContainer horizontal className="center-v" style={{ gap: 12 }}>
       <View className="container-v grow">
-        <View className="container-h center-v" style={{ gap: 4 }}>
-          <JXEmoji size="md">🥁</JXEmoji>
-          <JXTitleLabel>{"鼓手"}</JXTitleLabel>
+        <View className="container-h center-v" style={{ gap: 10 }}>
+          <JXEmoji size="md">{emoji}</JXEmoji>
+          <JXTitleLabel>{label}</JXTitleLabel>
         </View>
-        <JXSecondaryLabel>
-          {
-            "这是一串招募信息，招募的乐手应该符合这些条件;这是一串招募信息，招募的乐手应该符合这些条件"
-          }
-        </JXSecondaryLabel>
+        <JXSecondaryLabel>{recruitNote}</JXSecondaryLabel>
       </View>
       <View
         className="container-v cc"

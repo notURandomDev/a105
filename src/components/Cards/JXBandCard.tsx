@@ -75,14 +75,15 @@ interface JXBandCardProps {
   addBtnDisabled?: boolean;
 }
 const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
-  const { status, positions, name, genre, description, statusUpdatedAt } = band;
+  const { status, positions, name, genre, description, statusUpdatedAt, _id } =
+    band;
 
   const { recruitingEmojis, occupiedEmojis } = getPositionEmojis(positions);
 
   const isRecruiting = status === "recruiting";
 
   const navigate = () => {
-    Taro.navigateTo({ url: `/pages/band-detail/index?name=${name}` });
+    Taro.navigateTo({ url: `/pages/band-detail/index?bandId=${_id}` });
   };
 
   return (
