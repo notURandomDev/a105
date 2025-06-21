@@ -26,16 +26,12 @@ export default function Musician() {
   const [tabIndex, setTabIndex] = useState(0);
 
   return (
-    <View className="musician page page-padding">
-      <View className="container-h" style={{ gap: 20 }}>
-        <JXMetricCard label="吉协总人数" emoji="🧑‍🧑‍🧒" value={87} />
-        <JXMetricCard
-          active
-          label={`${MUSICIAN_TAB_DISPLAY[MUSICIAN_TABS[tabIndex]].label}人数`}
-          emoji={MUSICIAN_TAB_DISPLAY[MUSICIAN_TABS[tabIndex]].emoji}
-          value={87}
-        />
-      </View>
+    <View className="musician page page-padding card-gap">
+      <JXMetricCard
+        label={`${MUSICIAN_TAB_DISPLAY[MUSICIAN_TABS[tabIndex]].label}人数`}
+        emoji={MUSICIAN_TAB_DISPLAY[MUSICIAN_TABS[tabIndex]].emoji}
+        value={87}
+      />
       <Tabs
         lazyRender
         animated
