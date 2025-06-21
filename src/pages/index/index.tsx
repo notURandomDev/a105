@@ -8,6 +8,7 @@ import { Reservation } from "@/models/reservation";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { sortReservationsOnState } from "@/utils/reservation";
 import JXAvatar from "@/components/JXAvatar";
+import JXHugeLabel from "@/components/Labels/JXHugeLabel";
 
 export default function Index() {
   useLoad(() => {
@@ -41,13 +42,12 @@ export default function Index() {
         {userInfo?.nickName ? userInfo?.nickName[0].toUpperCase() : "?"}
       </JXAvatar>
 
-      <View style={{ padding: "16px 0" }}>
-        <Text style={{ fontWeight: 600, fontSize: 40 }}>
-          {reservations.length
-            ? `本周 ${reservations.length} 次排练`
-            : "本周暂无排练"}
-        </Text>
-      </View>
+      <JXHugeLabel>
+        {reservations.length
+          ? `本周 ${reservations.length} 次排练`
+          : "本周暂无排练"}
+      </JXHugeLabel>
+
       <View className="grow container-v list-gap">
         {reservations.map((reservation) => (
           <JXReservationCard reservation={reservation} />
