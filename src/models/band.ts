@@ -1,5 +1,5 @@
 import { Genre } from "./genre";
-import { PositionType } from "./position";
+import { BandPosition, CreateBandPositionInput } from "./band-position";
 
 export type BandStatus = "recruiting" | "active" | "paused" | "disbanded";
 export type BandStatusLog = {
@@ -10,11 +10,9 @@ export type BandStatusLog = {
 export interface Band {
   _id: string | number;
   name: string;
-  members: string[];
   description: string;
   genre: Genre[];
-  missingPositions: PositionType[]; // 必须有，可以为空
-  occupiedPositions: PositionType[]; // 必须有，可以为空
+  positions: BandPosition[];
   formedAt: Date;
   status: BandStatus;
   statusUpdatedAt: Date;
@@ -22,11 +20,10 @@ export interface Band {
 }
 
 export interface CreateBandInput {
-  name?: string;
+  name: string;
   description: string;
   genre: Genre[];
-  missingPositions: PositionType[];
-  occupiedPositions: PositionType[];
+  positions: CreateBandPositionInput[];
   status: BandStatus;
   statusUpdatedAt: Date;
   statusLogs: BandStatusLog[];
@@ -35,15 +32,4 @@ export interface CreateBandInput {
 export interface BandPickerConfig {
   _id: number | string;
   name: string;
-}
-
-// 用于乐队卡片的展示
-export interface BandPreview {
-  status: BandStatus;
-  name?: string;
-  genre: Genre[];
-  description: string;
-  missingPositions: PositionType[];
-  occupiedPositions: PositionType[];
-  statusUpdatedAt: Date;
 }

@@ -54,14 +54,14 @@ export const getAllBands = async ({
 };
 
 interface GetBandsByStatusParams {
-  status?: BandStatus;
+  status: BandStatus;
   production?: boolean;
 }
 export const getBandsByStatus = async ({
   status,
   production = false,
-}: GetBandsByStatusParams = {}): Promise<Band[] | null> => {
-  if (!production) return MOCK_BANDS["active"];
+}: GetBandsByStatusParams): Promise<Band[] | null> => {
+  if (!production) return MOCK_BANDS[status];
 
   try {
     let res: DB.Query.IQueryResult;

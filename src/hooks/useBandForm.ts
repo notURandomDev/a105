@@ -1,20 +1,20 @@
-import { BandPreview } from "@/models/band";
 import { createBand, getAllBands } from "@/services/bandsService";
 import { JXToast } from "@/utils/toast";
 import Taro from "@tarojs/taro";
 import { useEffect, useRef, useState } from "react";
 import { Genre } from "@/models/genre";
 import { PositionType } from "@/models/position";
+import { CreateBandPositionInput } from "@/models/band-position";
+import { getPositionsByStatus } from "@/utils/band";
 
 interface FormData {
   name: string;
   description: string;
   genre: Genre[];
-  missingPositions: PositionType[];
-  occupiedPositions: PositionType[];
+  positions: CreateBandPositionInput[];
 }
 
-type ActivePickerState = "missing" | "occupied" | null;
+type ActivePickerState = "recruiting" | "occupied" | null;
 
 interface UseBandFormParams {
   production?: boolean;
@@ -27,8 +27,13 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     name: "",
     description: "",
     genre: [],
-    missingPositions: ["bassist"],
-    occupiedPositions: ["vocalist"],
+    positions: [
+      {
+        position: "vocalist",
+        status: "occupied",
+        recruitNote: "",
+      },
+    ],
   });
   // feedback 字段将来可扩展
   const [feedback, setFeedback] = useState({
@@ -49,24 +54,49 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
 
   const getPickerTitle = () => {
     if (activePicker === "occupied") return "选择你的位置";
-    if (activePicker === "missing") return "选择招募乐手位置";
+    if (activePicker === "recruiting") return "选择招募乐手位置";
     return "";
   };
 
   const updatePositions = (position: PositionType) => {
     if (activePicker === "occupied") {
+      const { recruitingPositions } = getPositionsByStatus(formData.positions);
+
       setFormData((prev) => ({
         ...prev,
-        occupiedPositions: [position],
+        positions: [
+          ...recruitingPositions,
+          {
+            position,
+            status: "occupied",
+          },
+        ],
       }));
     }
 
-    if (activePicker === "missing") {
+    if (activePicker === "recruiting") {
       setFormData((prev) => ({
         ...prev,
-        missingPositions: [...prev.missingPositions, position],
+        positions: [
+          ...prev.positions,
+          { position, status: "recruiting", recruitNote: "" },
+        ],
       }));
     }
+  };
+
+  const removeRecruitingPosition = (index: number) => {
+    const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
+      formData.positions
+    );
+    const reducedPositions = recruitingPositions.filter(
+      (_, idx) => idx !== index
+    );
+
+    setFormData((prev) => ({
+      ...prev,
+      positions: [...reducedPositions, ...occupiedPositions],
+    }));
   };
 
   const handleSubmit = async () => {
@@ -96,16 +126,16 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
   };
 
   const isFormDataValid = () => {
-    const { name, description, genre, missingPositions, occupiedPositions } =
-      formData;
+    const { name, description, genre, positions } = formData;
 
-    if (!name || !description) return false;
+    const { recruitingPositions, occupiedPositions } =
+      getPositionsByStatus(positions);
 
     return (
       name?.length > 0 &&
       description?.length > 0 &&
       genre.length > 0 &&
-      missingPositions.length > 0 &&
+      recruitingPositions.length > 0 &&
       occupiedPositions.length > 0
     );
   };
@@ -121,21 +151,6 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     }
   };
 
-  const generateBandPreview = (): BandPreview => {
-    const { name, description, genre, missingPositions, occupiedPositions } =
-      formData;
-
-    return {
-      name,
-      description,
-      genre,
-      missingPositions,
-      occupiedPositions,
-      status: "recruiting",
-      statusUpdatedAt: new Date(),
-    };
-  };
-
   return {
     formData,
     setFormData,
@@ -149,6 +164,6 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     handleSubmit,
     isFormDataValid,
     checkDuplicateBandName,
-    generateBandPreview,
+    removeRecruitingPosition,
   };
 };

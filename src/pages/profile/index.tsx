@@ -2,7 +2,7 @@ import { View } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import JXCardContainer from "@/components/JXCardContainer";
-import { Button, Cell } from "@taroify/core";
+import { Cell } from "@taroify/core";
 import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
 import { Arrow } from "@taroify/icons";
 import { useUserStore } from "@/stores/userStore";
@@ -73,7 +73,7 @@ export default function Profile() {
             icon={<Revoke />}
             title="退出登录"
             isLink
-            onClick={handleLogin}
+            onClick={handleLogout}
           />
         )}
       </Cell.Group>

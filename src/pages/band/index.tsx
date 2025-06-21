@@ -6,7 +6,7 @@ import { useState } from "react";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
 import JXBandCard from "@/components/Cards/JXBandCard";
 import JXMetricCardSM from "@/components/Cards/JXMetricCardSM";
-import { useBandPreviewData } from "@/hooks/useBandPreviewData";
+import { useBandData } from "@/hooks/useBandData";
 
 export default function Band() {
   useLoad(() => {
@@ -15,11 +15,9 @@ export default function Band() {
 
   const [tabIndex, setTabIndex] = useState(1);
 
-  const { myBands, activeBands, recruitingBands } = useBandPreviewData({
+  const { myBands, activeBands, recruitingBands } = useBandData({
     production: false,
   });
-
-  // 发送网络请求；将从数据库中返回的乐队Band类型，转换为乐队卡片的BandPreview类型
 
   return (
     <View className="band page page-padding">
@@ -54,21 +52,21 @@ export default function Band() {
         <Tabs.TabPane title="我的" className="tab-pane">
           <View className="tab-container">
             {activeBands.map((b) => (
-              <JXBandCard bandInfo={b} />
+              <JXBandCard band={b} />
             ))}
           </View>
         </Tabs.TabPane>
         <Tabs.TabPane title="活跃" className="tab-pane">
           <View className="tab-container">
             {activeBands.map((b) => (
-              <JXBandCard bandInfo={b} />
+              <JXBandCard band={b} />
             ))}
           </View>
         </Tabs.TabPane>
         <Tabs.TabPane title="招募中" className="tab-pane">
           <View className="tab-container">
             {recruitingBands.map((b) => (
-              <JXBandCard bandInfo={b} />
+              <JXBandCard band={b} />
             ))}
           </View>
         </Tabs.TabPane>

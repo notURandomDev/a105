@@ -1,5 +1,4 @@
 import { View, Text } from "@tarojs/components";
-import { BandPreview } from "@/models/band";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
 import JXButton from "../JXButton";
@@ -10,24 +9,33 @@ import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import Taro from "@tarojs/taro";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
-import { PositionType } from "@/models/position";
+import { Band } from "@/models/band";
+import { BandPosition } from "@/models/band-position";
 
-const getPositionEmojis = (positions: PositionType[]): string[] | undefined => {
-  if (!positions.length) return undefined;
-  return positions.map((p) => MUSICIAN_DISPLAY[p].emoji);
+const getPositionEmojis = (positions: BandPosition[]) => {
+  if (!positions.length) return {};
+
+  const recruitingEmojis = positions
+    .filter(({ status }) => status === "recruiting")
+    .map(({ position }) => MUSICIAN_DISPLAY[position].emoji);
+  const occupiedEmojis = positions
+    .filter(({ status }) => status === "occupied")
+    .map(({ position }) => MUSICIAN_DISPLAY[position].emoji);
+
+  return { recruitingEmojis, occupiedEmojis };
 };
 
 interface JXBandCardHeaderProps {
   isRecruiting: boolean;
   title?: string;
   occupiedEmojis: string[];
-  missingEmojis?: string[];
+  recruitingEmojis?: string[];
 }
 
 const JXBandCardEmojis = ({
   isRecruiting,
   occupiedEmojis,
-  missingEmojis = [],
+  recruitingEmojis = [],
 }: JXBandCardHeaderProps) => {
   const emojiSize = isRecruiting ? 28 : 20;
   const emojiGap = isRecruiting ? 12 : 8;
@@ -45,7 +53,7 @@ const JXBandCardEmojis = ({
       </View>
       {isRecruiting && (
         <View className="container-h" style={{ gap: emojiGap }}>
-          {missingEmojis.map((emoji) => (
+          {recruitingEmojis.map((emoji) => (
             <Text
               style={{
                 fontSize: emojiSize,
@@ -63,22 +71,13 @@ const JXBandCardEmojis = ({
 };
 
 interface JXBandCardProps {
-  bandInfo: BandPreview;
+  band: Band;
   addBtnDisabled?: boolean;
 }
-const JXBandCard = ({ bandInfo, addBtnDisabled }: JXBandCardProps) => {
-  const {
-    status,
-    missingPositions,
-    occupiedPositions,
-    name,
-    genre,
-    description,
-    statusUpdatedAt,
-  } = bandInfo;
+const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
+  const { status, positions, name, genre, description, statusUpdatedAt } = band;
 
-  const missingEmojis = getPositionEmojis(missingPositions);
-  const occupiedEmojis = getPositionEmojis(occupiedPositions);
+  const { recruitingEmojis, occupiedEmojis } = getPositionEmojis(positions);
 
   const isRecruiting = status === "recruiting";
 
@@ -93,7 +92,7 @@ const JXBandCard = ({ bandInfo, addBtnDisabled }: JXBandCardProps) => {
           <JXBandCardEmojis
             isRecruiting={isRecruiting}
             occupiedEmojis={occupiedEmojis ?? []}
-            missingEmojis={missingEmojis}
+            recruitingEmojis={recruitingEmojis}
           />
         ) : (
           <JXTitleLabel lg>{name ?? ""}</JXTitleLabel>
@@ -128,7 +127,7 @@ const JXBandCard = ({ bandInfo, addBtnDisabled }: JXBandCardProps) => {
             <JXBandCardEmojis
               isRecruiting={isRecruiting}
               occupiedEmojis={occupiedEmojis ?? []}
-              missingEmojis={missingEmojis}
+              recruitingEmojis={recruitingEmojis}
             />
           )}
         </View>

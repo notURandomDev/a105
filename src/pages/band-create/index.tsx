@@ -9,9 +9,9 @@ import JXButton from "@/components/JXButton";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { Close } from "@taroify/icons";
-import JXBandCard from "@/components/Cards/JXBandCard";
 import { useBandForm } from "@/hooks/useBandForm";
 import { Genre } from "@/models/genre";
+import { getPositionsByStatus } from "@/utils/band";
 
 export default function BandCreate() {
   useLoad(() => {
@@ -29,8 +29,12 @@ export default function BandCreate() {
     handleSubmit,
     isFormDataValid,
     checkDuplicateBandName,
-    generateBandPreview,
+    removeRecruitingPosition,
   } = useBandForm();
+
+  const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
+    formData.positions
+  );
 
   return (
     <View className="band-create config-page">
@@ -91,17 +95,17 @@ export default function BandCreate() {
       <JXFormLabel px>你的位置</JXFormLabel>
       <View
         className="container-v"
-        style={{ gap: formData.occupiedPositions.length ? 12 : 0 }}
+        style={{ gap: occupiedPositions.length ? 12 : 0 }}
       >
-        {formData.occupiedPositions.length > 0 && (
+        {occupiedPositions.length > 0 && (
           <Cell.Group inset bordered={false}>
             {
               <Field label="你的位置">
                 <Input
                   readonly
                   value={`${
-                    MUSICIAN_DISPLAY[formData.occupiedPositions[0]].emoji
-                  } ${MUSICIAN_DISPLAY[formData.occupiedPositions[0]].label}`}
+                    MUSICIAN_DISPLAY[occupiedPositions[0].position].emoji
+                  }  ${MUSICIAN_DISPLAY[occupiedPositions[0].position].label}`}
                 />
               </Field>
             }
@@ -120,27 +124,19 @@ export default function BandCreate() {
       <JXFormLabel px>招募乐手位置</JXFormLabel>
       <View
         className="container-v"
-        style={{ gap: formData.missingPositions.length ? 12 : 0 }}
+        style={{ gap: recruitingPositions.length ? 12 : 0 }}
       >
         <Cell.Group inset bordered={false}>
-          {formData.missingPositions.map((p, index) => (
+          {recruitingPositions.map(({ position: p }, index) => (
             <Field label={`位置${index + 1}`}>
               <Input
                 readonly
-                value={`${MUSICIAN_DISPLAY[p].emoji} ${MUSICIAN_DISPLAY[p].label}`}
+                value={`${MUSICIAN_DISPLAY[p].emoji}  ${MUSICIAN_DISPLAY[p].label}`}
               />
               <Close
                 size={16}
                 color="red"
-                onClick={() => {
-                  const newPositions = formData.missingPositions.filter(
-                    (_, idx) => idx !== index
-                  );
-                  setFormData((prev) => ({
-                    ...prev,
-                    missingPositions: newPositions,
-                  }));
-                }}
+                onClick={() => removeRecruitingPosition(index)}
               />
             </Field>
           ))}
@@ -148,7 +144,7 @@ export default function BandCreate() {
         <View className="page-padding-h container-v">
           <JXButton
             variant="outlined"
-            onClick={() => setActivePicker("missing")}
+            onClick={() => setActivePicker("recruiting")}
           >
             添加
           </JXButton>
@@ -165,13 +161,12 @@ export default function BandCreate() {
         }}
       />
       {isFormDataValid() && (
-        <>
-          <JXFormLabel px>乐队信息预览</JXFormLabel>
-          <View className="page-padding-h container-v" style={{ gap: 12 }}>
-            <JXBandCard addBtnDisabled bandInfo={generateBandPreview()} />
-            <JXButton onClick={handleSubmit}>创建乐队</JXButton>
-          </View>
-        </>
+        <View
+          className="page-padding-h container-v"
+          style={{ paddingTop: 16, paddingBottom: 16 }}
+        >
+          <JXButton onClick={handleSubmit}>创建乐队</JXButton>
+        </View>
       )}
     </View>
   );
