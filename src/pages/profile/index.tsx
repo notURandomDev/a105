@@ -1,13 +1,14 @@
-import { Text, View } from "@tarojs/components";
+import { View } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import JXCardContainer from "@/components/JXCardContainer";
-import { Button } from "@taroify/core";
+import { Button, Cell } from "@taroify/core";
 import JXSecondaryLabel from "@/components/Labels/JXSecondaryLabel";
 import { Arrow } from "@taroify/icons";
 import { useUserStore } from "@/stores/userStore";
 import JXAvatar from "@/components/JXAvatar";
 import JXTitleLabel from "@/components/Labels/JXTitleLabel";
+import { UserOutlined, CashierOutlined, Revoke } from "@taroify/icons";
 
 export default function Profile() {
   useLoad(() => {
@@ -38,7 +39,7 @@ export default function Profile() {
   };
 
   return (
-    <View className="profile page" style={{ gap: 16 }}>
+    <View className="profile page config-page" style={{ gap: 16 }}>
       <View style={{ padding: 16 }}>
         <JXCardContainer
           onClick={userInfo ? handleEditProfile : handleLogin}
@@ -54,7 +55,7 @@ export default function Profile() {
               className="container-h"
               style={{ alignItems: "center", gap: 2 }}
             >
-              <JXTitleLabel> {getFullNickname() ?? ""}</JXTitleLabel>
+              <JXTitleLabel>{getFullNickname()}</JXTitleLabel>
               {!userInfo && <Arrow />}
             </View>
             <JXSecondaryLabel>
@@ -64,21 +65,18 @@ export default function Profile() {
           {/* <Edit color="#bec0c2" size={20} /> */}
         </JXCardContainer>
       </View>
-      <View
-        className="container-v grow button-container"
-        style={{ justifyContent: "flex-end" }}
-      >
+      <Cell.Group inset bordered={false}>
+        <Cell icon={<UserOutlined />} title="编辑乐手档案" isLink />
+        <Cell icon={<CashierOutlined />} title="社费缴纳" isLink />
         {userInfo && (
-          <Button
-            variant="outlined"
-            color="danger"
-            block
-            onClick={handleLogout}
-          >
-            退出登录
-          </Button>
+          <Cell
+            icon={<Revoke />}
+            title="退出登录"
+            isLink
+            onClick={handleLogin}
+          />
         )}
-      </View>
+      </Cell.Group>
     </View>
   );
 }
