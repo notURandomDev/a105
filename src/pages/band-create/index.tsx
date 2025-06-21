@@ -34,7 +34,7 @@ export default function BandCreate() {
 
   return (
     <View className="band-create config-page">
-      <JXFormLabel>乐队基本信息</JXFormLabel>
+      <JXFormLabel px>乐队基本信息</JXFormLabel>
       <Cell.Group inset bordered={false}>
         <Field
           feedback={
@@ -67,7 +67,7 @@ export default function BandCreate() {
         </Field>
       </Cell.Group>
 
-      <JXFormLabel>乐队风格（多选）</JXFormLabel>
+      <JXFormLabel px>乐队风格（多选）</JXFormLabel>
       <Checkbox.Group
         onChange={(value) =>
           setFormData((prev) => ({
@@ -88,7 +88,7 @@ export default function BandCreate() {
         ))}
       </Checkbox.Group>
 
-      <JXFormLabel>你的位置</JXFormLabel>
+      <JXFormLabel px>你的位置</JXFormLabel>
       <View
         className="container-v"
         style={{ gap: formData.occupiedPositions.length ? 12 : 0 }}
@@ -117,7 +117,7 @@ export default function BandCreate() {
         </View>
       </View>
 
-      <JXFormLabel>招募乐手位置</JXFormLabel>
+      <JXFormLabel px>招募乐手位置</JXFormLabel>
       <View
         className="container-v"
         style={{ gap: formData.missingPositions.length ? 12 : 0 }}
@@ -166,7 +166,7 @@ export default function BandCreate() {
       />
       {isFormDataValid() && (
         <>
-          <JXFormLabel>乐队信息预览</JXFormLabel>
+          <JXFormLabel px>乐队信息预览</JXFormLabel>
           <View className="page-padding-h container-v" style={{ gap: 12 }}>
             <JXBandCard addBtnDisabled bandInfo={generateBandPreview()} />
             <JXButton onClick={handleSubmit}>创建乐队</JXButton>

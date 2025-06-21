@@ -35,7 +35,7 @@ export default function Reserve() {
 
   return (
     <View className="reserve config-page">
-      <JXFormLabel>乐队信息</JXFormLabel>
+      <JXFormLabel px>乐队信息</JXFormLabel>
       <Cell.Group inset>
         <Field isLink label="乐队名称" onClick={() => setActivePicker("band")}>
           <Input
@@ -50,7 +50,7 @@ export default function Reserve() {
         onConfirm={updateBandPicker}
         onCancel={() => setActivePicker(null)}
       />
-      <JXFormLabel>排练信息</JXFormLabel>
+      <JXFormLabel px>排练信息</JXFormLabel>
       <Cell.Group inset>
         <Field label="排练日期" isLink onClick={() => setActivePicker("date")}>
           <Input
@@ -84,7 +84,7 @@ export default function Reserve() {
       </Cell.Group>
       {isFormDataValid() && (
         <>
-          <JXFormLabel>请确认预约信息</JXFormLabel>
+          <JXFormLabel px>请确认预约信息</JXFormLabel>
           <View style={{ padding: "0 16px" }}>
             <JXReservationCard
               hideState
