@@ -1,5 +1,7 @@
 import JXCardContainer from "../JXCardContainer";
 import { Text, View } from "@tarojs/components";
+import JXEmoji from "../JXEmoji";
+import JXBodyLabel from "../Labels/JXBodyLabel";
 
 interface JXMetricCardProps {
   label?: string;
@@ -21,11 +23,11 @@ function JXMetricCard({
       style={{ alignItems: "center" }}
     >
       <View className="container-v grow">
-        <Text style={{ fontSize: 14 }}>{label}</Text>
+        <JXBodyLabel size="lg">{label}</JXBodyLabel>
         <Text style={{ fontWeight: 600, fontSize: 28 }}>{value}</Text>
       </View>
       <View className="container-v">
-        <Text style={{ fontSize: 32 }}>{emoji}</Text>
+        <JXEmoji size="xl">{emoji}</JXEmoji>
       </View>
     </JXCardContainer>
   );
