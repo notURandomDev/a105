@@ -1,21 +1,32 @@
-import { Text, View } from "@tarojs/components";
+import { View } from "@tarojs/components";
 import JXCardContainer from "../JXCardContainer";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
 
-function JXMusicianCardSM() {
+interface JXMusicianCardSMProps {
+  title?: string;
+  emoji?: string;
+  leftLabel?: string;
+  rightLabel?: string;
+}
+
+function JXMusicianCardSM({
+  title = "标题",
+  emoji = "😃",
+  leftLabel = "左侧内容",
+  rightLabel,
+}: JXMusicianCardSMProps) {
   return (
     <JXCardContainer horizontal style={{ gap: 12, alignItems: "center" }}>
-      <JXEmoji size="lg">🎸</JXEmoji>
+      <JXEmoji size="lg">{emoji}</JXEmoji>
       <View className="container-v grow">
-        <JXTitleLabel>Kyle</JXTitleLabel>
-        <View
-          className="container-h grow"
-          style={{ justifyContent: "space-between", alignItems: "center" }}
-        >
-          <JXSecondaryLabel>{`主音吉他手`}</JXSecondaryLabel>
-          <JXSecondaryLabel>{`加入于：2025-06-12`}</JXSecondaryLabel>
+        <JXTitleLabel>{title}</JXTitleLabel>
+        <View className="container-h">
+          <View className="container-h grow">
+            <JXSecondaryLabel>{leftLabel}</JXSecondaryLabel>
+          </View>
+          {rightLabel && <JXSecondaryLabel>{rightLabel}</JXSecondaryLabel>}
         </View>
       </View>
     </JXCardContainer>
