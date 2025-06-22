@@ -30,6 +30,8 @@ export default function BandCreate() {
     isFormDataValid,
     checkDuplicateBandName,
     removeRecruitingPosition,
+    getRecruitNote,
+    handleRecruitNoteChange,
   } = useBandForm();
 
   const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
@@ -127,19 +129,30 @@ export default function BandCreate() {
         style={{ gap: recruitingPositions.length ? 12 : 0 }}
       >
         <Cell.Group inset bordered={false}>
-          {recruitingPositions.map(({ position: p }, index) => (
-            <Field label={`位置${index + 1}`}>
-              <Input
-                readonly
-                value={`${MUSICIAN_DISPLAY[p].emoji}  ${MUSICIAN_DISPLAY[p].label}`}
-              />
-              <Close
-                size={16}
-                color="red"
-                onClick={() => removeRecruitingPosition(index)}
-              />
-            </Field>
-          ))}
+          {recruitingPositions.map(({ position: p }, index) => {
+            const { emoji, label } = MUSICIAN_DISPLAY[p];
+            return (
+              <>
+                <Field label={`位置${index + 1}`}>
+                  <Input readonly value={`${emoji}  ${label}`} />
+                  <Close
+                    size={16}
+                    color="red"
+                    onClick={() => removeRecruitingPosition(index)}
+                  />
+                </Field>
+                <Field label="招募要求">
+                  <Input
+                    value={getRecruitNote(index)}
+                    onChange={(e) =>
+                      handleRecruitNoteChange(e.detail.value, index)
+                    }
+                    placeholder="写下你的招募要求"
+                  />
+                </Field>
+              </>
+            );
+          })}
         </Cell.Group>
         <View className="page-padding-h container-v">
           <JXButton

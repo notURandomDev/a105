@@ -6,6 +6,7 @@ import { Genre } from "@/models/genre";
 import { PositionType } from "@/models/position";
 import { CreateBandPositionInput } from "@/models/band-position";
 import { getPositionsByStatus } from "@/utils/band";
+import { createBandPosition } from "@/services/bandPositionService";
 
 interface FormData {
   name: string;
@@ -24,14 +25,18 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
 
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    description: "",
-    genre: [],
+    name: "JOINT",
+    description: "这是一段乐队简介",
+    genre: ["EDM"],
     positions: [
       {
         position: "vocalist",
         status: "occupied",
-        recruitNote: "",
+      },
+      {
+        position: "bassist",
+        status: "recruiting",
+        recruitNote: "律动强",
       },
     ],
   });
@@ -99,20 +104,48 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     }));
   };
 
+  const getRecruitNote = (index: number) => {
+    const { recruitingPositions } = getPositionsByStatus(formData.positions);
+    const currentPosition = recruitingPositions.find((_, idx) => idx === index);
+    return currentPosition?.recruitNote;
+  };
+
+  const handleRecruitNoteChange = (value: string, index: number) => {
+    const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
+      formData.positions
+    );
+    const unchangedPositions = recruitingPositions.filter(
+      (_, idx) => idx !== index
+    );
+    const currentPosition = recruitingPositions.find((_, idx) => idx === index);
+    if (!currentPosition) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      positions: [
+        ...occupiedPositions,
+        ...unchangedPositions,
+        { ...currentPosition, recruitNote: value },
+      ],
+    }));
+  };
+
   const handleSubmit = async () => {
     console.log(formData);
     const now = new Date();
 
     Taro.showLoading();
-    const res = await createBand({
-      band: {
-        ...formData,
-        status: "recruiting",
-        statusUpdatedAt: now,
-        statusLogs: [{ at: now, status: "recruiting" }],
-      },
-      production: true,
-    });
+    // const res = await createBand({
+    //   band: {
+    //     ...formData,
+    //     status: "recruiting",
+    //     statusUpdatedAt: now,
+    //     statusLogs: [{ at: now, status: "recruiting" }],
+    //   },
+    //   production: true,
+    // });
+
+    const res = createBandPosition({ position: formData.positions[0] });
 
     if (!res) {
       JXToast.networkError();
@@ -165,5 +198,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     isFormDataValid,
     checkDuplicateBandName,
     removeRecruitingPosition,
+    getRecruitNote,
+    handleRecruitNoteChange,
   };
 };
