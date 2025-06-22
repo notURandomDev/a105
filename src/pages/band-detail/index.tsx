@@ -15,12 +15,13 @@ import { useEffect } from "react";
 
 export default function BandDetail() {
   useLoad((options: Record<string, string>) => {
-    fetchBand(options._id);
+    const parsedBand = JSON.parse(options.band);
+    setTimeout(() => setBand(parsedBand), 500);
   });
 
   const {
     band,
-    fetchBand,
+    setBand,
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
@@ -47,7 +48,11 @@ export default function BandDetail() {
         emoji="🗓️"
         value={
           isRecruiting
-            ? getYMDfromDate(band?.info.statusUpdatedAt ?? new Date())
+            ? getYMDfromDate(
+                band?.info.statusUpdatedAt
+                  ? new Date(band?.info.statusUpdatedAt)
+                  : new Date()
+              )
             : getYMDfromDate(band?.info.formedAt ?? new Date())
         }
       />

@@ -25,7 +25,9 @@ function JXMusicianCardSM({ musician }: JXMusicianCardSMProps) {
             <JXSecondaryLabel>{label}</JXSecondaryLabel>
           </View>
           <JXSecondaryLabel>
-            {`加入时间：${getYMDfromDate(joinedAt ?? new Date())}`}
+            {`加入时间：${getYMDfromDate(
+              joinedAt ? new Date(joinedAt) : new Date()
+            )}`}
           </JXSecondaryLabel>
         </View>
       </View>

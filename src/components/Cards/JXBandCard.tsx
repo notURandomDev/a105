@@ -75,7 +75,7 @@ interface JXBandCardProps {
   addBtnDisabled?: boolean;
 }
 const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
-  const { status, name, genre, description, statusUpdatedAt, _id } = band.info;
+  const { status, name, genre, description, statusUpdatedAt } = band.info;
   const { recruitingEmojis, occupiedEmojis } = getPositionEmojis(
     band.positions
   );
@@ -83,7 +83,9 @@ const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
   const isRecruiting = status === "recruiting";
 
   const navigate = () => {
-    Taro.navigateTo({ url: `/pages/band-detail/index?bandId=${_id}` });
+    Taro.navigateTo({
+      url: `/pages/band-detail/index?band=${JSON.stringify(band)}`,
+    });
   };
 
   return (

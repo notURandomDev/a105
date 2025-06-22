@@ -1,8 +1,15 @@
 import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
-import { CreateBandInput } from "@/models/band";
+import { BandStatus, BandWithPositions, CreateBandInput } from "@/models/band";
 import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
-import { createBandPositions } from "@/services/bandPositionService";
-import { createBand, updateBand } from "@/services/bandsService";
+import {
+  createBandPositions,
+  getBandPositionsById,
+} from "@/services/bandPositionService";
+import {
+  createBand,
+  getBandsByStatus,
+  updateBand,
+} from "@/services/bandsService";
 import { handleDBResult } from "./database";
 
 export const getPositionsByStatus = (
@@ -16,15 +23,40 @@ export const getPositionsByStatus = (
 };
 
 interface GetBandWithPositionsParams {
-  bandID: string;
+  status: BandStatus;
   production?: boolean;
 }
 
 export const getBandWithPositions = async ({
-  bandID,
+  status,
   production = false,
 }: GetBandWithPositionsParams) => {
-  if (!production) return MOCK_BANDS_WITH_POSITIONS.active[0];
+  if (!production) return MOCK_BANDS_WITH_POSITIONS[status];
+
+  const bands = await getBandsByStatus({ status, production: true });
+  if (!bands) return null;
+
+  const bandPositionIDs = bands.flatMap((b) => b.bandPositionIDs);
+  const bandPositions = await getBandPositionsById({
+    bandPositionIDs,
+    production: true,
+  });
+  if (!bandPositions) return null;
+
+  const bandMap = new Map<string | number, BandPosition[]>();
+  for (const bp of bandPositions) {
+    if (!bandMap.has(bp.bandID)) {
+      bandMap.set(bp.bandID, []);
+    }
+    bandMap.get(bp.bandID)!.push(bp);
+  }
+
+  const bandWithPositions: BandWithPositions[] = bands.map((b) => ({
+    info: b,
+    positions: bandMap.get(b._id) ?? [],
+  }));
+
+  return bandWithPositions;
 };
 
 interface CreateBandWithPositionsParams {

@@ -1,9 +1,6 @@
-import {
-  MOCK_BANDS,
-  MOCK_BANDS_WITH_POSITIONS,
-} from "@/constants/database/bands";
-import { Band, BandWithPositions } from "@/models/band";
-import { getBandsByStatus } from "@/services/bandsService";
+import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
+import { BandWithPositions } from "@/models/band";
+import { getBandWithPositions } from "@/utils/band";
 import { useEffect, useState } from "react";
 
 interface UseBandDataParams {
@@ -24,19 +21,20 @@ export const useBandData = ({ production = false }: UseBandDataParams = {}) => {
   }, []);
 
   const fetchActiveBands = async () => {
-    const bands = await getBandsByStatus({ status: "active", production });
+    const bands = await getBandWithPositions({ status: "active", production });
     if (!bands) return;
 
-    // 聚合成 BandWithPositions 类型
-    // setActiveBands(bands);
+    setActiveBands(bands);
   };
 
   const fetchRecruitingBands = async () => {
-    const bands = await getBandsByStatus({ status: "recruiting", production });
+    const bands = await getBandWithPositions({
+      status: "recruiting",
+      production,
+    });
     if (!bands) return;
 
-    // 聚合成 BandWithPositions 类型
-    // setRecruitingBands(bands);
+    setRecruitingBands(bands);
   };
 
   // to-do

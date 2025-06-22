@@ -4,7 +4,10 @@ import Taro from "@tarojs/taro";
 import { useEffect, useRef, useState } from "react";
 import { Genre } from "@/models/genre";
 import { PositionType } from "@/models/position";
-import { CreateBandPositionInput } from "@/models/band-position";
+import {
+  CreateBandPositionInput,
+  PositionStatus,
+} from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserStore } from "@/stores/userStore";
 
@@ -24,6 +27,12 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
   const bandNamesRef = useRef<string[]>([]);
   const { userInfo } = useUserStore();
 
+  const OCCUPIED_MUSICIAN_BASE_DATA = {
+    status: "occupied" as PositionStatus,
+    nickname: userInfo?.nickName ?? "replace-this-with-actual-user-nickname",
+    userID: userInfo?._id ?? "replace-this-with-actual-user-id",
+  };
+
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
   const [formData, setFormData] = useState<FormData>({
     name: "JOINT",
@@ -31,11 +40,9 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     genre: ["EDM"],
     positions: [
       {
+        ...OCCUPIED_MUSICIAN_BASE_DATA,
         position: "vocalist",
-        status: "occupied",
-        nickname:
-          userInfo?.nickName ?? "replace-this-with-actual-user-nickname",
-        userID: userInfo?._id ?? "replace-this-with-actual-user-id",
+        joinedAt: new Date(),
       },
       {
         position: "bassist",
@@ -78,6 +85,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
           {
             position,
             status: "occupied",
+            joinedAt: new Date(),
           },
         ],
       }));

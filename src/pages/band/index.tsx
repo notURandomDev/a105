@@ -13,10 +13,10 @@ export default function Band() {
     console.log("Page loaded.");
   });
 
-  const [tabIndex, setTabIndex] = useState(1);
+  const [tabIndex, setTabIndex] = useState(2);
 
   const { myBands, activeBands, recruitingBands } = useBandData({
-    production: false,
+    production: true,
   });
 
   return (
