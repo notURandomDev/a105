@@ -27,7 +27,9 @@ export default function BandDetail() {
   } = useBandProfile();
 
   useEffect(() => {
-    Taro.setNavigationBarTitle({ title: "乐队档案" + `｜${band?.name ?? ""}` });
+    Taro.setNavigationBarTitle({
+      title: "乐队档案" + `｜${band?.info.name ?? ""}`,
+    });
   }, [band]);
 
   return (
@@ -39,19 +41,19 @@ export default function BandDetail() {
         mode="aspectFill"
         src={require("../../../assets/grok.jpg")}
       />
-      <JXHugeLabel>{band?.name}</JXHugeLabel>
+      <JXHugeLabel>{band?.info.name}</JXHugeLabel>
       <JXMetricCard
         label={isRecruiting ? "发布时间" : "成立时间"}
         emoji="🗓️"
         value={
           isRecruiting
-            ? getYMDfromDate(band?.statusUpdatedAt ?? new Date())
-            : getYMDfromDate(band?.formedAt ?? new Date())
+            ? getYMDfromDate(band?.info.statusUpdatedAt ?? new Date())
+            : getYMDfromDate(band?.info.formedAt ?? new Date())
         }
       />
       <JXFormLabel>乐队风格</JXFormLabel>
       <View className="chip-container">
-        {band?.genre.map((g) => (
+        {band?.info.genre.map((g) => (
           <JXGenreChip genre={g} />
         ))}
       </View>

@@ -9,7 +9,7 @@ import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import Taro from "@tarojs/taro";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
-import { Band } from "@/models/band";
+import { BandWithPositions } from "@/models/band";
 import { BandPosition } from "@/models/band-position";
 
 const getPositionEmojis = (positions: BandPosition[]) => {
@@ -71,14 +71,14 @@ const JXBandCardEmojis = ({
 };
 
 interface JXBandCardProps {
-  band: Band;
+  band: BandWithPositions;
   addBtnDisabled?: boolean;
 }
 const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
-  const { status, positions, name, genre, description, statusUpdatedAt, _id } =
-    band;
-
-  const { recruitingEmojis, occupiedEmojis } = getPositionEmojis(positions);
+  const { status, name, genre, description, statusUpdatedAt, _id } = band.info;
+  const { recruitingEmojis, occupiedEmojis } = getPositionEmojis(
+    band.positions
+  );
 
   const isRecruiting = status === "recruiting";
 

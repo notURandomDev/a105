@@ -1,6 +1,6 @@
-import { Band, BandStatus } from "@/models/band";
-import { PositionStatus } from "@/models/band-position";
+import { Band, BandStatus, BandWithPositions } from "@/models/band";
 import { Genre } from "@/models/genre";
+import { MOCK_BAND_POSITIONS } from "./band-positions";
 
 const MOCK_BAND_BASE_DATA = {
   name: "乐队名",
@@ -13,71 +13,20 @@ const MOCK_BAND_BASE_DATA = {
   formedAt: new Date(),
 };
 
-const MOCK_RECRUITING_BAND_POSITION_BASE_DATA = {
-  _id: "",
-  nickname: "Kyle",
-  status: "recruiting" as PositionStatus,
-  recruitNote:
-    "这是一串招募信息，招募的乐手应该符合这些条件;这是一串招募信息，招募的乐手应该符合这些条件",
-};
-
-const MOCK_OCCUPIED_BAND_POSITION_BASE_DATA = {
-  _id: "",
-  nickname: "Kyle",
-  status: "occupied" as PositionStatus,
-};
-
 export const MOCK_BAND_ACTIVE: Band = {
   ...MOCK_BAND_BASE_DATA,
   status: "active",
   formedAt: new Date(),
-  positions: [
-    {
-      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
-      position: "vocalist",
-    },
-    {
-      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
-      position: "bassist",
-    },
-    {
-      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
-      position: "drummer",
-    },
-    {
-      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
-      position: "guitarist_rhythm",
-    },
-  ],
+  bandPositionIDs: [],
 };
 
 export const MOCK_BAND_RECRUITING: Band = {
   ...MOCK_BAND_BASE_DATA,
   status: "recruiting",
-  positions: [
-    {
-      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
-      position: "vocalist",
-    },
-    {
-      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
-      position: "bassist",
-    },
-    {
-      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
-      position: "drummer",
-    },
-    {
-      ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
-      position: "guitarist_rhythm",
-    },
-    {
-      ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
-      position: "keyboardist",
-    },
-  ],
+  bandPositionIDs: [],
 };
 
+// 完全模拟后端传回的数据
 export const MOCK_BANDS: Record<BandStatus, Band[]> = {
   recruiting: [
     MOCK_BAND_RECRUITING,
@@ -85,6 +34,48 @@ export const MOCK_BANDS: Record<BandStatus, Band[]> = {
     MOCK_BAND_RECRUITING,
   ],
   active: [MOCK_BAND_ACTIVE],
+  paused: [],
+  disbanded: [],
+};
+
+// 与乐队位置结合后的模拟数据
+export const MOCK_BANDS_WITH_POSITIONS: Record<
+  BandStatus,
+  BandWithPositions[]
+> = {
+  recruiting: [
+    {
+      info: MOCK_BAND_RECRUITING,
+      positions: [
+        ...MOCK_BAND_POSITIONS.recruiting,
+        MOCK_BAND_POSITIONS.occupied[0],
+      ],
+    },
+    {
+      info: MOCK_BAND_RECRUITING,
+      positions: [
+        ...MOCK_BAND_POSITIONS.recruiting,
+        MOCK_BAND_POSITIONS.occupied[0],
+      ],
+    },
+    {
+      info: MOCK_BAND_RECRUITING,
+      positions: [
+        ...MOCK_BAND_POSITIONS.recruiting,
+        MOCK_BAND_POSITIONS.occupied[0],
+      ],
+    },
+  ],
+  active: [
+    {
+      info: MOCK_BAND_ACTIVE,
+      positions: MOCK_BAND_POSITIONS.occupied,
+    },
+    {
+      info: MOCK_BAND_ACTIVE,
+      positions: MOCK_BAND_POSITIONS.occupied,
+    },
+  ],
   paused: [],
   disbanded: [],
 };

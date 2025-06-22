@@ -7,18 +7,20 @@ export type BandStatusLog = {
   at: Date;
 };
 
+// 与后端完全吻合的数据模型
 export interface Band {
   _id: string | number;
   name: string;
   description: string;
   genre: Genre[];
-  positions: BandPosition[];
+  bandPositionIDs: string[];
   formedAt: Date;
   status: BandStatus;
   statusUpdatedAt: Date;
   statusLogs: BandStatusLog[];
 }
 
+// 创建乐队用的表单类型
 export interface CreateBandInput {
   name: string;
   description: string;
@@ -27,6 +29,12 @@ export interface CreateBandInput {
   status: BandStatus;
   statusUpdatedAt: Date;
   statusLogs: BandStatusLog[];
+}
+
+// 乐队卡片用到的类型
+export interface BandWithPositions {
+  info: Band;
+  positions: BandPosition[];
 }
 
 export interface BandPickerConfig {
