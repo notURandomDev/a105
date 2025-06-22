@@ -12,22 +12,13 @@ import { DB } from "@tarojs/taro";
 const bandsCollection = db.collection("band");
 /* CREATE */
 
-interface CreateBandParams {
-  band: CreateBandInput;
-  production?: boolean;
-}
-export const createBand = async ({
-  band,
-  production = false,
-}: CreateBandParams): Promise<boolean | null> => {
-  if (!production) return true;
-
+export const createBand = async (
+  band: CreateBandInput
+): Promise<string | number | null> => {
   try {
-    const res = await bandsCollection.add({ data: band });
-
-    handleDBResult(res, "get", "创建乐队记录");
-
-    return true;
+    const bandID = await bandsCollection.add({ data: band });
+    handleDBResult(bandID, "add", "创建乐队记录");
+    return bandID._id;
   } catch (error) {
     console.error(error);
     return null;
@@ -111,4 +102,25 @@ export const getBandById = async ({
   }
 };
 /* UPDATE */
+
+interface UpdateBandData {
+  bandPositionIDs: DB.Document.DocumentId[];
+}
+
+interface UpdateBandParams {
+  bandID: string | number;
+  data: UpdateBandData;
+}
+
+export const updateBand = async ({ bandID, data }: UpdateBandParams) => {
+  try {
+    const res = await bandsCollection.doc(bandID).update({ data });
+    handleDBResult(res, "update", "更新乐队数据");
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
 /* DELETE */

@@ -1,7 +1,7 @@
 export const DB_OK_CODES: Record<DBMethod, string> = {
   add: "collection.add:ok",
   get: "collection.get:ok",
-  update: "collection.update:ok",
+  update: "document.update:ok",
   remove: "collection.remove:ok",
 };
 

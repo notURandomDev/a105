@@ -5,9 +5,9 @@ export type PositionStatus = "recruiting" | "occupied";
 export interface BandPosition {
   _id: string | number;
   position: PositionType;
-  userId?: string; // 如果 status 为 occupied，则为乐手 ID
+  userID?: string | number; // 如果 status 为 occupied，则为乐手 ID
   nickname?: string;
-
+  bandID?: string;
   status: PositionStatus;
   recruitNote?: string; // 招募说明
   joinedAt?: Date; // 加入时间（可选）
@@ -15,5 +15,5 @@ export interface BandPosition {
 
 export type CreateBandPositionInput = Pick<
   BandPosition,
-  "position" | "status" | "recruitNote"
+  "position" | "status" | "recruitNote" | "userID" | "nickname"
 >;

@@ -1,12 +1,12 @@
-import { createBand, getAllBands } from "@/services/bandsService";
+import { getAllBands } from "@/services/bandsService";
 import { JXToast } from "@/utils/toast";
 import Taro from "@tarojs/taro";
 import { useEffect, useRef, useState } from "react";
 import { Genre } from "@/models/genre";
 import { PositionType } from "@/models/position";
 import { CreateBandPositionInput } from "@/models/band-position";
-import { getPositionsByStatus } from "@/utils/band";
-import { createBandPosition } from "@/services/bandPositionService";
+import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
+import { useUserStore } from "@/stores/userStore";
 
 interface FormData {
   name: string;
@@ -22,6 +22,7 @@ interface UseBandFormParams {
 }
 export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
   const bandNamesRef = useRef<string[]>([]);
+  const { userInfo } = useUserStore();
 
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -32,6 +33,9 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
       {
         position: "vocalist",
         status: "occupied",
+        nickname:
+          userInfo?.nickName ?? "replace-this-with-actual-user-nickname",
+        userID: userInfo?._id ?? "replace-this-with-actual-user-id",
       },
       {
         position: "bassist",
@@ -135,17 +139,16 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     const now = new Date();
 
     Taro.showLoading();
-    // const res = await createBand({
-    //   band: {
-    //     ...formData,
-    //     status: "recruiting",
-    //     statusUpdatedAt: now,
-    //     statusLogs: [{ at: now, status: "recruiting" }],
-    //   },
-    //   production: true,
-    // });
 
-    const res = createBandPosition({ position: formData.positions[0] });
+    const res = await createBandWithPositions({
+      band: {
+        ...formData,
+        status: "recruiting",
+        statusUpdatedAt: now,
+        statusLogs: [{ at: now, status: "recruiting" }],
+      },
+      positions: formData.positions,
+    });
 
     if (!res) {
       JXToast.networkError();
