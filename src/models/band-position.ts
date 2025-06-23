@@ -6,6 +6,7 @@ export interface BandPosition {
   _id: string | number;
   position: PositionType;
   userID?: string | number; // 如果 status 为 occupied，则为乐手 ID
+  musicianIDs: string[];
   nickname?: string;
   bandID: string;
   status: PositionStatus;
