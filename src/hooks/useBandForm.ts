@@ -83,8 +83,8 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
         positions: [
           ...recruitingPositions,
           {
+            ...OCCUPIED_MUSICIAN_BASE_DATA,
             position,
-            status: "occupied",
             joinedAt: new Date(),
           },
         ],
@@ -126,19 +126,15 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
       formData.positions
     );
-    const unchangedPositions = recruitingPositions.filter(
-      (_, idx) => idx !== index
-    );
-    const currentPosition = recruitingPositions.find((_, idx) => idx === index);
-    if (!currentPosition) return;
+
+    const updatedRecruitingPositions = recruitingPositions.map((p, idx) => {
+      if (idx === index) return { ...p, recruitNote: value };
+      return p;
+    });
 
     setFormData((prev) => ({
       ...prev,
-      positions: [
-        ...occupiedPositions,
-        ...unchangedPositions,
-        { ...currentPosition, recruitNote: value },
-      ],
+      positions: [...occupiedPositions, ...updatedRecruitingPositions],
     }));
   };
 
