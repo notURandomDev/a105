@@ -40,10 +40,9 @@ export const updateUser = async (
   docId: string | number,
   data: UpdateUserData
 ) => {
-  const UPDATE_USER = "更新用户数据";
   try {
     const res = await usersCollection.doc(docId).update({ data });
-    console.log(UPDATE_USER + "成功：", res);
+    handleDBResult(res, "update", `根据ID(${docId})更新用户数据`);
     return true;
   } catch (error) {
     console.error(error);
