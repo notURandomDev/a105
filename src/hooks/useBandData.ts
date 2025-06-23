@@ -15,11 +15,6 @@ export const useBandData = ({ production = false }: UseBandDataParams = {}) => {
     MOCK_BANDS_WITH_POSITIONS.recruiting
   );
 
-  useEffect(() => {
-    fetchActiveBands();
-    fetchRecruitingBands();
-  }, []);
-
   const fetchActiveBands = async () => {
     const bands = await getBandWithPositions({ status: "active", production });
     if (!bands) return;
@@ -44,5 +39,7 @@ export const useBandData = ({ production = false }: UseBandDataParams = {}) => {
     myBands,
     activeBands,
     recruitingBands,
+    fetchActiveBands,
+    fetchRecruitingBands,
   };
 };

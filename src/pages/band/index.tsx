@@ -1,5 +1,5 @@
 import { View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro, { useDidShow, useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
 import { useState } from "react";
@@ -10,12 +10,22 @@ import { useBandData } from "@/hooks/useBandData";
 
 export default function Band() {
   useLoad(() => {
-    console.log("Page loaded.");
+    console.log("Band Page loaded.");
+  });
+
+  useDidShow(() => {
+    fetchRecruitingBands();
   });
 
   const [tabIndex, setTabIndex] = useState(2);
 
-  const { myBands, activeBands, recruitingBands } = useBandData({
+  const {
+    myBands,
+    activeBands,
+    recruitingBands,
+    fetchActiveBands,
+    fetchRecruitingBands,
+  } = useBandData({
     production: true,
   });
 
