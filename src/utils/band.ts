@@ -9,13 +9,8 @@ import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
 import {
   createBandPositions,
   getBandPositionsByBand,
-  getBandPositionsById,
 } from "@/services/bandPositionService";
-import {
-  createBand,
-  getBandsByStatus,
-  updateBand,
-} from "@/services/bandsService";
+import { createBand, getBandsByStatus } from "@/services/bandsService";
 
 export const getPositionsByStatus = (
   positions: CreateBandPositionInput[] | BandPosition[]
@@ -58,20 +53,15 @@ export const createBandWithPositions = async ({
   band,
 }: CreateBandWithPositionsParams) => {
   const bandID = await createBand(band);
-  if (!bandID) return false;
+  if (!bandID) return;
 
   const bandPositionIDs = await createBandPositions({
     positions,
     bandID,
   });
-  if (!bandPositionIDs) return false;
+  if (!bandPositionIDs) return;
 
-  const res = await updateBand({
-    bandID,
-    data: { bandPositionIDs },
-  });
-
-  return res;
+  return true;
 };
 
 // 更加通用的函数（后期提取到云函数中）

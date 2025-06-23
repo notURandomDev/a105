@@ -13,7 +13,6 @@ export interface Band {
   name: string;
   description: string;
   genre: Genre[];
-  bandPositionIDs: string[];
   formedAt: Date;
   status: BandStatus;
   statusUpdatedAt: Date;

@@ -108,7 +108,6 @@ export const getBandById = async ({
 /* UPDATE */
 
 interface UpdateBandData {
-  bandPositionIDs?: DB.Document.DocumentId[];
   status?: BandStatus;
   statusLogs?: BandStatusLog[];
   statusUpdatedAt?: Date;

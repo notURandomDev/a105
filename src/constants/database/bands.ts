@@ -17,13 +17,11 @@ export const MOCK_BAND_ACTIVE: Band = {
   ...MOCK_BAND_BASE_DATA,
   status: "active",
   formedAt: new Date(),
-  bandPositionIDs: [],
 };
 
 export const MOCK_BAND_RECRUITING: Band = {
   ...MOCK_BAND_BASE_DATA,
   status: "recruiting",
-  bandPositionIDs: [],
 };
 
 // 完全模拟后端传回的数据

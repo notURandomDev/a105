@@ -56,35 +56,6 @@ export const getBandPositionsByBand = async ({
     return null;
   }
 };
-interface GetBandPositionsByIdParams {
-  bandPositionIDs: string[];
-  production?: boolean;
-}
-
-export const getBandPositionsById = async ({
-  bandPositionIDs,
-  production = false,
-}: GetBandPositionsByIdParams): Promise<BandPosition[] | null> => {
-  if (!production)
-    return [MOCK_BAND_POSITIONS.occupied[0], ...MOCK_BAND_POSITIONS.recruiting];
-
-  try {
-    const res = await Promise.all(
-      bandPositionIDs.map((_id) =>
-        bandPositionCollection.where({ _id: _.eq(_id) }).get()
-      )
-    );
-
-    res.map((r) =>
-      handleDBResult(r, "get", "根据乐队位置ID获取一系列乐队位置记录")
-    );
-
-    return res.flatMap((r) => r.data as BandPosition[]);
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
 
 // UPDATE
 
