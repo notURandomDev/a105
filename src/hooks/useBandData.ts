@@ -1,7 +1,7 @@
 import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
 import { BandWithPositions } from "@/models/band";
 import { getBandWithPositions } from "@/utils/band";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface UseBandDataParams {
   production?: boolean;

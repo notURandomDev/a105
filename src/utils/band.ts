@@ -16,7 +16,6 @@ import {
   getBandsByStatus,
   updateBand,
 } from "@/services/bandsService";
-import { handleDBResult } from "./database";
 
 export const getPositionsByStatus = (
   positions: CreateBandPositionInput[] | BandPosition[]
@@ -40,29 +39,13 @@ export const getBandWithPositions = async ({
   if (!production) return MOCK_BANDS_WITH_POSITIONS[status];
 
   const bands = await getBandsByStatus({ status, production: true });
-  if (!bands) return null;
+  if (!bands) return;
 
-  const bandPositionIDs = bands.flatMap((b) => b.bandPositionIDs);
-  const bandPositions = await getBandPositionsById({
-    bandPositionIDs,
-    production: true,
-  });
-  if (!bandPositions) return null;
+  const bandsWithPositions = await Promise.all(
+    bands.map((b) => mergeBandWithPositions(b))
+  );
 
-  const bandMap = new Map<string | number, BandPosition[]>();
-  for (const bp of bandPositions) {
-    if (!bandMap.has(bp.bandID)) {
-      bandMap.set(bp.bandID, []);
-    }
-    bandMap.get(bp.bandID)!.push(bp);
-  }
-
-  const bandWithPositions: BandWithPositions[] = bands.map((b) => ({
-    info: b,
-    positions: bandMap.get(b._id) ?? [],
-  }));
-
-  return bandWithPositions;
+  return bandsWithPositions.filter((bp) => bp !== undefined);
 };
 
 interface CreateBandWithPositionsParams {
