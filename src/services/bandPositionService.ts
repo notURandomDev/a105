@@ -32,7 +32,7 @@ export const createBandPositions = async ({
 // READ
 
 interface GetBandPositionsByBandParams {
-  bandID: string;
+  bandID: string | number;
   production?: boolean;
 }
 export const getBandPositionsByBand = async ({
@@ -83,5 +83,31 @@ export const getBandPositionsById = async ({
   } catch (error) {
     console.error(error);
     return null;
+  }
+};
+
+// UPDATE
+
+type UpdateBandPositionData = Pick<
+  BandPosition,
+  "joinedAt" | "nickname" | "status" | "userID"
+>;
+
+interface UpdateBandPositionParams {
+  _id: string | number;
+  data: UpdateBandPositionData;
+}
+
+export const updateBandPosition = async ({
+  _id,
+  data,
+}: UpdateBandPositionParams) => {
+  try {
+    const res = await bandPositionCollection.doc(_id).update({ data });
+    handleDBResult(res, "update", `根据ID(${_id})更新乐队位置信息`);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
   }
 };

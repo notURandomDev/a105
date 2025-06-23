@@ -15,6 +15,8 @@ import { useEffect } from "react";
 
 export default function BandDetail() {
   useLoad((options: Record<string, string>) => {
+    if (!options.band) return;
+
     const parsedBand = JSON.parse(options.band);
     setTimeout(() => setBand(parsedBand), 500);
   });
@@ -25,6 +27,7 @@ export default function BandDetail() {
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
+    handleJoinBand,
   } = useBandProfile();
 
   useEffect(() => {
@@ -75,7 +78,10 @@ export default function BandDetail() {
           <JXFormLabel>招募乐手位置</JXFormLabel>
           <View className="card-gap container-v">
             {(recruitingPositions as BandPosition[]).map((p) => (
-              <JXMusicianCardRC musician={p} />
+              <JXMusicianCardRC
+                musician={p}
+                onClick={() => handleJoinBand(p._id)}
+              />
             ))}
           </View>
         </>

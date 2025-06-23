@@ -1,8 +1,14 @@
 import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
-import { BandStatus, BandWithPositions, CreateBandInput } from "@/models/band";
+import {
+  Band,
+  BandStatus,
+  BandWithPositions,
+  CreateBandInput,
+} from "@/models/band";
 import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
 import {
   createBandPositions,
+  getBandPositionsByBand,
   getBandPositionsById,
 } from "@/services/bandPositionService";
 import {
@@ -83,4 +89,21 @@ export const createBandWithPositions = async ({
   });
 
   return res;
+};
+
+// 更加通用的函数（后期提取到云函数中）
+// 传入的参数：一个从后端获取的乐队实体
+// 逻辑：通过传入的乐队的ID，获取相应的乐队位置信息
+// 返回值：BandWithPosition 类型的乐队实体
+
+export const mergeBandWithPositions = async (
+  band: Band
+): Promise<BandWithPositions | undefined> => {
+  const positions = await getBandPositionsByBand({
+    bandID: band._id,
+    production: true,
+  });
+  if (!positions) return;
+
+  return { info: band, positions };
 };

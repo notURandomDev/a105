@@ -9,9 +9,13 @@ import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 
 interface JXMusicianCardRCProps {
   musician: BandPosition;
+  onClick?: () => void;
 }
 
-function JXMusicianCardRC({ musician }: JXMusicianCardRCProps) {
+function JXMusicianCardRC({
+  musician,
+  onClick = () => {},
+}: JXMusicianCardRCProps) {
   const { position, recruitNote } = musician;
   const { emoji, label } = MUSICIAN_DISPLAY[position];
 
@@ -25,6 +29,7 @@ function JXMusicianCardRC({ musician }: JXMusicianCardRCProps) {
         <JXSecondaryLabel>{recruitNote}</JXSecondaryLabel>
       </View>
       <View
+        onClick={onClick}
         className="container-v cc"
         style={{
           backgroundColor: "#000",
