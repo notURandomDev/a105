@@ -5,6 +5,7 @@ import { PositionType } from "./position";
 export interface Musician {
   _id: string | number;
   userId: string | number;
+  bandIDs: (string | number)[];
   position: PositionType;
   bio: string;
   nickname: string;
