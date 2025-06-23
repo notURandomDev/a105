@@ -15,6 +15,7 @@ export default function Band() {
 
   useDidShow(() => {
     fetchRecruitingBands();
+    fetchActiveBands();
   });
 
   const [tabIndex, setTabIndex] = useState(2);
@@ -26,7 +27,7 @@ export default function Band() {
     fetchActiveBands,
     fetchRecruitingBands,
   } = useBandData({
-    production: true,
+    production: false,
   });
 
   return (

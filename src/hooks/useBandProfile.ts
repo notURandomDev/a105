@@ -1,7 +1,7 @@
 import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
 import { BandWithPositions } from "@/models/band";
 import { updateBandPosition } from "@/services/bandPositionService";
-import { getBandById } from "@/services/bandsService";
+import { getBandById, updateBand } from "@/services/bandsService";
 import { useUserStore } from "@/stores/userStore";
 import { getPositionsByStatus, mergeBandWithPositions } from "@/utils/band";
 import { JXToast } from "@/utils/toast";
@@ -15,7 +15,18 @@ export const useBandProfile = () => {
   const { userInfo } = useUserStore();
 
   useEffect(() => {
-    console.log("band data updated", band);
+    if (isBandFull() && band?.info._id && band.info.status === "recruiting") {
+      const now = new Date();
+      updateBand({
+        bandID: band.info._id,
+        data: {
+          formedAt: now,
+          status: "active",
+          statusLogs: [{ at: now, status: "active" }, ...band.info.statusLogs],
+          statusUpdatedAt: now,
+        },
+      });
+    }
   }, [band]);
 
   const isRecruiting = band?.info.status === "recruiting";
@@ -66,6 +77,11 @@ export const useBandProfile = () => {
     });
 
     fetchBand();
+  };
+
+  const isBandFull = () => {
+    const isActive = band?.positions.every((bp) => bp.status === "occupied");
+    return isActive;
   };
 
   return {

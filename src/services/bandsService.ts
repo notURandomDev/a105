@@ -5,7 +5,12 @@ import {
   MOCK_BANDS,
 } from "@/constants/database/bands";
 
-import { Band, BandStatus, CreateBandInput } from "@/models/band";
+import {
+  Band,
+  BandStatus,
+  BandStatusLog,
+  CreateBandInput,
+} from "@/models/band";
 import { handleDBResult } from "@/utils/database";
 import { DB } from "@tarojs/taro";
 
@@ -103,7 +108,11 @@ export const getBandById = async ({
 /* UPDATE */
 
 interface UpdateBandData {
-  bandPositionIDs: DB.Document.DocumentId[];
+  bandPositionIDs?: DB.Document.DocumentId[];
+  status?: BandStatus;
+  statusLogs?: BandStatusLog[];
+  statusUpdatedAt?: Date;
+  formedAt?: Date;
 }
 
 interface UpdateBandParams {
