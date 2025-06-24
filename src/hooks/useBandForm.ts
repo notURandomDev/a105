@@ -11,6 +11,12 @@ import {
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserStore } from "@/stores/userStore";
 
+const DEFAULT_FORM_DATA_BASE = {
+  name: "JOINT",
+  description: "这是一段乐队简介",
+  genre: ["EDM"] as Genre[],
+};
+
 interface FormData {
   name: string;
   description: string;
@@ -35,9 +41,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
 
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
   const [formData, setFormData] = useState<FormData>({
-    name: "JOINT",
-    description: "这是一段乐队简介",
-    genre: ["EDM"],
+    ...DEFAULT_FORM_DATA_BASE,
     positions: [
       {
         ...OCCUPIED_MUSICIAN_BASE_DATA,
@@ -52,9 +56,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     ],
   });
   // feedback 字段将来可扩展
-  const [feedback, setFeedback] = useState({
-    name: "",
-  });
+  const [feedback, setFeedback] = useState({ name: "" });
 
   useEffect(() => {
     fetchAllBands();
@@ -74,20 +76,25 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     return "";
   };
 
+  const updateName = (value: string) =>
+    setFormData((prev) => ({ ...prev, name: value }));
+
+  const updateDescription = (value: string) =>
+    setFormData((prev) => ({ ...prev, description: value }));
+
+  const updateGenre = (value: Genre[]) =>
+    setFormData((prev) => ({ ...prev, genre: value }));
+
   const updatePositions = (position: PositionType) => {
     if (activePicker === "occupied") {
-      const { recruitingPositions } = getPositionsByStatus(formData.positions);
-
+      const joinedAt = new Date();
       setFormData((prev) => ({
         ...prev,
-        positions: [
-          ...recruitingPositions,
-          {
-            ...OCCUPIED_MUSICIAN_BASE_DATA,
-            position,
-            joinedAt: new Date(),
-          },
-        ],
+        positions: prev.positions.map((p) =>
+          p.status === "occupied"
+            ? { ...OCCUPIED_MUSICIAN_BASE_DATA, position, joinedAt }
+            : p
+        ),
       }));
     }
 
@@ -102,41 +109,22 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     }
   };
 
-  const removeRecruitingPosition = (index: number) => {
-    const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
-      formData.positions
-    );
-    const reducedPositions = recruitingPositions.filter(
-      (_, idx) => idx !== index
-    );
-
+  const removeRecruitingPosition = (index: number) =>
     setFormData((prev) => ({
       ...prev,
-      positions: [...reducedPositions, ...occupiedPositions],
+      positions: prev.positions.filter((_, idx) => idx !== index + 1),
     }));
-  };
 
-  const getRecruitNote = (index: number) => {
-    const { recruitingPositions } = getPositionsByStatus(formData.positions);
-    const currentPosition = recruitingPositions.find((_, idx) => idx === index);
-    return currentPosition?.recruitNote;
-  };
+  const getRecruitNote = (index: number) =>
+    formData.positions.find((_, idx) => idx + 1 === index)?.recruitNote;
 
-  const handleRecruitNoteChange = (value: string, index: number) => {
-    const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
-      formData.positions
-    );
-
-    const updatedRecruitingPositions = recruitingPositions.map((p, idx) => {
-      if (idx === index) return { ...p, recruitNote: value };
-      return p;
-    });
-
+  const updateRecruitNote = (value: string, index: number) =>
     setFormData((prev) => ({
       ...prev,
-      positions: [...occupiedPositions, ...updatedRecruitingPositions],
+      positions: prev.positions.map((p, idx) =>
+        idx === index + 1 ? { ...p, recruitNote: value } : p
+      ),
     }));
-  };
 
   const handleSubmit = async () => {
     console.log(formData);
@@ -206,6 +194,9 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     checkDuplicateBandName,
     removeRecruitingPosition,
     getRecruitNote,
-    handleRecruitNoteChange,
+    updateRecruitNote,
+    updateGenre,
+    updateDescription,
+    updateName,
   };
 };

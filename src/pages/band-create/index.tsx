@@ -20,7 +20,6 @@ export default function BandCreate() {
 
   const {
     formData,
-    setFormData,
     activePicker,
     setActivePicker,
     feedback,
@@ -31,7 +30,10 @@ export default function BandCreate() {
     checkDuplicateBandName,
     removeRecruitingPosition,
     getRecruitNote,
-    handleRecruitNoteChange,
+    updateRecruitNote,
+    updateGenre,
+    updateDescription,
+    updateName,
   } = useBandForm();
 
   const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
@@ -52,9 +54,7 @@ export default function BandCreate() {
             onBlur={(e) => checkDuplicateBandName(e.detail.value)}
             placeholder="取个响亮的队名！"
             value={formData.name || ""}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, name: e.detail.value }))
-            }
+            onChange={(e) => updateName(e.detail.value)}
           />
         </Field>
         <Field label="乐队简介" align="start">
@@ -63,24 +63,14 @@ export default function BandCreate() {
             autoHeight
             placeholder="你想组个什么样的乐队呢？"
             limit={100}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                description: e.detail.value,
-              }))
-            }
+            onChange={(e) => updateDescription(e.detail.value)}
           />
         </Field>
       </Cell.Group>
 
       <JXFormLabel px>乐队风格（多选）</JXFormLabel>
       <Checkbox.Group
-        onChange={(value) =>
-          setFormData((prev) => ({
-            ...prev,
-            genre: value,
-          }))
-        }
+        onChange={updateGenre}
         value={formData.genre}
         direction="horizontal"
         className="chip-container"
@@ -101,26 +91,20 @@ export default function BandCreate() {
       >
         {occupiedPositions.length > 0 && (
           <Cell.Group inset bordered={false}>
-            {
-              <Field label="你的位置">
-                <Input
-                  readonly
-                  value={`${
-                    MUSICIAN_DISPLAY[occupiedPositions[0].position].emoji
-                  }  ${MUSICIAN_DISPLAY[occupiedPositions[0].position].label}`}
-                />
-              </Field>
-            }
+            <Field
+              label="你的位置"
+              isLink
+              onClick={() => setActivePicker("occupied")}
+            >
+              <Input
+                readonly
+                value={`${
+                  MUSICIAN_DISPLAY[occupiedPositions[0].position].emoji
+                }  ${MUSICIAN_DISPLAY[occupiedPositions[0].position].label}`}
+              />
+            </Field>
           </Cell.Group>
         )}
-        <View className="page-padding-h container-v">
-          <JXButton
-            variant="outlined"
-            onClick={() => setActivePicker("occupied")}
-          >
-            选择
-          </JXButton>
-        </View>
       </View>
 
       <JXFormLabel px>招募乐手位置</JXFormLabel>
@@ -144,9 +128,7 @@ export default function BandCreate() {
                 <Field label="招募要求">
                   <Input
                     value={getRecruitNote(index)}
-                    onChange={(e) =>
-                      handleRecruitNoteChange(e.detail.value, index)
-                    }
+                    onChange={(e) => updateRecruitNote(e.detail.value, index)}
                     placeholder="写下你的招募要求"
                   />
                 </Field>
