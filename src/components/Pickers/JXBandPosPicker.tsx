@@ -15,6 +15,7 @@ interface JXBandPosPickerProps {
   open: boolean;
   onConfirm?: (position: PositionType) => void;
   onCancel?: () => void;
+  exclude?: PositionType[];
 }
 
 function JXBandPosPicker({
@@ -22,10 +23,16 @@ function JXBandPosPicker({
   open,
   onConfirm = () => {},
   onCancel = () => {},
+  exclude,
 }: JXBandPosPickerProps) {
   const handleConfirm = (position: string) => {
     onConfirm(position as PositionType);
   };
+
+  const optionsToExclude = new Set(exclude);
+  const pickerColumns = BAND_POS_COLUMNS.filter(
+    (p) => p.value && !optionsToExclude.has(p.value as PositionType)
+  );
 
   return (
     <Popup open={open} rounded placement="bottom">
@@ -34,7 +41,7 @@ function JXBandPosPicker({
         title={title}
         cancelText="取消"
         confirmText="确认"
-        columns={BAND_POS_COLUMNS}
+        columns={pickerColumns}
         onCancel={onCancel}
         onConfirm={(option) => handleConfirm(option[0])}
       />
