@@ -58,6 +58,7 @@ export default function MusicianEdit() {
                 className="chip-container"
                 style={{ padding: "0 16px" }}
                 onChange={(value) => updateFormData(index, { genre: value })}
+                value={formData[index].genre}
               >
                 {Object.keys(GENRES).map((g: Genre) => (
                   <Checkbox

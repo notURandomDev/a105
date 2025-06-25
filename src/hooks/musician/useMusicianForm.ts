@@ -33,17 +33,14 @@ export const useMusicianForm = () => {
   const fetchMusicianProfiles = async () => {
     const musicians = await getMusiciansByUserID({
       userID: userInfo?._id ?? "",
-      production: true,
+      production: false,
     });
     if (!musicians) return;
 
     setFormData(musicians.map((m) => ({ ...m, status: "pristine" })));
   };
 
-  const updateFormData = (
-    index: number,
-    updates: Partial<MusicianFormItem>
-  ) => {
+  const updateFormData = (index: number, updates: Partial<MusicianFormItem>) =>
     setFormData((prev) =>
       prev.map((mp, idx) =>
         idx === index
@@ -55,14 +52,12 @@ export const useMusicianForm = () => {
           : mp
       )
     );
-  };
 
-  const appendMusicianProfile = (value: PositionType) => {
+  const appendMusicianProfile = (value: PositionType) =>
     setFormData((prev) => [
       ...prev,
       { position: value, genre: [], bio: "", status: "new" },
     ]);
-  };
 
   const getExcludedPositions = () => {
     const existingPositions = formData.flatMap((mp) => mp.position);
@@ -72,8 +67,6 @@ export const useMusicianForm = () => {
   };
 
   const handleSubmit = async () => {
-    console.log(formData);
-
     const toCreate: CreateMusicianInput[] = formData
       .filter((item) => item.status === "new")
       .map((item) => ({
