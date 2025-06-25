@@ -20,7 +20,13 @@ export interface MusicianFormItem {
   status: FormItemStatus;
 }
 
-export const useMusicianForm = () => {
+interface UseMusicianFormParams {
+  production?: boolean;
+}
+
+export const useMusicianForm = ({
+  production = false,
+}: UseMusicianFormParams = {}) => {
   const { userInfo } = useUserStore();
   const [formData, setFormData] = useState<MusicianFormItem[]>([]);
   const [pickerActive, setPickerActive] = useState(false);
@@ -33,12 +39,14 @@ export const useMusicianForm = () => {
   const fetchMusicianProfiles = async () => {
     const musicians = await getMusiciansByUserID({
       userID: userInfo?._id ?? "",
-      production: false,
+      production,
     });
     if (!musicians) return;
 
     setFormData(musicians.map((m) => ({ ...m, status: "pristine" })));
   };
+
+  const didUserEdit = () => formData.some((mp) => mp.status !== "pristine");
 
   const updateFormData = (index: number, updates: Partial<MusicianFormItem>) =>
     setFormData((prev) =>
@@ -78,7 +86,9 @@ export const useMusicianForm = () => {
 
     // 只传入需要更新的字段，没传入的字段默认不更新
     // 此处的_id一定被定义过，""只是 defensive code
-    const toUpdate = formData.map((item) => ({ ...item, _id: item._id ?? "" }));
+    const toUpdate = formData
+      .filter((item) => item.status === "edited")
+      .map((item) => ({ ...item, _id: item._id ?? "" }));
 
     Promise.all([
       createMusicians({ musicians: toCreate }),
@@ -95,5 +105,6 @@ export const useMusicianForm = () => {
     getExcludedPositions,
     handleSubmit,
     updateFormData,
+    didUserEdit,
   };
 };

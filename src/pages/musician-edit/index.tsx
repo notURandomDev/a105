@@ -1,5 +1,5 @@
 import { View } from "@tarojs/components";
-import { useLoad } from "@tarojs/taro";
+import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
 import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
@@ -10,6 +10,7 @@ import { Genre } from "@/models/genre";
 import JXButton from "@/components/JXButton";
 import { useMusicianForm } from "@/hooks/musician/useMusicianForm";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { JXToast } from "@/utils/toast";
 
 export default function MusicianEdit() {
   useLoad(() => {
@@ -24,7 +25,8 @@ export default function MusicianEdit() {
     getExcludedPositions,
     handleSubmit,
     updateFormData,
-  } = useMusicianForm();
+    didUserEdit,
+  } = useMusicianForm({ production: true });
 
   return (
     <View className="musician-edit config-page">
@@ -90,13 +92,23 @@ export default function MusicianEdit() {
         style={{
           paddingTop: 16,
           paddingBottom: 16,
-          gap: 16,
+          gap: 8,
         }}
       >
         <JXButton onClick={() => setPickerActive(true)} variant="outlined">
           添加
         </JXButton>
-        <JXButton onClick={handleSubmit}>保存</JXButton>
+        {didUserEdit() && (
+          <JXButton
+            onClick={async () => {
+              await handleSubmit();
+              JXToast.success("保存成功！");
+              setTimeout(() => Taro.navigateBack(), 2000);
+            }}
+          >
+            保存
+          </JXButton>
+        )}
       </View>
     </View>
   );
