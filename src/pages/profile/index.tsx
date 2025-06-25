@@ -38,6 +38,12 @@ export default function Profile() {
     });
   };
 
+  const handleEditMusician = () => {
+    Taro.navigateTo({
+      url: `/pages/musician-edit/index`,
+    });
+  };
+
   return (
     <View className="profile page config-page" style={{ gap: 16 }}>
       <View style={{ padding: 16 }}>
@@ -66,7 +72,12 @@ export default function Profile() {
         </JXCardContainer>
       </View>
       <Cell.Group inset bordered={false}>
-        <Cell icon={<UserOutlined />} title="编辑乐手档案" isLink />
+        <Cell
+          onClick={handleEditMusician}
+          icon={<UserOutlined />}
+          title="编辑乐手档案"
+          isLink
+        />
         <Cell icon={<CashierOutlined />} title="社费缴纳" isLink />
         {userInfo && (
           <Cell
