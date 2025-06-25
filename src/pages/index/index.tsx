@@ -1,4 +1,4 @@
-import { View, Text } from "@tarojs/components";
+import { View } from "@tarojs/components";
 import { useDidShow, useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { useUserStore } from "@/stores/userStore";
