@@ -41,31 +41,3 @@ export type MusicianTabs =
   | "keyboardist"
   | "drummer"
   | "all";
-
-export const MUSICIAN_TAB_DISPLAY: Record<MusicianTabs, MusicianDisplayConfig> =
-  {
-    all: {
-      label: "所有乐手",
-      emoji: "👥",
-    },
-    vocalist: {
-      label: "主唱",
-      emoji: "🎤",
-    },
-    guitarist: {
-      label: "吉他手",
-      emoji: "🎸",
-    },
-    bassist: {
-      label: "贝斯手",
-      emoji: "🎛️",
-    },
-    keyboardist: {
-      label: "键盘手",
-      emoji: "🎹",
-    },
-    drummer: {
-      label: "鼓手",
-      emoji: "🥁",
-    },
-  };
