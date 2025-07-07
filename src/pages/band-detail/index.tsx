@@ -12,6 +12,7 @@ import { useBandProfile } from "@/hooks/useBandProfile";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
 import { BandPosition } from "@/models/band-position";
 import { useEffect } from "react";
+import { PositionType } from "@/models/position";
 
 export default function BandDetail() {
   useLoad((options: Record<string, string>) => {
@@ -24,10 +25,12 @@ export default function BandDetail() {
   const {
     band,
     setBand,
+    fetchBand,
+    joinBand,
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
-    handleJoinBand,
+    checkUserIdentity,
   } = useBandProfile();
 
   useEffect(() => {
@@ -35,6 +38,29 @@ export default function BandDetail() {
       title: "乐队档案" + `｜${band?.info.name ?? ""}`,
     });
   }, [band]);
+
+  const handleRcClick = async (
+    position: PositionType,
+    positionID: string | number
+  ) => {
+    if (!band) return;
+    // 判断根据用户的乐手数据，选择相应的乐手档案（获取到乐手ID）
+    const identityExist = await checkUserIdentity(position);
+    // 如果用户没有该 position 的乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
+    if (!identityExist) {
+      const res = await Taro.showModal({
+        title: "你暂时还没有该乐手身份",
+        content: "请先完善乐手信息",
+        confirmText: "前往完善",
+      });
+      if (res.confirm) Taro.navigateTo({ url: "/pages/musician-edit/index" });
+      return;
+    }
+
+    await joinBand(positionID, band.info._id);
+
+    fetchBand();
+  };
 
   return (
     <View className="band-detail page-padding">
@@ -80,7 +106,7 @@ export default function BandDetail() {
             {(recruitingPositions as BandPosition[]).map((p) => (
               <JXMusicianCardRC
                 musician={p}
-                onClick={() => handleJoinBand(p._id)}
+                onClick={() => handleRcClick(p.position, p._id)}
               />
             ))}
           </View>

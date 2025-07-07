@@ -1,9 +1,9 @@
 import { View } from "@tarojs/components";
-import JXCardContainer from "../JXCardContainer";
-import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
-import JXTitleLabel from "../Labels/JXTitleLabel";
+import JXCardContainer from "../../JXCardContainer";
+import JXSecondaryLabel from "../../Labels/JXSecondaryLabel";
+import JXTitleLabel from "../../Labels/JXTitleLabel";
 import { Plus } from "@taroify/icons";
-import JXEmoji from "../JXEmoji";
+import JXEmoji from "../../JXEmoji";
 import { BandPosition } from "@/models/band-position";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 
@@ -29,7 +29,6 @@ function JXMusicianCardRC({
         <JXSecondaryLabel>{recruitNote}</JXSecondaryLabel>
       </View>
       <View
-        onClick={onClick}
         className="container-v cc"
         style={{
           backgroundColor: "#000",
@@ -37,7 +36,7 @@ function JXMusicianCardRC({
           padding: 8,
         }}
       >
-        <Plus color="#fff" />
+        <Plus onClick={onClick} color="#fff" />
       </View>
     </JXCardContainer>
   );
