@@ -1,29 +1,71 @@
-import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
 import { BandWithPositions } from "@/models/band";
 import { Musician } from "@/models/musician";
 import { PositionType } from "@/models/position";
+import { selectPositionsByStatus } from "@/selectors/bandPositionSelectors";
+import {
+  selectBandByID,
+  selectBandsWithPositions,
+} from "@/selectors/bandSelectors";
 import { updateBandPosition } from "@/services/bandPositionService";
-import { getBandById, updateBand } from "@/services/bandsService";
+import { updateBand } from "@/services/bandsService";
 import {
   getMatchingMusician,
   updateMusicianBandIDs,
 } from "@/services/musicianService";
+import { useBandPositionStore } from "@/stores/bandPositionStore";
+import { useBandStore } from "@/stores/bandStore";
 import { useUserStore } from "@/stores/userStore";
-import { getPositionsByStatus, mergeBandWithPositions } from "@/utils/band";
 import { JXToast } from "@/utils/toast";
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 
 export const useBandProfile = () => {
-  const [band, setBand] = useState<BandWithPositions | null>(
-    MOCK_BANDS_WITH_POSITIONS.recruiting[0]
-  );
   const { userInfo } = useUserStore();
+  const { bands, fetchBands } = useBandStore();
+  const { bandPositions, fetchBandPositions } = useBandPositionStore();
+
+  const [bandID, setBandID] = useState<string | number | null>(null);
+  const [band, setBand] = useState<BandWithPositions | null>(null);
+
+  const recruitingPositions = selectPositionsByStatus(
+    band?.positions ?? [],
+    "recruiting"
+  );
+  const occupiedPositions = selectPositionsByStatus(
+    band?.positions ?? [],
+    "occupied"
+  );
 
   useEffect(() => {
+    // 用户加入乐队后，判断当前乐队的状态是否需要更新
+    updateBandStatus();
+  }, [band]);
+
+  useEffect(() => {
+    if (!bandID || !bands) return;
+
+    // 从所有乐队缓存中，根据ID获取到当前页面乐队的数据
+    const currentBand = selectBandByID(bands, bandID);
+    if (!currentBand) return;
+
+    // 转换成带有乐队位置的加强乐队类型
+    const bandWithPositions = selectBandsWithPositions([currentBand]);
+    setBand(bandWithPositions[0]);
+  }, [bandID, bands, bandPositions]);
+
+  const isRecruiting = band?.info.status === "recruiting";
+
+  // 判断当前乐队的状态是否为 active
+  const isBandFull = () => {
+    const isActive = band?.positions.every((bp) => bp.status === "occupied");
+    return isActive;
+  };
+
+  // 判断并更新乐队状态为 active
+  const updateBandStatus = async () => {
     if (isBandFull() && band?.info._id && band.info.status === "recruiting") {
       const now = new Date();
-      updateBand({
+      await updateBand({
         bandID: band.info._id,
         data: {
           formedAt: now,
@@ -32,28 +74,8 @@ export const useBandProfile = () => {
           statusUpdatedAt: now,
         },
       });
+      fetchBands();
     }
-  }, [band]);
-
-  const isRecruiting = band?.info.status === "recruiting";
-
-  const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
-    band?.positions ?? []
-  );
-
-  const fetchBand = async () => {
-    if (!band?.info._id) return;
-
-    const bandData = await getBandById({
-      _id: band?.info._id,
-      production: true,
-    });
-    if (!bandData) return;
-
-    const bandWithPositions = await mergeBandWithPositions(bandData);
-    if (!bandWithPositions) return;
-
-    setBand(bandWithPositions);
   };
 
   // 检查用户是否有当前类型的乐手档案
@@ -69,10 +91,10 @@ export const useBandProfile = () => {
     });
 
     if (!res) return;
-
     return res[0] as Musician;
   };
 
+  // 加入乐队的聚合操作
   const joinBand = async (
     musicianID: string | number,
     bandPositionID: string | number,
@@ -102,6 +124,8 @@ export const useBandProfile = () => {
       return;
     }
 
+    await Promise.all([fetchBandPositions(), fetchBands()]);
+
     Taro.hideLoading();
     Taro.showModal({
       title: "操作成功！",
@@ -110,19 +134,15 @@ export const useBandProfile = () => {
     });
   };
 
-  const isBandFull = () => {
-    const isActive = band?.positions.every((bp) => bp.status === "occupied");
-    return isActive;
-  };
-
   return {
     band,
     setBand,
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
-    fetchBand,
     checkUserIdentity,
     joinBand,
+    bandID,
+    setBandID,
   };
 };

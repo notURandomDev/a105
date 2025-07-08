@@ -10,6 +10,8 @@ import {
 } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserStore } from "@/stores/userStore";
+import { useBandStore } from "@/stores/bandStore";
+import { useBandPositionStore } from "@/stores/bandPositionStore";
 
 const DEFAULT_FORM_DATA_BASE = {
   name: "JOINT",
@@ -32,6 +34,8 @@ interface UseBandFormParams {
 export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
   const bandNamesRef = useRef<string[]>([]);
   const { userInfo } = useUserStore();
+  const fetchBands = useBandStore((s) => s.fetchBands);
+  const fetchBandPositions = useBandPositionStore((s) => s.fetchBandPositions);
 
   const OCCUPIED_MUSICIAN_BASE_DATA = {
     status: "occupied" as PositionStatus,
@@ -150,7 +154,8 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
 
     Taro.hideLoading();
     Taro.showToast({ icon: "success", title: "乐队创建成功" });
-    setTimeout(() => Taro.navigateBack(), 2000);
+    await Promise.all([fetchBands(), fetchBandPositions()]);
+    Taro.navigateBack();
   };
 
   const isFormDataValid = () => {

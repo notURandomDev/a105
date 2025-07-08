@@ -1,36 +1,13 @@
-import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
 import { BandWithPositions } from "@/models/band";
-import { getBandWithPositions } from "@/utils/band";
 import { useState } from "react";
+import { useBandsByStatus } from "./band/useBandsByStatus";
+import { useBandsWithPositions } from "./band/useBandsWithPositions";
 
-interface UseBandDataParams {
-  production?: boolean;
-}
-export const useBandData = ({ production = false }: UseBandDataParams = {}) => {
+export const useBandData = () => {
+  const activeBands = useBandsWithPositions(useBandsByStatus("active"));
+  const recruitingBands = useBandsWithPositions(useBandsByStatus("recruiting"));
+
   const [myBands, setMyBands] = useState<BandWithPositions[]>([]);
-  const [activeBands, setActiveBands] = useState<BandWithPositions[]>(
-    MOCK_BANDS_WITH_POSITIONS.active
-  );
-  const [recruitingBands, setRecruitingBands] = useState<BandWithPositions[]>(
-    MOCK_BANDS_WITH_POSITIONS.recruiting
-  );
-
-  const fetchActiveBands = async () => {
-    const bands = await getBandWithPositions({ status: "active", production });
-    if (!bands) return;
-
-    setActiveBands(bands);
-  };
-
-  const fetchRecruitingBands = async () => {
-    const bands = await getBandWithPositions({
-      status: "recruiting",
-      production,
-    });
-    if (!bands) return;
-
-    setRecruitingBands(bands);
-  };
 
   // to-do
   // 根据用户id，获取用户所在的乐队
@@ -39,7 +16,5 @@ export const useBandData = ({ production = false }: UseBandDataParams = {}) => {
     myBands,
     activeBands,
     recruitingBands,
-    fetchActiveBands,
-    fetchRecruitingBands,
   };
 };

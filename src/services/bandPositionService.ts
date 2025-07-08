@@ -31,6 +31,18 @@ export const createBandPositions = async ({
 
 // READ
 
+export const getAllBandPositions = async (): Promise<
+  BandPosition[] | undefined
+> => {
+  try {
+    const res = await bandPositionCollection.limit(100).get();
+    handleDBResult(res, "get", "获取全部乐队位置(bandPosition)数据");
+    return res.data as BandPosition[];
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 interface GetBandPositionsByBandParams {
   bandID: string | number;
   production?: boolean;

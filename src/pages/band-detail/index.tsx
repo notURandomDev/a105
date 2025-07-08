@@ -3,7 +3,7 @@ import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
 import JXMusicianCardSM from "@/components/Cards/JXMusicianCardSM";
-import { Image } from "@taroify/core";
+import { Image, Loading } from "@taroify/core";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
 import JXMetricCard from "@/components/Cards/JXMetricCard";
 import JXGenreChip from "@/components/JXGenreChip";
@@ -16,26 +16,23 @@ import { PositionType } from "@/models/position";
 
 export default function BandDetail() {
   useLoad((options: Record<string, string>) => {
-    if (!options.band) return;
-
-    const parsedBand = JSON.parse(options.band);
-    setTimeout(() => setBand(parsedBand), 500);
+    if (!options.bandID) return;
+    setBandID(options.bandID);
   });
 
   const {
     band,
-    setBand,
-    fetchBand,
     joinBand,
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
     checkUserIdentity,
+    setBandID,
   } = useBandProfile();
 
   useEffect(() => {
     Taro.setNavigationBarTitle({
-      title: "乐队档案" + `｜${band?.info.name ?? ""}`,
+      title: band?.info.name ?? "",
     });
   }, [band]);
 
@@ -58,58 +55,63 @@ export default function BandDetail() {
     }
 
     await joinBand(identity._id, positionID, band.info._id);
-    fetchBand();
   };
 
   return (
     <View className="band-detail page-padding">
-      <Image
-        style={{ borderRadius: 16 }}
-        height={300}
-        width={"100%"}
-        mode="aspectFill"
-        src={require("../../../assets/grok.jpg")}
-      />
-      <JXHugeLabel>{band?.info.name}</JXHugeLabel>
-      <JXMetricCard
-        label={isRecruiting ? "发布时间" : "成立时间"}
-        emoji="🗓️"
-        value={
-          isRecruiting
-            ? getYMDfromDate(
-                band?.info.statusUpdatedAt
-                  ? new Date(band?.info.statusUpdatedAt)
-                  : new Date()
-              )
-            : getYMDfromDate(band?.info.formedAt ?? new Date())
-        }
-      />
-      <JXFormLabel>乐队风格</JXFormLabel>
-      <View className="chip-container">
-        {band?.info.genre.map((g) => (
-          <JXGenreChip genre={g} />
-        ))}
-      </View>
-
-      <JXFormLabel>乐队成员</JXFormLabel>
-      <View className="card-gap container-v">
-        {(occupiedPositions as BandPosition[]).map((p) => (
-          <JXMusicianCardSM musician={p} />
-        ))}
-      </View>
-
-      {recruitingPositions.length > 0 && (
+      {band ? (
         <>
-          <JXFormLabel>招募乐手位置</JXFormLabel>
-          <View className="card-gap container-v">
-            {(recruitingPositions as BandPosition[]).map((p) => (
-              <JXMusicianCardRC
-                musician={p}
-                onClick={() => handleRcClick(p.position, p._id)}
-              />
+          <Image
+            style={{ borderRadius: 16 }}
+            height={300}
+            width={"100%"}
+            mode="aspectFill"
+            src={require("../../../assets/grok.jpg")}
+          />
+          <JXHugeLabel>{band?.info.name}</JXHugeLabel>
+          <JXMetricCard
+            label={isRecruiting ? "发布时间" : "成立时间"}
+            emoji="🗓️"
+            value={
+              isRecruiting
+                ? getYMDfromDate(
+                    band?.info.statusUpdatedAt
+                      ? new Date(band?.info.statusUpdatedAt)
+                      : new Date()
+                  )
+                : getYMDfromDate(band?.info.formedAt ?? new Date())
+            }
+          />
+          <JXFormLabel>乐队风格</JXFormLabel>
+          <View className="chip-container">
+            {band?.info.genre.map((g) => (
+              <JXGenreChip genre={g} />
             ))}
           </View>
+
+          <JXFormLabel>乐队成员</JXFormLabel>
+          <View className="card-gap container-v">
+            {(occupiedPositions as BandPosition[]).map((p) => (
+              <JXMusicianCardSM musician={p} />
+            ))}
+          </View>
+
+          {recruitingPositions.length > 0 && (
+            <>
+              <JXFormLabel>招募乐手位置</JXFormLabel>
+              <View className="card-gap container-v">
+                {(recruitingPositions as BandPosition[]).map((p) => (
+                  <JXMusicianCardRC
+                    musician={p}
+                    onClick={() => handleRcClick(p.position, p._id)}
+                  />
+                ))}
+              </View>
+            </>
+          )}
         </>
+      ) : (
+        <Loading />
       )}
     </View>
   );

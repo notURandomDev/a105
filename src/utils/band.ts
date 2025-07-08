@@ -56,9 +56,11 @@ export const createBandWithPositions = async ({
   positions,
   band,
 }: CreateBandWithPositionsParams) => {
+  // 首先，创建乐队，获取到乐队的ID
   const bandID = await createBand(band);
   if (!bandID) return;
 
+  // 根据乐队ID，创建乐队位置记录
   const bandPositionIDs = await createBandPositions({
     positions,
     bandID,

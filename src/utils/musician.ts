@@ -58,6 +58,5 @@ export const getMusicianProfiles = async ({
     musicianProfiles.push({ musicians, bandConfigs, nickname, combinedGenres });
   }
 
-  console.log("musicianProfiles", musicianProfiles);
   return musicianProfiles;
 };

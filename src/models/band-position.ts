@@ -8,7 +8,7 @@ export interface BandPosition {
   userID?: string | number; // 如果 status 为 occupied，则为乐手 ID
   musicianIDs: string[];
   nickname?: string;
-  bandID: string;
+  bandID: string | number;
   status: PositionStatus;
   recruitNote?: string; // 招募说明
   joinedAt?: Date; // 加入时间（可选）

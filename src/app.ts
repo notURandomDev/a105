@@ -4,6 +4,7 @@ import Taro, { useLaunch } from "@tarojs/taro";
 import "./app.scss";
 import { useUserStore } from "./stores/userStore";
 import { useBandStore } from "./stores/bandStore";
+import { useBandPositionStore } from "./stores/bandPositionStore";
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
@@ -12,9 +13,11 @@ function App({ children }: PropsWithChildren<any>) {
 
   const { userInfo } = useUserStore();
   const fetchBands = useBandStore((s) => s.fetchBands);
+  const fetchBandPositions = useBandPositionStore((s) => s.fetchBandPositions);
 
   useEffect(() => {
     fetchBands();
+    fetchBandPositions();
   }, []);
 
   useEffect(() => {

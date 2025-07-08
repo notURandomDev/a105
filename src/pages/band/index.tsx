@@ -1,5 +1,5 @@
 import { View } from "@tarojs/components";
-import Taro, { useDidShow, useLoad } from "@tarojs/taro";
+import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
 import { useState } from "react";
@@ -13,22 +13,9 @@ export default function Band() {
     console.log("Band Page loaded.");
   });
 
-  useDidShow(() => {
-    fetchRecruitingBands();
-    fetchActiveBands();
-  });
-
   const [tabIndex, setTabIndex] = useState(2);
 
-  const {
-    myBands,
-    activeBands,
-    recruitingBands,
-    fetchActiveBands,
-    fetchRecruitingBands,
-  } = useBandData({
-    production: true,
-  });
+  const { activeBands, recruitingBands, myBands } = useBandData();
 
   return (
     <View className="band page page-padding">
