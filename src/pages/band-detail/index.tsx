@@ -45,9 +45,9 @@ export default function BandDetail() {
   ) => {
     if (!band) return;
     // 判断根据用户的乐手数据，选择相应的乐手档案（获取到乐手ID）
-    const identityExist = await checkUserIdentity(position);
+    const identity = await checkUserIdentity(position);
     // 如果用户没有该 position 的乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
-    if (!identityExist) {
+    if (!identity) {
       const res = await Taro.showModal({
         title: "你暂时还没有该乐手身份",
         content: "请先完善乐手信息",
@@ -57,8 +57,7 @@ export default function BandDetail() {
       return;
     }
 
-    await joinBand(positionID, band.info._id);
-
+    await joinBand(identity._id, positionID, band.info._id);
     fetchBand();
   };
 

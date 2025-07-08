@@ -27,7 +27,7 @@ export default function Band() {
     fetchActiveBands,
     fetchRecruitingBands,
   } = useBandData({
-    production: false,
+    production: true,
   });
 
   return (

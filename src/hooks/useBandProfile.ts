@@ -1,10 +1,11 @@
 import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
 import { BandWithPositions } from "@/models/band";
+import { Musician } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import { updateBandPosition } from "@/services/bandPositionService";
 import { getBandById, updateBand } from "@/services/bandsService";
 import {
-  hasMatchingMusicianProfile,
+  getMatchingMusician,
   updateMusicianBandIDs,
 } from "@/services/musicianService";
 import { useUserStore } from "@/stores/userStore";
@@ -58,19 +59,22 @@ export const useBandProfile = () => {
   // 检查用户是否有当前类型的乐手档案
   const checkUserIdentity = async (
     position: PositionType
-  ): Promise<boolean | undefined> => {
+  ): Promise<Musician | undefined> => {
     if (!userInfo?._id) return;
 
     // 发送请求，传参：当前用户ID、position类型
-    const res = await hasMatchingMusicianProfile({
+    const res = await getMatchingMusician({
       userID: userInfo._id,
       position,
     });
 
-    return res;
+    if (!res) return;
+
+    return res[0] as Musician;
   };
 
   const joinBand = async (
+    musicianID: string | number,
     bandPositionID: string | number,
     bandID: string | number
   ) => {
@@ -90,10 +94,9 @@ export const useBandProfile = () => {
     });
 
     // 更新乐手所在乐队信息（ bandIDs列表中添加一项 ）
-    const mRes = await updateMusicianBandIDs({ _id: userInfo._id, bandID });
+    const mRes = await updateMusicianBandIDs({ _id: musicianID, bandID });
 
     if (!bpRes || !mRes) {
-      console.log(`是在这里出了问题：bpRes-${bpRes}; mRes-${mRes}`);
       Taro.hideLoading();
       JXToast.networkError();
       return;
