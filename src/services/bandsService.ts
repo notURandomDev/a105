@@ -37,19 +37,14 @@ interface GetAllBandsParams {
 }
 export const getAllBands = async ({
   production = false,
-}: GetAllBandsParams = {}): Promise<Band[] | null> => {
+}: GetAllBandsParams = {}): Promise<Band[] | undefined> => {
   if (!production) return MOCK_BANDS.active;
   try {
-    const res = await bandsCollection
-      .where({ status: _.eq("recruiting") })
-      .get();
-
+    const res = await bandsCollection.get();
     handleDBResult(res, "get", "获取全部乐队数据");
-
     return res.data as Band[];
   } catch (error) {
     console.error(error);
-    return null;
   }
 };
 

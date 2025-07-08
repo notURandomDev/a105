@@ -3,6 +3,7 @@ import Taro, { useLaunch } from "@tarojs/taro";
 
 import "./app.scss";
 import { useUserStore } from "./stores/userStore";
+import { useBandStore } from "./stores/bandStore";
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
@@ -10,6 +11,12 @@ function App({ children }: PropsWithChildren<any>) {
   });
 
   const { userInfo } = useUserStore();
+  const fetchBands = useBandStore((s) => s.fetchBands);
+
+  useEffect(() => {
+    fetchBands();
+  }, []);
+
   useEffect(() => {
     if (!userInfo) Taro.navigateTo({ url: "/pages/auth/index" });
   }, [userInfo]);
