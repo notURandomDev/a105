@@ -10,7 +10,11 @@ import {
   createBandPositions,
   getBandPositionsByBand,
 } from "@/services/bandPositionService";
-import { createBand, getBandsByStatus } from "@/services/bandsService";
+import {
+  createBand,
+  getBandsByIDs,
+  getBandsByStatus,
+} from "@/services/bandsService";
 
 export const getPositionsByStatus = (
   positions: CreateBandPositionInput[] | BandPosition[]
@@ -79,4 +83,22 @@ export const mergeBandWithPositions = async (
   if (!positions) return;
 
   return { info: band, positions };
+};
+
+// 入参：  列表，元素是乐队ID
+// 逻辑：  对乐队ID进行去重；建立映射表
+// 返回值：映射表｜乐队ID -> 乐队名
+
+type BandNameMap = Map<string | number, string>;
+export const getBandNameMap = async (
+  bandsIDs: (string | number)[]
+): Promise<BandNameMap | undefined> => {
+  const uniqueBandIDs = [...new Set(bandsIDs)]; // 乐队ID去重
+  const bands = await getBandsByIDs({
+    bandIDs: uniqueBandIDs,
+    production: true,
+  });
+  if (!bands) return;
+
+  return new Map(bands.map((b) => [b._id, b.name]));
 };

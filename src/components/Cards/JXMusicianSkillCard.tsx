@@ -4,8 +4,14 @@ import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXEmoji from "../JXEmoji";
 import JXTitleLabel from "../Labels/JXTitleLabel";
+import { Musician } from "@/models/musician";
+import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 
-function JXMusicianSkillCard() {
+interface JXMusicianSkillCardProps {
+  musician: Musician;
+}
+
+function JXMusicianSkillCard({ musician }: JXMusicianSkillCardProps) {
   return (
     <JXCardContainer style={{ gap: 8 }}>
       <View className="container-v" style={{ gap: 4 }}>
@@ -13,18 +19,20 @@ function JXMusicianSkillCard() {
           className="container-h grow"
           style={{ alignItems: "center", gap: 12 }}
         >
-          <JXEmoji>🥁</JXEmoji>
-          <JXTitleLabel lg>架子鼓</JXTitleLabel>
+          <JXEmoji>{MUSICIAN_DISPLAY[musician.position].emoji}</JXEmoji>
+          <JXTitleLabel lg>
+            {MUSICIAN_DISPLAY[musician.position].label}
+          </JXTitleLabel>
         </View>
 
         <View className="chip-container">
-          <JXGenreChip genre="Blues" />
-          <JXGenreChip genre="Blues" />
-          <JXGenreChip genre="Blues" />
+          {musician.genre.map((g) => (
+            <JXGenreChip genre={g} />
+          ))}
         </View>
       </View>
 
-      <JXBodyLabel>我很喜欢打鼓，如果有兴趣的话可以联系我</JXBodyLabel>
+      <JXBodyLabel>{musician.bio}</JXBodyLabel>
     </JXCardContainer>
   );
 }

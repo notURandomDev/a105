@@ -1,8 +1,7 @@
 import { View } from "@tarojs/components";
-import { useLoad } from "@tarojs/taro";
+import { useDidShow, useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
-import { useState } from "react";
 import { MusicianTabs } from "@/constants/utils/musician";
 import JXMetricCard from "@/components/Cards/JXMetricCard";
 import JXMusicianCard from "@/components/Cards/JXMusicianCard";
@@ -28,9 +27,10 @@ export default function Musician() {
     console.log("Page loaded.");
   });
 
-  const [activeTab, setActiveTab] = useState<MusicianTabs>("all");
-  const {} = useMusicianData();
+  useDidShow(() => fetchMusicians());
 
+  const { activeTab, setActiveTab, tabsData, fetchMusicians } =
+    useMusicianData();
   const activeTabMetaData = MUSICIAN_TABS.find((mt) => mt.value === activeTab);
 
   return (
@@ -38,7 +38,7 @@ export default function Musician() {
       <JXMetricCard
         label={`${activeTabMetaData?.label}人数`}
         emoji={activeTabMetaData?.emoji}
-        value={87}
+        value={tabsData[activeTab].length}
       />
       <Tabs
         lazyRender
@@ -55,8 +55,13 @@ export default function Musician() {
               value={tab.value}
             >
               <View className="tab-container">
-                <JXMusicianProfileCard />
-                <JXMusicianCard />
+                {tabsData[activeTab].map((mp) =>
+                  activeTab === "all" ? (
+                    <JXMusicianProfileCard musicianProfile={mp} />
+                  ) : (
+                    <JXMusicianCard musician={mp} />
+                  )
+                )}
               </View>
             </Tabs.TabPane>
           );

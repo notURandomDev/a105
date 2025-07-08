@@ -1,6 +1,5 @@
 import { _, db } from "@/cloud/cloudClient";
 import { MOCK_MUSICIAN_PROFILE } from "@/constants/database/musician";
-import { BandPosition } from "@/models/band-position";
 import {
   CreateMusicianInput,
   Musician,
@@ -98,15 +97,16 @@ export const getMusiciansByPositions = async ({
   }
 };
 
-interface HasMatchingMusicianProfileParams {
+interface GetMatchingMusicianParams {
   userID: string | number;
   position: PositionType;
 }
 
-export const hasMatchingMusicianProfile = async ({
+// 返回值：匹配的乐手
+export const getMatchingMusician = async ({
   userID,
   position,
-}: HasMatchingMusicianProfileParams): Promise<boolean | undefined> => {
+}: GetMatchingMusicianParams) => {
   try {
     const res = await musiciansCollection
       .where({
@@ -121,9 +121,7 @@ export const hasMatchingMusicianProfile = async ({
       `根据用户ID(${userID})获取${position}类型乐手记录`
     );
 
-    if (!res.data.length) return false;
-
-    return true;
+    return res.data;
   } catch (error) {
     console.error(error);
     return;

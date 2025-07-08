@@ -5,29 +5,35 @@ import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
+import { Musician } from "@/models/musician";
 
 interface JXMusicianCardProps {
-  nickName: string;
+  musician: Musician;
 }
 
-function JXMusicianCard({ nickName = "Musician Name" }: JXMusicianCardProps) {
+function JXMusicianCard({ musician }: JXMusicianCardProps) {
+  const { bandIDs, nickname, bio, genre } = musician;
   return (
     <JXCardContainer style={{ gap: 8 }}>
       <View className="container-h" style={{ gap: 12, alignItems: "center" }}>
-        <JXAvatar>a</JXAvatar>
+        <JXAvatar>{nickname}</JXAvatar>
         <View className="container-v">
-          <JXTitleLabel>{nickName}</JXTitleLabel>
-          <JXSecondaryLabel>TA 是 2 个乐队的吉他手</JXSecondaryLabel>
+          <JXTitleLabel>{nickname}</JXTitleLabel>
+          <JXSecondaryLabel>
+            {bandIDs.length
+              ? `TA 是 ${bandIDs.length} 个乐队的吉他手`
+              : "TA暂无乐队"}
+          </JXSecondaryLabel>
         </View>
       </View>
 
       <View className="chip-container">
-        <JXGenreChip genre="Blues" />
+        {genre.map((g) => (
+          <JXGenreChip genre={g} />
+        ))}
       </View>
 
-      <JXBodyLabel>
-        乐手简介：这是一段很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长很长的乐手简介
-      </JXBodyLabel>
+      <JXBodyLabel>{`乐手简介：${bio}`}</JXBodyLabel>
     </JXCardContainer>
   );
 }

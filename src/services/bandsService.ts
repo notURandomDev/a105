@@ -105,6 +105,30 @@ export const getBandById = async ({
     console.error(error);
   }
 };
+
+interface GetBandsByIDsParams {
+  production?: boolean;
+  bandIDs: (string | number)[];
+}
+export const getBandsByIDs = async ({
+  production,
+  bandIDs,
+}: GetBandsByIDsParams): Promise<Band[] | undefined> => {
+  if (!production) return;
+  try {
+    const res = await bandsCollection.where({ _id: _.in(bandIDs) }).get();
+    handleDBResult(
+      res,
+      "get",
+      `根据乐队ID(${bandIDs.length})获取${res.data.length}条乐队数据`
+    );
+    return res.data as Band[];
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+};
+
 /* UPDATE */
 
 interface UpdateBandData {

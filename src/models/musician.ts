@@ -20,7 +20,7 @@ export type CreateMusicianInput = Pick<
 export type UpdateMusicianInput = Pick<
   Musician,
   "genre" | "position" | "bio" | "_id"
->;
+> & { bandIDs?: (string | number)[] };
 
 export interface MusicianDisplayLG {}
 
@@ -35,4 +35,16 @@ export interface MusicianDisplaySM {
   nickname: string;
   position: PositionType;
   joinedAt: Date; // 加入乐队时间
+}
+
+export type BandConfig = {
+  bandID: string | number;
+  bandName: string;
+  position: PositionType;
+};
+export interface MusicianProfile {
+  nickname: string;
+  combinedGenres: Genre[];
+  musicians: Musician[];
+  bandConfigs: BandConfig[];
 }

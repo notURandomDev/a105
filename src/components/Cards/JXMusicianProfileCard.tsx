@@ -6,32 +6,47 @@ import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import Taro from "@tarojs/taro";
+import { MusicianProfile } from "@/models/musician";
+import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 
-function JXMusicianProfileCard() {
+interface JXMusicianProfileCardProps {
+  musicianProfile: MusicianProfile;
+}
+
+function JXMusicianProfileCard({
+  musicianProfile,
+}: JXMusicianProfileCardProps) {
+  const { nickname, combinedGenres, bandConfigs } = musicianProfile;
+
   const navigate = () => {
-    Taro.navigateTo({ url: `/pages/musician-detail/index?name=${"John Doe"}` });
+    Taro.navigateTo({
+      url: `/pages/musician-detail/index?mp=${JSON.stringify(musicianProfile)}`,
+    });
   };
 
   return (
     <JXCardContainer onClick={navigate} style={{ gap: 8 }}>
       <View className="container-h" style={{ gap: 12, alignItems: "center" }}>
-        <JXAvatar>Kyle</JXAvatar>
+        <JXAvatar>{nickname}</JXAvatar>
         <View className="container-v">
-          <JXTitleLabel>{"Kyle"}</JXTitleLabel>
-          <JXSecondaryLabel>TA 在 5 年前加入了吉协</JXSecondaryLabel>
+          <JXTitleLabel>{nickname}</JXTitleLabel>
+          <JXSecondaryLabel>TA 在 n 年前加入了吉协</JXSecondaryLabel>
         </View>
       </View>
 
       <View className="chip-container">
-        <JXGenreChip genre="Blues" />
-        <JXGenreChip genre="Blues" />
-        <JXGenreChip genre="Blues" />
-        <JXGenreChip genre="Blues" />
+        {combinedGenres.map((g) => (
+          <JXGenreChip genre={g} />
+        ))}
       </View>
 
       <View className="container-v">
-        <JXBodyLabel>🎸 在 JOINT 乐队中担任主音吉他手</JXBodyLabel>
-        <JXBodyLabel>🥁 在 Rockaissance 乐队中担任鼓手</JXBodyLabel>
+        {bandConfigs.map(({ position, bandName }) => {
+          const { label, emoji } = MUSICIAN_DISPLAY[position];
+          return (
+            <JXBodyLabel>{`${emoji} 在 ${bandName} 乐队中担任${label}`}</JXBodyLabel>
+          );
+        })}
       </View>
     </JXCardContainer>
   );
