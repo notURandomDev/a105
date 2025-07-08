@@ -24,7 +24,6 @@ export interface CreateBandInput {
   name: string;
   description: string;
   genre: Genre[];
-  positions: CreateBandPositionInput[];
   status: BandStatus;
   statusUpdatedAt: Date;
   statusLogs: BandStatusLog[];

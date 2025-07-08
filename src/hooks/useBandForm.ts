@@ -127,19 +127,19 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     }));
 
   const handleSubmit = async () => {
-    console.log(formData);
     const now = new Date();
 
     Taro.showLoading();
 
+    const { positions, ...createInput } = formData;
     const res = await createBandWithPositions({
       band: {
-        ...formData,
+        ...createInput,
         status: "recruiting",
         statusUpdatedAt: now,
         statusLogs: [{ at: now, status: "recruiting" }],
       },
-      positions: formData.positions,
+      positions,
     });
 
     if (!res) {
