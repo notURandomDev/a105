@@ -1,8 +1,7 @@
 import { BandPickerConfig } from "@/models/band";
-import {
-  createReservation,
-  getReservationsByDate,
-} from "@/services/reservationsService";
+import { selectReservationsByDate } from "@/selectors/reservationSelectors";
+import { createReservation } from "@/services/reservationsService";
+import { useReservationStore } from "@/stores/reservationStore";
 import { compareHM } from "@/utils/DatetimeHelper";
 import Taro from "@tarojs/taro";
 import { useState } from "react";
@@ -16,13 +15,8 @@ export type FormData = {
   band: BandPickerConfig | null;
 };
 
-interface UseReservationFormParams {
-  production?: boolean;
-}
-
-export const useReservationForm = ({
-  production = false,
-}: UseReservationFormParams = {}) => {
+export const useReservationForm = () => {
+  const { reservations, fetchReservations } = useReservationStore();
   const [formData, setFormData] = useState<FormData>({
     startTime: null,
     endTime: null,
@@ -63,11 +57,11 @@ export const useReservationForm = ({
 
   const updateDatetimePicker = (date: Date) => {
     if (!validateTime(date)) return;
-
     updatePickerValue(date);
     setActivePicker(null);
   };
 
+  // 验证预约时间的有效性
   const validateTime = (time: Date) => {
     const MODAL_CONFIG = { title: "请重新选择排练时间", showCancel: false };
     const { startTime, endTime } = formData;
@@ -94,21 +88,22 @@ export const useReservationForm = ({
     return true;
   };
 
+  // 检查是否与当前已有的排练冲突
   const checkReservationConflict = async (
     date: Date,
     startTime: Date,
     endTime: Date
   ) => {
-    const allReservations = await getReservationsByDate(date);
-    return allReservations.some((reservation) => {
+    const reservationsToday = selectReservationsByDate(reservations, date);
+    return reservationsToday.some((reservation) => {
       const noConflict =
         endTime <= reservation.startTime || startTime >= reservation.endTime;
-
       if (!noConflict) console.log("与该预约冲突：", reservation);
       return !noConflict;
     });
   };
 
+  // 获取排练预约的预览数据
   const getReservationPreview = () => ({
     bandName: formData.band?.name ?? "",
     date: formData.date,
@@ -116,6 +111,8 @@ export const useReservationForm = ({
     endTime: formData.endTime ?? new Date(),
     bandID: "",
   });
+
+  // 检查表单数据是否有效 (控制CTA按钮是否禁用)
   const isFormDataValid = () => {
     return (
       formData.startTime !== null &&
@@ -124,6 +121,7 @@ export const useReservationForm = ({
     );
   };
 
+  // 提交表单数据
   const submitFormData = async () => {
     const { band, date, startTime, endTime } = formData;
     if (!date || !startTime || !endTime || !band) return;
@@ -141,10 +139,12 @@ export const useReservationForm = ({
       startTime,
       endTime,
     });
+
     if (res) {
+      await fetchReservations();
       Taro.hideLoading();
       Taro.showToast({ icon: "success", title: "预约成功" });
-      setTimeout(() => Taro.navigateBack(), 2000);
+      setTimeout(() => Taro.navigateBack(), 1000);
     }
   };
 

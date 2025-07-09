@@ -3,12 +3,10 @@ import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import JXCalendar from "@/components/JXCalendar";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
-import { useEffect, useState } from "react";
-import { getReservationsByDate } from "@/services/reservationsService";
-import { Reservation } from "@/models/reservation";
+import { useState } from "react";
 import { getMDWfromDate } from "@/utils/DatetimeHelper";
-import { getMockReservation } from "@/constants/database/reservation";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
+import { useReservationsWithDate } from "@/hooks/reservation/useReservationsWithDate";
 
 export default function Calendar() {
   useLoad(() => {
@@ -16,20 +14,7 @@ export default function Calendar() {
   });
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-
-  const initReservations = async () => {
-    // 生产环境
-    // const reservationsToday = await getReservationsByDate(selectedDate);
-
-    // 测试环境
-    const reservationsToday = getMockReservation(new Date());
-    setReservations([reservationsToday]);
-  };
-
-  useEffect(() => {
-    initReservations();
-  }, []);
+  const reservations = useReservationsWithDate(selectedDate);
 
   const navigate = () => {
     Taro.navigateTo({
@@ -37,18 +22,9 @@ export default function Calendar() {
     });
   };
 
-  const handleDateChange = async (
-    date: Date,
-    reservationsOnDate: Reservation[]
-  ) => {
-    console.log(reservationsOnDate);
-    setSelectedDate(date);
-    setReservations(reservationsOnDate);
-  };
-
   return (
     <ScrollView className="reserve">
-      <JXCalendar onChange={handleDateChange} />
+      <JXCalendar onChange={setSelectedDate} />
       <View
         className="container-h grow"
         style={{

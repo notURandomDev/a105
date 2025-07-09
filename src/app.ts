@@ -5,6 +5,7 @@ import "./app.scss";
 import { useUserStore } from "./stores/userStore";
 import { useBandStore } from "./stores/bandStore";
 import { useBandPositionStore } from "./stores/bandPositionStore";
+import { useReservationStore } from "./stores/reservationStore";
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
@@ -14,10 +15,12 @@ function App({ children }: PropsWithChildren<any>) {
   const { userInfo } = useUserStore();
   const fetchBands = useBandStore((s) => s.fetchBands);
   const fetchBandPositions = useBandPositionStore((s) => s.fetchBandPositions);
+  const fetchReservations = useReservationStore((s) => s.fetchReservations);
 
   useEffect(() => {
     fetchBands();
     fetchBandPositions();
+    fetchReservations();
   }, []);
 
   useEffect(() => {

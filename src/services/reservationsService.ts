@@ -21,14 +21,15 @@ export const createReservation = async (data: Reservation) => {
 
 /* READ */
 
-export const getReservations = async () => {
+export const getAllReservations = async (): Promise<
+  Reservation[] | undefined
+> => {
   try {
     const res = await reservationsCollection.get();
     handleDBResult(res, "get", "获取全部预约数据");
-    return res.data;
+    return res.data as Reservation[];
   } catch (error) {
     console.error(error);
-    return [];
   }
 };
 

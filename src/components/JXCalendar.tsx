@@ -1,7 +1,7 @@
 // 该组件在预约界面中使用
 
+import { useReservationWithDateRange } from "@/hooks/reservation/useReservationWithDateRange";
 import { Reservation } from "@/models/reservation";
-import { getReservationsByDateRange } from "@/services/reservationsService";
 import { getWeekRange, resetTimewithDate } from "@/utils/DatetimeHelper";
 import { Calendar } from "@taroify/core";
 import { CalendarDayObject } from "@taroify/core/calendar/calendar.shared";
@@ -29,16 +29,19 @@ const Bottom = ({ active }: { active: boolean }) => (
 type ReservationMap = { [timestamp: number]: Reservation[] };
 
 interface JXCalendarProps {
-  onChange: (value: Date, reservations: Reservation[]) => void;
+  onChange: (value: Date) => void;
 }
 function JXCalendar({ onChange }: JXCalendarProps) {
   const today = resetTimewithDate(new Date());
   const { monday: _, sunday } = getWeekRange();
 
-  const [reservationsMap, setReservationsMap] = useState<ReservationMap>({});
+  const reservations = useReservationWithDateRange(today, sunday);
+  const [reservationsMap, setReservationsMap] = useState({});
 
+  // 自定义的单元格格式化处理器
   const customDayFormatter = (day: CalendarDayObject): CalendarDayObject => {
     const date = day.value;
+    // 只处理当前一周的单元格
     if (date >= today && date <= sunday) {
       let top: ReactNode = null;
       let bottom: ReactNode = null;
@@ -58,33 +61,35 @@ function JXCalendar({ onChange }: JXCalendarProps) {
     return day;
   };
 
-  const initCalendar = async () => {
-    const data = await getReservationsByDateRange(today, sunday);
-
+  // 初始化日历数据
+  const initCalendar = () => {
     const map: ReservationMap = {};
-    data.forEach((reservation) => {
-      const key = reservation.date.getTime();
-
+    reservations.forEach((reservation) => {
+      // 预约时间是当天的 0 点
+      const key = resetTimewithDate(reservation.date).getTime();
       if (!map[key]) map[key] = [];
-
       map[key].push(reservation);
     });
-
-    setReservationsMap(map);
+    // 深比较，如果 map 本身没有变化，就不重新给 reservationMap 赋值，避免循环渲染
+    setReservationsMap((prev) => {
+      const prevStr = JSON.stringify(prev);
+      const nextStr = JSON.stringify(map);
+      if (prevStr === nextStr) return prev;
+      return map;
+    });
   };
 
   useEffect(() => {
+    if (!reservations) return;
     initCalendar();
-  }, []);
+  }, [reservations]);
 
   return (
     <Calendar
       formatter={customDayFormatter}
       showSubtitle={false}
       defaultValue={new Date()}
-      onChange={(date) => {
-        onChange(date, reservationsMap[date.getTime()] ?? []);
-      }}
+      onChange={onChange}
       title="时间表"
       style={{
         height: 510,

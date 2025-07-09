@@ -39,7 +39,10 @@ export const getWeekRange = () => {
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6); // 周日 = 周一 + 6天
 
-  return { monday, sunday };
+  return {
+    monday: resetTimewithDate(monday),
+    sunday: resetTimewithDate(sunday),
+  };
 };
 
 export const getDayRange = (date: Date) => {
