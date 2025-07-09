@@ -1,40 +1,28 @@
 import { View } from "@tarojs/components";
-import { useDidShow, useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { useUserStore } from "@/stores/userStore";
-import { getReservationsByBandIDs } from "@/services/reservationsService";
-import { useState } from "react";
-import { Reservation } from "@/models/reservation";
+import { useEffect, useState } from "react";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { sortReservationsOnState } from "@/utils/reservation";
 import JXAvatar from "@/components/JXAvatar";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
+import { useReservationsWithBands } from "@/hooks/reservation/useReservationsWithBand";
+import { useMusicianStore } from "@/stores/musicianStore";
+import { selectMusiciansByUser } from "@/selectors/musicianSelectors";
 
 export default function Index() {
-  useLoad(() => {
-    console.log("Home Page loaded.");
-  });
-
-  useDidShow(() => {
-    fetchReservations();
-  });
-
+  const [bandIDs, setBandIDs] = useState<(string | number)[]>([]);
   const { userInfo } = useUserStore();
+  const reservations = useReservationsWithBands(bandIDs);
+  const allMusicians = useMusicianStore((s) => s.musicians);
 
-  const [reservations, setReservations] = useState<Reservation[]>([]);
+  useEffect(() => {
+    if (!userInfo?._id || !allMusicians) return;
 
-  const fetchReservations = async () => {
-    if (!userInfo?.bandIDs) return;
-
-    const res = await getReservationsByBandIDs({
-      bandIDs: userInfo?.bandIDs,
-      sortByDate: false,
-    });
-    if (res) {
-      const sortedReservations = sortReservationsOnState(res);
-      setReservations(sortedReservations);
-    }
-  };
+    const musicians = selectMusiciansByUser(allMusicians, userInfo._id);
+    const uniqueBandIDs = [...new Set(musicians.flatMap((m) => m.bandIDs))];
+    setBandIDs(uniqueBandIDs);
+  }, [userInfo, allMusicians]);
 
   return (
     <View className="index page page-padding">
@@ -49,7 +37,7 @@ export default function Index() {
       </JXHugeLabel>
 
       <View className="grow container-v list-gap">
-        {reservations.map((reservation) => (
+        {sortReservationsOnState(reservations).map((reservation) => (
           <JXReservationCard reservation={reservation} />
         ))}
       </View>

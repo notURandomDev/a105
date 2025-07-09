@@ -4,7 +4,6 @@ export interface User {
   avatarFileID?: string | null;
   avatarUrl?: string | null;
   nickName?: string | null;
-  bandIDs?: string[];
   roles?: BandRole[];
 }
 

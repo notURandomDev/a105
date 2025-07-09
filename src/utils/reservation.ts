@@ -34,6 +34,7 @@ const sortReservationsOnStartTime = (
   }
 };
 
+// 根据不同的预约状态进行优先级排序
 export const sortReservationsOnState = (reservations: Reservation[]) => {
   const groupedReservations = {
     active: [] as Reservation[],

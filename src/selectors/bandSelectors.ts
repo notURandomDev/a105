@@ -2,9 +2,11 @@ import { Band, BandStatus } from "@/models/band";
 import { useBandPositionStore } from "@/stores/bandPositionStore";
 import { selectPositionsByBand } from "./bandPositionSelectors";
 
+// 根据乐队状态查找乐队
 export const selectBandsByStatus = (bands: Band[], status: BandStatus) =>
   bands.filter((b) => b.status === status);
 
+// 根据乐队ID查找乐队
 export const selectBandByID = (bands: Band[], bandID: string | number) =>
   bands.find((b) => b._id === bandID);
 
