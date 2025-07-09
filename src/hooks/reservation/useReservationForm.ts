@@ -56,36 +56,41 @@ export const useReservationForm = () => {
   };
 
   const updateDatetimePicker = (date: Date) => {
-    if (!validateTime(date)) return;
+    autoAdjustTime(date);
     updatePickerValue(date);
     setActivePicker(null);
   };
 
-  // 验证预约时间的有效性
-  const validateTime = (time: Date) => {
-    const MODAL_CONFIG = { title: "请重新选择排练时间", showCancel: false };
+  // 自动调整预约时间
+  const autoAdjustTime = (time: Date) => {
     const { startTime, endTime } = formData;
 
+    // 开始时间晚于结束时间
     if (activePicker === "startTime" && endTime && !compareHM(time, endTime)) {
-      Taro.showModal({
-        ...MODAL_CONFIG,
-        content: "排练开始时间应早于结束时间",
-      });
-      return false;
+      const newEndTime = new Date(time.getTime());
+      // 自动将结束时间基于新的开始时间往后推延一个小时
+      const currentEndHour = newEndTime.getHours();
+      let newEndHour = 23;
+      if (currentEndHour !== 23) newEndHour = currentEndHour + 1;
+      newEndTime.setHours(newEndHour);
+      setFormData((prev) => ({ ...prev, endTime: newEndTime }));
     }
+
+    // 结束时间早于开始时间
+
     if (
       activePicker === "endTime" &&
       startTime &&
       !compareHM(startTime, time)
     ) {
-      Taro.showModal({
-        ...MODAL_CONFIG,
-        content: "排练结束时间应晚于开始时间",
-      });
-      return false;
+      const newStartTime = new Date(time.getTime());
+      // 自动将开始时间基于新的结束时间往前提早一个小时
+      const currentStartHour = newStartTime.getHours();
+      let newStartHour = 0;
+      if (currentStartHour !== 0) newStartHour = currentStartHour - 1;
+      newStartTime.setHours(newStartHour);
+      setFormData((prev) => ({ ...prev, startTime: newStartTime }));
     }
-
-    return true;
   };
 
   // 检查是否与当前已有的排练冲突
@@ -114,10 +119,12 @@ export const useReservationForm = () => {
 
   // 检查表单数据是否有效 (控制CTA按钮是否禁用)
   const isFormDataValid = () => {
+    const { startTime, endTime, band } = formData;
     return (
-      formData.startTime !== null &&
-      formData.endTime !== null &&
-      formData.band !== null
+      startTime !== null &&
+      endTime !== null &&
+      band !== null &&
+      startTime.getTime() !== endTime.getTime()
     );
   };
 
@@ -155,7 +162,6 @@ export const useReservationForm = () => {
     setActivePicker,
     getPickerTitle,
     isFormDataValid,
-    validateTime,
     submitFormData,
     updatePickerValue,
     isDateTimePickerActive,
