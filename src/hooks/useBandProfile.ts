@@ -14,6 +14,7 @@ import {
 } from "@/services/musicianService";
 import { useBandPositionStore } from "@/stores/bandPositionStore";
 import { useBandStore } from "@/stores/bandStore";
+import { useMusicianStore } from "@/stores/musicianStore";
 import { useUserStore } from "@/stores/userStore";
 import { JXToast } from "@/utils/toast";
 import Taro from "@tarojs/taro";
@@ -23,6 +24,7 @@ export const useBandProfile = () => {
   const { userInfo } = useUserStore();
   const { bands, fetchBands } = useBandStore();
   const { bandPositions, fetchBandPositions } = useBandPositionStore();
+  const fetchMusicians = useMusicianStore((s) => s.fetchMusicians);
 
   const [bandID, setBandID] = useState<string | number | null>(null);
   const [band, setBand] = useState<BandWithPositions | null>(null);
@@ -124,7 +126,7 @@ export const useBandProfile = () => {
       return;
     }
 
-    await Promise.all([fetchBandPositions(), fetchBands()]);
+    await Promise.all([fetchBandPositions(), fetchBands(), fetchMusicians()]);
 
     Taro.hideLoading();
     Taro.showModal({
