@@ -2,13 +2,10 @@ import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { Genre } from "@/models/genre";
 import { CreateMusicianInput } from "@/models/musician";
 import { PositionType } from "@/models/position";
-import {
-  createMusicians,
-  getMusiciansByUserID,
-  updateMusicians,
-} from "@/services/musicianService";
+import { createMusicians, updateMusicians } from "@/services/musicianService";
 import { useUserStore } from "@/stores/userStore";
 import { useEffect, useState } from "react";
+import { useMusiciansWithUser } from "./useMusiciansWithUser";
 
 type FormItemStatus = "new" | "edited" | "pristine";
 
@@ -20,31 +17,17 @@ export interface MusicianFormItem {
   status: FormItemStatus;
 }
 
-interface UseMusicianFormParams {
-  production?: boolean;
-}
-
-export const useMusicianForm = ({
-  production = false,
-}: UseMusicianFormParams = {}) => {
+export const useMusicianForm = () => {
   const { userInfo } = useUserStore();
   const [formData, setFormData] = useState<MusicianFormItem[]>([]);
   const [pickerActive, setPickerActive] = useState(false);
 
-  // 在乐手档案表单刚加载出来的时候，需要先获取乐手的档案渲染已有的 选项
+  const { userMusicians, fetchMusicians } = useMusiciansWithUser();
+
   useEffect(() => {
-    fetchMusicianProfiles();
-  }, []);
-
-  const fetchMusicianProfiles = async () => {
-    const musicians = await getMusiciansByUserID({
-      userID: userInfo?._id ?? "",
-      production,
-    });
-    if (!musicians) return;
-
-    setFormData(musicians.map((m) => ({ ...m, status: "pristine" })));
-  };
+    if (!userMusicians) return;
+    setFormData(userMusicians.map((m) => ({ ...m, status: "pristine" })));
+  }, [userMusicians]);
 
   const didUserEdit = () => formData.some((mp) => mp.status !== "pristine");
 
@@ -93,6 +76,7 @@ export const useMusicianForm = ({
     Promise.all([
       createMusicians({ musicians: toCreate }),
       updateMusicians({ musicians: toUpdate }),
+      fetchMusicians(),
     ]);
   };
 

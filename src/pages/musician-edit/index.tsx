@@ -1,5 +1,5 @@
 import { View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro from "@tarojs/taro";
 import "./index.scss";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
 import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
@@ -13,10 +13,6 @@ import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { JXToast } from "@/utils/toast";
 
 export default function MusicianEdit() {
-  useLoad(() => {
-    console.log("Page loaded.");
-  });
-
   const {
     formData,
     pickerActive,
@@ -26,7 +22,7 @@ export default function MusicianEdit() {
     handleSubmit,
     updateFormData,
     didUserEdit,
-  } = useMusicianForm({ production: true });
+  } = useMusicianForm();
 
   return (
     <View className="musician-edit config-page">
