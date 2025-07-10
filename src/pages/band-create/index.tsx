@@ -1,5 +1,4 @@
 import { View } from "@tarojs/components";
-import { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
 import JXGenreChip from "@/components/JXGenreChip";
@@ -14,10 +13,6 @@ import { Genre } from "@/models/genre";
 import { getPositionsByStatus } from "@/utils/band";
 
 export default function BandCreate() {
-  useLoad(() => {
-    console.log("Page loaded.");
-  });
-
   const {
     formData,
     activePicker,
