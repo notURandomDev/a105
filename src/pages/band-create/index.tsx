@@ -11,10 +11,24 @@ import { Close } from "@taroify/icons";
 import { useBandForm } from "@/hooks/useBandForm";
 import { Genre } from "@/models/genre";
 import { getPositionsByStatus } from "@/utils/band";
+import { useLoad } from "@tarojs/taro";
+import { PositionType } from "@/models/position";
 
 export default function BandCreate() {
+  useLoad((options: Record<string, string>) => {
+    const defaultPosition = options.position as PositionType;
+    if (!defaultPosition) return;
+    setFormData((prev) => ({
+      ...prev,
+      positions: prev.positions.map((p) =>
+        p.status === "occupied" ? { ...p, position: defaultPosition } : p
+      ),
+    }));
+  });
+
   const {
     formData,
+    setFormData,
     activePicker,
     setActivePicker,
     feedback,

@@ -13,6 +13,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useBandStore } from "@/stores/bandStore";
 import { useBandPositionStore } from "@/stores/bandPositionStore";
 import { useMusicianStore } from "@/stores/musicianStore";
+import { matchUserMusician } from "@/utils/musician";
 
 const DEFAULT_FORM_DATA_BASE = {
   name: "JOINT",
@@ -91,8 +92,13 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
   const updateGenre = (value: Genre[]) =>
     setFormData((prev) => ({ ...prev, genre: value }));
 
-  const updatePositions = (position: PositionType) => {
+  const updatePositions = async (position: PositionType) => {
+    // 更新【你的位置】
     if (activePicker === "occupied") {
+      // 首先要判断创建者是否有该乐手身份
+      if (!userInfo?._id) return;
+      const match = await matchUserMusician(userInfo?._id, position);
+      if (!match) return;
       const joinedAt = new Date();
       setFormData((prev) => ({
         ...prev,
@@ -104,6 +110,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
       }));
     }
 
+    // 更新【招募乐手位置】
     if (activePicker === "recruiting") {
       setFormData((prev) => ({
         ...prev,

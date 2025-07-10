@@ -1,12 +1,15 @@
 import { getAllMusicians } from "@/services/musicianService";
 import { getBandNameMap } from "./band";
 import { BandConfig, Musician, MusicianProfile } from "@/models/musician";
+import { PositionType } from "@/models/position";
+import { selectMatchingMusician } from "@/selectors/musicianSelectors";
+import Taro from "@tarojs/taro";
 
 interface GetMusicianProfilesParams {
   production?: boolean;
 }
 
-// 大体逻辑：获取所有乐手信息，然后以用户为单位对乐手进行分组
+// [含API请求] 大体逻辑：获取所有乐手信息，然后以用户为单位对乐手进行分组
 export const getMusicianProfiles = async ({
   production = false,
 }: GetMusicianProfilesParams = {}) => {
@@ -59,4 +62,23 @@ export const getMusicianProfiles = async ({
   }
 
   return musicianProfiles;
+};
+
+// 【快照】检查（用户的乐手档案）是否有与（传参位置）相匹配的乐手档案
+export const matchUserMusician = async (
+  userID: string | number,
+  position: PositionType
+) => {
+  // 判断根据用户的乐手数据，选择相应的乐手档案（获取到乐手ID）
+  const match = selectMatchingMusician(userID, position);
+  if (match) return match;
+
+  // 如果用户没有该 position 的乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
+  const res = await Taro.showModal({
+    title: "你暂时还没有该乐手身份",
+    content: "请先完善乐手信息",
+    confirmText: "前往完善",
+  });
+  if (res.confirm) Taro.navigateTo({ url: "/pages/musician-edit/index" });
+  return;
 };

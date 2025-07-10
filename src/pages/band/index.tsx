@@ -1,5 +1,4 @@
 import { View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
 import { useState } from "react";
@@ -9,13 +8,10 @@ import JXMetricCardSM from "@/components/Cards/JXMetricCardSM";
 import { useBandData } from "@/hooks/useBandData";
 
 export default function Band() {
-  useLoad(() => {
-    console.log("Band Page loaded.");
-  });
-
   const [tabIndex, setTabIndex] = useState(2);
 
-  const { activeBands, recruitingBands, myBands } = useBandData();
+  const { activeBands, recruitingBands, myBands, handleCreateBand } =
+    useBandData();
 
   return (
     <View className="band page page-padding">
@@ -69,9 +65,7 @@ export default function Band() {
           </View>
         </Tabs.TabPane>
       </Tabs>
-      <JXFloatingBubble
-        onClick={() => Taro.navigateTo({ url: "/pages/band-create/index" })}
-      />
+      <JXFloatingBubble onClick={handleCreateBand} />
     </View>
   );
 }

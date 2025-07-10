@@ -1,6 +1,4 @@
 import { BandWithPositions } from "@/models/band";
-import { Musician } from "@/models/musician";
-import { PositionType } from "@/models/position";
 import { selectPositionsByStatus } from "@/selectors/bandPositionSelectors";
 import {
   selectBandByID,
@@ -8,10 +6,7 @@ import {
 } from "@/selectors/bandSelectors";
 import { updateBandPosition } from "@/services/bandPositionService";
 import { updateBand } from "@/services/bandsService";
-import {
-  getMatchingMusician,
-  updateMusicianBandIDs,
-} from "@/services/musicianService";
+import { updateMusicianBandIDs } from "@/services/musicianService";
 import { useBandPositionStore } from "@/stores/bandPositionStore";
 import { useBandStore } from "@/stores/bandStore";
 import { useMusicianStore } from "@/stores/musicianStore";
@@ -80,22 +75,6 @@ export const useBandProfile = () => {
     }
   };
 
-  // 检查用户是否有当前类型的乐手档案
-  const checkUserIdentity = async (
-    position: PositionType
-  ): Promise<Musician | undefined> => {
-    if (!userInfo?._id) return;
-
-    // 发送请求，传参：当前用户ID、position类型
-    const res = await getMatchingMusician({
-      userID: userInfo._id,
-      position,
-    });
-
-    if (!res) return;
-    return res[0] as Musician;
-  };
-
   // 加入乐队的聚合操作
   const joinBand = async (
     musicianID: string | number,
@@ -142,7 +121,6 @@ export const useBandProfile = () => {
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
-    checkUserIdentity,
     joinBand,
     bandID,
     setBandID,

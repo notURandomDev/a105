@@ -2,6 +2,7 @@ import { Band } from "@/models/band";
 import { BandConfig, Musician, MusicianProfile } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import { selectBandNamesByIDs } from "./bandSelectors";
+import { useMusicianStore } from "@/stores/musicianStore";
 
 export const selectMusiciansByUser = (
   musicians: Musician[],
@@ -60,4 +61,16 @@ export const selectMusicianProfiles = (
   }
 
   return musicianProfiles;
+};
+
+// 查找某用户某职位的乐手身份
+export const selectMatchingMusician = (
+  userID: string | number,
+  position: PositionType
+) => {
+  const allMusicians = useMusicianStore.getState().musicians;
+  const match = allMusicians.find(
+    (m) => m.position === position && m.userID === userID
+  );
+  return match;
 };

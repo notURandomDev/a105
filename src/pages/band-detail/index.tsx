@@ -13,6 +13,8 @@ import { getYMDfromDate } from "@/utils/DatetimeHelper";
 import { BandPosition } from "@/models/band-position";
 import { useEffect } from "react";
 import { PositionType } from "@/models/position";
+import { useUserStore } from "@/stores/userStore";
+import { matchUserMusician } from "@/utils/musician";
 
 export default function BandDetail() {
   useLoad((options: Record<string, string>) => {
@@ -20,41 +22,34 @@ export default function BandDetail() {
     setBandID(options.bandID);
   });
 
+  const { userInfo } = useUserStore();
+
   const {
     band,
     joinBand,
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
-    checkUserIdentity,
     setBandID,
   } = useBandProfile();
 
   useEffect(() => {
-    Taro.setNavigationBarTitle({
-      title: band?.info.name ?? "",
-    });
+    let title = "乐队详情";
+    if (band?.info.name) title = band.info.name;
+    Taro.setNavigationBarTitle({ title });
   }, [band]);
 
+  // 乐手点击加入乐队按钮
   const handleRcClick = async (
     position: PositionType,
     positionID: string | number
   ) => {
-    if (!band) return;
-    // 判断根据用户的乐手数据，选择相应的乐手档案（获取到乐手ID）
-    const identity = await checkUserIdentity(position);
-    // 如果用户没有该 position 的乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
-    if (!identity) {
-      const res = await Taro.showModal({
-        title: "你暂时还没有该乐手身份",
-        content: "请先完善乐手信息",
-        confirmText: "前往完善",
-      });
-      if (res.confirm) Taro.navigateTo({ url: "/pages/musician-edit/index" });
-      return;
-    }
+    if (!band || !userInfo) return;
 
-    await joinBand(identity._id, positionID, band.info._id);
+    const matchResult = await matchUserMusician(userInfo._id, position);
+    if (!matchResult) return;
+
+    await joinBand(matchResult._id, positionID, band.info._id);
   };
 
   return (

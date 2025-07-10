@@ -141,7 +141,11 @@ interface UpdateBandParams {
 export const updateBand = async ({ bandID, data }: UpdateBandParams) => {
   try {
     const res = await bandsCollection.doc(bandID).update({ data });
-    handleDBResult(res, "update", "更新乐队数据");
+    handleDBResult(
+      res,
+      "update",
+      `Payload：【${JSON.stringify(data)}】更新乐队数据`
+    );
     return true;
   } catch (error) {
     console.error(error);
