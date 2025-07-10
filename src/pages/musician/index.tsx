@@ -1,5 +1,4 @@
 import { View } from "@tarojs/components";
-import { useDidShow, useLoad } from "@tarojs/taro";
 import "./index.scss";
 import { Tabs } from "@taroify/core";
 import { MusicianTabs } from "@/constants/utils/musician";
@@ -23,14 +22,7 @@ export const MUSICIAN_TABS: {
 ];
 
 export default function Musician() {
-  useLoad(() => {
-    console.log("Page loaded.");
-  });
-
-  useDidShow(() => fetchMusicians());
-
-  const { activeTab, setActiveTab, tabsData, fetchMusicians } =
-    useMusicianData();
+  const { activeTab, setActiveTab, tabsData } = useMusicianData();
   const activeTabMetaData = MUSICIAN_TABS.find((mt) => mt.value === activeTab);
 
   return (

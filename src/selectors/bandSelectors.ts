@@ -20,3 +20,12 @@ export const selectBandsWithPositions = (bands: Band[]) => {
   });
   return bandsWithPositions;
 };
+
+export const selectBandNamesByIDs = (
+  bands: Band[],
+  bandIDs: (string | number)[]
+): Map<string | number, string> => {
+  const uniqueBandIDs = [...new Set(bandIDs)]; // 乐队ID去重
+  const uniqueBands = bands.filter((b) => uniqueBandIDs.includes(b._id)); // 找到乐队
+  return new Map(uniqueBands.map((b) => [b._id, b.name]));
+};

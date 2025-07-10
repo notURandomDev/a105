@@ -1,20 +1,18 @@
 import { MusicianTabs } from "@/constants/utils/musician";
 import { Musician, MusicianProfile } from "@/models/musician";
-import { getMusiciansByPositions } from "@/services/musicianService";
-import { getMusicianProfiles } from "@/utils/musician";
+import {
+  selectMusicianProfiles,
+  selectMusiciansWithPositions,
+} from "@/selectors/musicianSelectors";
+import { useBandStore } from "@/stores/bandStore";
+import { useMusicianStore } from "@/stores/musicianStore";
 import { useEffect, useState } from "react";
 
-interface UseMusicianDataParams {
-  production?: boolean;
-}
-
-type TabsData = {
+export type TabsData = {
   [K in MusicianTabs]: K extends "all" ? MusicianProfile[] : Musician[];
 };
 
-export const useMusicianData = ({
-  production = false,
-}: UseMusicianDataParams = {}) => {
+export const useMusicianData = () => {
   const [activeTab, setActiveTab] = useState<MusicianTabs>("all");
   const [tabsData, setTabsData] = useState<TabsData>({
     all: [],
@@ -24,33 +22,31 @@ export const useMusicianData = ({
     keyboardist: [],
     vocalist: [],
   });
+  const allMusicians = useMusicianStore((s) => s.musicians);
+  const bands = useBandStore((s) => s.bands);
 
   useEffect(() => {
-    if (!tabsData[activeTab].length) fetchMusicians();
-  }, [activeTab]);
+    if (!allMusicians || !bands) return;
+    getMusicians();
+  }, [activeTab, allMusicians, bands]);
 
-  const fetchMusicians = async () => {
-    let musicians: Musician[] | undefined;
+  const getMusicians = async () => {
+    let musicians = allMusicians;
     if (activeTab === "all") {
-      const mp = await getMusicianProfiles({ production: true });
-      if (!mp) return;
-
-      setTabsData((prev) => ({ ...prev, all: mp }));
+      const mps = selectMusicianProfiles(allMusicians, bands);
+      if (!mps) return;
+      setTabsData((prev) => ({ ...prev, all: mps }));
       return;
     } else if (activeTab === "guitarist") {
-      musicians = await getMusiciansByPositions({
-        positions: ["guitarist_lead", "guitarist_rhythm"],
-        production,
-      });
+      musicians = selectMusiciansWithPositions(allMusicians, [
+        "guitarist_lead",
+        "guitarist_rhythm",
+      ]);
     } else {
-      musicians = await getMusiciansByPositions({
-        positions: [activeTab],
-        production,
-      });
+      musicians = selectMusiciansWithPositions(allMusicians, [activeTab]);
     }
-
     setTabsData((prev) => ({ ...prev, [activeTab]: musicians }));
   };
 
-  return { tabsData, activeTab, setActiveTab, fetchMusicians };
+  return { tabsData, activeTab, setActiveTab };
 };
