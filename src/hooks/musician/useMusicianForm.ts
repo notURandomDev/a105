@@ -73,11 +73,12 @@ export const useMusicianForm = () => {
       .filter((item) => item.status === "edited")
       .map((item) => ({ ...item, _id: item._id ?? "" }));
 
-    Promise.all([
+    await Promise.all([
       createMusicians({ musicians: toCreate }),
       updateMusicians({ musicians: toUpdate }),
-      fetchMusicians(),
     ]);
+
+    fetchMusicians();
   };
 
   return {
