@@ -1,6 +1,7 @@
 import { Band, BandStatus } from "@/models/band";
 import { useBandPositionStore } from "@/stores/bandPositionStore";
 import { selectPositionsByBand } from "./bandPositionSelectors";
+import { Musician } from "@/models/musician";
 
 // 根据乐队状态查找乐队
 export const selectBandsByStatus = (bands: Band[], status: BandStatus) =>
@@ -28,4 +29,15 @@ export const selectBandNamesByIDs = (
   const uniqueBandIDs = [...new Set(bandIDs)]; // 乐队ID去重
   const uniqueBands = bands.filter((b) => uniqueBandIDs.includes(b._id)); // 找到乐队
   return new Map(uniqueBands.map((b) => [b._id, b.name]));
+};
+
+// 根据乐手信息获取到所有匹配的乐队
+export const selectBandsByMusicians = (
+  bands: Band[],
+  musicians: Musician[]
+) => {
+  // 将乐手数组的 bandIDs 提取出来 (无重叠)
+  const uniqueBandIDs = new Set(musicians.flatMap((b) => b.bandIDs));
+  const uniqueBands = bands.filter((b) => uniqueBandIDs.has(b._id));
+  return uniqueBands;
 };

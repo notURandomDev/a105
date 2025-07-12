@@ -45,7 +45,7 @@ export default function Band() {
       >
         <Tabs.TabPane title="我的" className="tab-pane">
           <View className="tab-container">
-            {activeBands.map((b) => (
+            {myBands.map((b) => (
               <JXBandCard band={b} />
             ))}
           </View>

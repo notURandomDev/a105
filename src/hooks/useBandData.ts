@@ -1,20 +1,15 @@
-import { BandWithPositions } from "@/models/band";
-import { useState } from "react";
 import { useBandsByStatus } from "./band/useBandsByStatus";
 import { useBandsWithPositions } from "./band/useBandsWithPositions";
 import { selectMusiciansByUser } from "@/selectors/musicianSelectors";
 import { useMusicianStore } from "@/stores/musicianStore";
 import { useUserStore } from "@/stores/userStore";
 import Taro from "@tarojs/taro";
+import { useBandsWithUser } from "./band/useBandsWithUser";
 
 export const useBandData = () => {
   const activeBands = useBandsWithPositions(useBandsByStatus("active"));
   const recruitingBands = useBandsWithPositions(useBandsByStatus("recruiting"));
-
-  const [myBands, setMyBands] = useState<BandWithPositions[]>([]);
-
-  // to-do
-  // 根据用户id，获取用户所在的乐队
+  const myBands = useBandsWithUser();
 
   const handleCreateBand = async () => {
     const allMusicians = useMusicianStore.getState().musicians;
