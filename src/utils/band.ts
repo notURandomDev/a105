@@ -7,10 +7,6 @@ import {
 } from "@/models/band";
 import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
 import {
-  selectMusiciansByUser,
-  selectMusiciansWithPositions,
-} from "@/selectors/musicianSelectors";
-import {
   createBandPositions,
   getBandPositionsByBand,
 } from "@/services/bandPositionService";
@@ -20,7 +16,6 @@ import {
   getBandsByStatus,
 } from "@/services/bandsService";
 import { updateMusicianBandIDs } from "@/services/musicianService";
-import { useMusicianStore } from "@/stores/musicianStore";
 
 export const getPositionsByStatus = (
   positions: CreateBandPositionInput[] | BandPosition[]
@@ -68,18 +63,11 @@ export const createBandWithPositions = async ({
 
   // 找到乐队创建人的position
   const occupiedPosition = positions.find((p) => p.status === "occupied");
-  if (!occupiedPosition?.userID) return;
+  const creatorMusicianID = occupiedPosition?.musicianID;
+  if (!creatorMusicianID) return;
 
   // 对创建人的乐手身份 bandIDs 字段进行修改 (加入新建的乐队)
-  const allMusicians = useMusicianStore.getState().musicians;
-  const creatorMusicians = selectMusiciansByUser(
-    allMusicians,
-    occupiedPosition?.userID
-  );
-  const musician = selectMusiciansWithPositions(creatorMusicians, [
-    occupiedPosition.position,
-  ])[0];
-  await updateMusicianBandIDs({ _id: musician._id, bandID });
+  await updateMusicianBandIDs({ _id: creatorMusicianID, bandID });
 
   // 根据乐队ID，创建乐队位置记录
   await createBandPositions({ positions, bandID });

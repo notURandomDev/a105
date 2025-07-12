@@ -74,3 +74,9 @@ export const selectMatchingMusician = (
   );
   return match;
 };
+
+// [snapshot] 根据乐手 ID 选中乐手
+export const selectMusicianByID = (musicianID: string | number) => {
+  const allMusicians = useMusicianStore.getState().musicians;
+  return allMusicians.find((m) => m._id === musicianID);
+};

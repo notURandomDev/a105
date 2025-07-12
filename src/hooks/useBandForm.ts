@@ -43,7 +43,6 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
   const OCCUPIED_MUSICIAN_BASE_DATA = {
     status: "occupied" as PositionStatus,
     nickname: userInfo?.nickName ?? "replace-this-with-actual-user-nickname",
-    userID: userInfo?._id ?? "replace-this-with-actual-user-id",
   };
 
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
@@ -104,7 +103,12 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
         ...prev,
         positions: prev.positions.map((p) =>
           p.status === "occupied"
-            ? { ...OCCUPIED_MUSICIAN_BASE_DATA, position, joinedAt }
+            ? {
+                ...OCCUPIED_MUSICIAN_BASE_DATA,
+                position,
+                joinedAt,
+                musicianID: match._id,
+              }
             : p
         ),
       }));

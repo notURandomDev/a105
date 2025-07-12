@@ -33,7 +33,7 @@ export const useBandData = () => {
     }
 
     Taro.navigateTo({
-      url: `/pages/band-create/index?position=${musicians[0].position}`,
+      url: `/pages/band-create/index?musicianID=${musicians[0]._id}`,
     });
   };
 

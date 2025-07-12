@@ -13,15 +13,24 @@ import { Genre } from "@/models/genre";
 import { getPositionsByStatus } from "@/utils/band";
 import { useLoad } from "@tarojs/taro";
 import { PositionType } from "@/models/position";
+import { selectMusicianByID } from "@/selectors/musicianSelectors";
 
 export default function BandCreate() {
   useLoad((options: Record<string, string>) => {
-    const defaultPosition = options.position as PositionType;
-    if (!defaultPosition) return;
+    const defaultMusicianID = options.musicianID as PositionType;
+    if (!defaultMusicianID) return;
+    const defaultMusician = selectMusicianByID(defaultMusicianID);
+    if (!defaultMusician) return;
     setFormData((prev) => ({
       ...prev,
       positions: prev.positions.map((p) =>
-        p.status === "occupied" ? { ...p, position: defaultPosition } : p
+        p.status === "occupied"
+          ? {
+              ...p,
+              position: defaultMusician?.position,
+              musicianID: defaultMusician._id,
+            }
+          : p
       ),
     }));
   });

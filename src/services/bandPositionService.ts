@@ -73,7 +73,7 @@ export const getBandPositionsByBand = async ({
 
 type UpdateBandPositionData = Pick<
   BandPosition,
-  "joinedAt" | "nickname" | "status" | "userID"
+  "joinedAt" | "nickname" | "status" | "musicianID"
 >;
 
 interface UpdateBandPositionParams {
