@@ -19,25 +19,21 @@ export const MOCK_BAND_POSITIONS: Record<PositionStatus, BandPosition[]> = {
     {
       ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "vocalist",
-      musicianIDs: [],
       bandID: "",
     },
     {
       ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "bassist",
-      musicianIDs: [],
       bandID: "",
     },
     {
       ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "drummer",
-      musicianIDs: [],
       bandID: "",
     },
     {
       ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "guitarist_rhythm",
-      musicianIDs: [],
       bandID: "",
     },
   ],
@@ -45,31 +41,26 @@ export const MOCK_BAND_POSITIONS: Record<PositionStatus, BandPosition[]> = {
     {
       ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "vocalist",
-      musicianIDs: [],
       bandID: "",
     },
     {
       ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "bassist",
-      musicianIDs: [],
       bandID: "",
     },
     {
       ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "drummer",
-      musicianIDs: [],
       bandID: "",
     },
     {
       ...MOCK_RECRUITING_BAND_POSITION_BASE_DATA,
       position: "guitarist_rhythm",
-      musicianIDs: [],
       bandID: "",
     },
     {
       ...MOCK_OCCUPIED_BAND_POSITION_BASE_DATA,
       position: "keyboardist",
-      musicianIDs: [],
       bandID: "",
     },
   ],
