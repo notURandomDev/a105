@@ -92,7 +92,7 @@ export const useBandProfile = () => {
         joinedAt: new Date(),
         status: "occupied",
         nickname: userInfo.nickName,
-        userID: userInfo._id,
+        musicianID,
       },
     });
 
