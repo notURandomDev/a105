@@ -1,17 +1,13 @@
 import { View, Text } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro from "@tarojs/taro";
 import "./index.scss";
 import { Button, Image } from "@taroify/core";
 import { useUserStore } from "@/stores/userStore";
 import { createUser, getUserByOpenid } from "@/services/usersService";
 import { JXToast } from "@/utils/toast";
-import { getCloudFileByID, getOpenid } from "@/services/cloudService";
+import { getOpenid } from "@/services/cloudService";
 
 export default function Auth() {
-  useLoad(() => {
-    console.log("Auth Page loaded.");
-  });
-
   const { setUserInfo } = useUserStore();
 
   const signUserUp = async () => {
@@ -51,7 +47,6 @@ export default function Auth() {
         avatarUrl: null,
         nickName: null,
         avatarFileID: null,
-        bandIDs: [],
       });
     } else {
       // 用户已注册，根据返回的用户数据初始化全局 userInfo

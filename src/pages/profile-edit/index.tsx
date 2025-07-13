@@ -1,5 +1,5 @@
 import { View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro from "@tarojs/taro";
 import "./index.scss";
 import { Button, Cell, Field, Input } from "@taroify/core";
 import { useEffect, useState } from "react";
@@ -10,10 +10,6 @@ import { JXToast } from "@/utils/toast";
 import JXAvatar from "@/components/JXAvatar";
 
 export default function ProfileEdit() {
-  useLoad(() => {
-    console.log("Page loaded.");
-  });
-
   const { userInfo, setUserInfo } = useUserStore();
   const [formData, setFormData] = useState({
     nickName: "",

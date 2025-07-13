@@ -1,5 +1,5 @@
 import { ScrollView, Text, View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro from "@tarojs/taro";
 import "./index.scss";
 import JXCalendar from "@/components/JXCalendar";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
@@ -9,10 +9,6 @@ import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { useReservationsWithDate } from "@/hooks/reservation/useReservationsWithDate";
 
 export default function Calendar() {
-  useLoad(() => {
-    console.log("Page loaded.");
-  });
-
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const reservations = useReservationsWithDate(selectedDate);
 

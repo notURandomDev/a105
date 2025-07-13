@@ -1,5 +1,5 @@
 import { View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro from "@tarojs/taro";
 import "./index.scss";
 import JXCardContainer from "@/components/JXCardContainer";
 import { Cell } from "@taroify/core";
@@ -11,10 +11,6 @@ import JXTitleLabel from "@/components/Labels/JXTitleLabel";
 import { UserOutlined, CashierOutlined, Revoke } from "@taroify/icons";
 
 export default function Profile() {
-  useLoad(() => {
-    console.log("Page loaded.");
-  });
-
   const { userInfo, clearUserInfo } = useUserStore();
 
   const getFullNickname = () => {
