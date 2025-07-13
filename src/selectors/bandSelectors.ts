@@ -2,6 +2,7 @@ import { Band, BandStatus } from "@/models/band";
 import { useBandPositionStore } from "@/stores/bandPositionStore";
 import { selectPositionsByBand } from "./bandPositionSelectors";
 import { Musician } from "@/models/musician";
+import { selectMusiciansByUser } from "./musicianSelectors";
 
 // 根据乐队状态查找乐队
 export const selectBandsByStatus = (bands: Band[], status: BandStatus) =>
@@ -40,4 +41,15 @@ export const selectBandsByMusicians = (
   const uniqueBandIDs = new Set(musicians.flatMap((b) => b.bandIDs));
   const uniqueBands = bands.filter((b) => uniqueBandIDs.has(b._id));
   return uniqueBands;
+};
+
+// 根据用户信息匹配用户所在的所有乐队
+export const selectBandsByUserID = (
+  userID: string | number,
+  musicians: Musician[],
+  bands: Band[]
+) => {
+  const userMusicians = selectMusiciansByUser(musicians, userID);
+  const userBands = selectBandsByMusicians(bands, userMusicians);
+  return userBands;
 };
