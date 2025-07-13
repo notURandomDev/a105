@@ -20,7 +20,7 @@ function JXMusicianProfileCard({
 
   const navigate = () => {
     Taro.navigateTo({
-      url: `/pages/musician-detail/index?mp=${JSON.stringify(musicianProfile)}`,
+      url: `/pages/musician-detail/index?userID=${musicianProfile.musicians[0].userID}`,
     });
   };
 

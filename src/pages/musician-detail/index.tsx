@@ -1,5 +1,5 @@
 import { View } from "@tarojs/components";
-import Taro, { options, useLoad } from "@tarojs/taro";
+import { useLoad } from "@tarojs/taro";
 import "./index.scss";
 import JXBandCardSM from "@/components/Cards/JXBandCardSM";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
@@ -7,20 +7,14 @@ import JXMusicianSkillCard from "@/components/Cards/JXMusicianSkillCard";
 import JXAvatar from "@/components/JXAvatar";
 import JXMetricCard from "@/components/Cards/JXMetricCard";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
-import { MusicianProfile } from "@/models/musician";
-import { useState } from "react";
+import { useMusicianProfile } from "@/hooks/musician/useMusicianProfile";
 
 export default function MusicianDetail() {
-  const [musicianProfile, setMusicianProfile] =
-    useState<MusicianProfile | null>(null);
+  const { setUserID, musicianProfile } = useMusicianProfile();
 
   useLoad((options: Record<string, string>) => {
-    const mp = JSON.parse(options.mp) as MusicianProfile;
-    setMusicianProfile(mp);
-    mp.musicians[0].userID;
-    Taro.setNavigationBarTitle({
-      title: "乐手档案｜" + mp.nickname,
-    });
+    if (!options.userID) return;
+    setUserID(options.userID);
   });
 
   return (

@@ -6,6 +6,7 @@ import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import { Musician } from "@/models/musician";
+import Taro from "@tarojs/taro";
 
 interface JXMusicianCardProps {
   musician: Musician;
@@ -13,8 +14,15 @@ interface JXMusicianCardProps {
 
 function JXMusicianCard({ musician }: JXMusicianCardProps) {
   const { bandIDs, nickname, bio, genre } = musician;
+
+  const navigate = () => {
+    Taro.navigateTo({
+      url: `/pages/musician-detail/index?userID=${musician.userID}`,
+    });
+  };
+
   return (
-    <JXCardContainer style={{ gap: 8 }}>
+    <JXCardContainer onClick={navigate} style={{ gap: 8 }}>
       <View className="container-h" style={{ gap: 12, alignItems: "center" }}>
         <JXAvatar>{nickname}</JXAvatar>
         <View className="container-v">
@@ -22,7 +30,7 @@ function JXMusicianCard({ musician }: JXMusicianCardProps) {
           <JXSecondaryLabel>
             {bandIDs.length
               ? `TA 是 ${bandIDs.length} 个乐队的吉他手`
-              : "TA暂无乐队"}
+              : "TA暂无归属乐队"}
           </JXSecondaryLabel>
         </View>
       </View>
