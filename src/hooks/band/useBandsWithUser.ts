@@ -1,8 +1,5 @@
-import { BandWithPositions } from "@/models/band";
-import {
-  selectBandsByMusicians,
-  selectBandsWithPositions,
-} from "@/selectors/bandSelectors";
+import { Band } from "@/models/band";
+import { selectBandsByMusicians } from "@/selectors/bandSelectors";
 import { selectMusiciansByUser } from "@/selectors/musicianSelectors";
 import { useBandStore } from "@/stores/bandStore";
 import { useMusicianStore } from "@/stores/musicianStore";
@@ -13,7 +10,7 @@ export const useBandsWithUser = () => {
   const allMusicians = useMusicianStore((s) => s.musicians);
   const allBands = useBandStore((s) => s.bands);
   const { userInfo } = useUserStore();
-  const [bands, setBands] = useState<BandWithPositions[]>([]);
+  const [bands, setBands] = useState<Band[]>([]);
 
   useEffect(() => {
     getMyBands();
@@ -22,9 +19,8 @@ export const useBandsWithUser = () => {
   const getMyBands = () => {
     if (!allMusicians || !userInfo || !allBands) return;
     const userMusicians = selectMusiciansByUser(allMusicians, userInfo._id);
-    const bands = selectBandsByMusicians(allBands, userMusicians);
-    const myBands = selectBandsWithPositions(bands);
-    setBands(myBands);
+    const userBands = selectBandsByMusicians(allBands, userMusicians);
+    setBands(userBands);
   };
 
   return bands;

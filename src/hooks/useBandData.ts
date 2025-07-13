@@ -5,11 +5,20 @@ import { useMusicianStore } from "@/stores/musicianStore";
 import { useUserStore } from "@/stores/userStore";
 import Taro from "@tarojs/taro";
 import { useBandsWithUser } from "./band/useBandsWithUser";
+import { useEffect, useState } from "react";
+import { BandWithPositions } from "@/models/band";
+import { selectBandsWithPositions } from "@/selectors/bandSelectors";
 
 export const useBandData = () => {
   const activeBands = useBandsWithPositions(useBandsByStatus("active"));
   const recruitingBands = useBandsWithPositions(useBandsByStatus("recruiting"));
-  const myBands = useBandsWithUser();
+  const userBands = useBandsWithUser();
+
+  const [myBands, setMyBands] = useState<BandWithPositions[]>([]);
+
+  useEffect(() => {
+    setMyBands(selectBandsWithPositions(userBands));
+  }, [userBands]);
 
   const handleCreateBand = async () => {
     const allMusicians = useMusicianStore.getState().musicians;
