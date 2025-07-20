@@ -8,7 +8,12 @@ import { Arrow } from "@taroify/icons";
 import { useUserStore } from "@/stores/userStore";
 import JXAvatar from "@/components/JXAvatar";
 import JXTitleLabel from "@/components/Labels/JXTitleLabel";
-import { UserOutlined, CashierOutlined, Revoke } from "@taroify/icons";
+import {
+  UserOutlined,
+  CashierOutlined,
+  Revoke,
+  InfoOutlined,
+} from "@taroify/icons";
 
 export default function Profile() {
   const { userInfo, clearUserInfo } = useUserStore();
@@ -28,17 +33,25 @@ export default function Profile() {
 
   const handleLogout = () => clearUserInfo();
 
-  const handleEditProfile = () => {
+  const handleEditProfile = () =>
     Taro.navigateTo({
       url: `/pages/profile-edit/index`,
     });
-  };
 
-  const handleEditMusician = () => {
+  const handleEditMusician = () =>
     Taro.navigateTo({
       url: `/pages/musician-edit/index`,
     });
-  };
+
+  const handleCheckInstrction = () =>
+    Taro.navigateTo({
+      url: `/pages/instruction/index`,
+    });
+
+  const handlePay = () =>
+    Taro.navigateTo({
+      url: `/pages/pay/index`,
+    });
 
   return (
     <View className="profile page config-page" style={{ gap: 16 }}>
@@ -69,16 +82,27 @@ export default function Profile() {
       </View>
       <Cell.Group inset bordered={false}>
         <Cell
+          title="编辑乐手档案"
           onClick={handleEditMusician}
           icon={<UserOutlined />}
-          title="编辑乐手档案"
           isLink
         />
-        <Cell icon={<CashierOutlined />} title="社费缴纳" isLink />
+        <Cell
+          title="社费缴纳"
+          icon={<CashierOutlined />}
+          isLink
+          onClick={handlePay}
+        />
+        <Cell
+          title="设备使用说明"
+          icon={<InfoOutlined />}
+          isLink
+          onClick={handleCheckInstrction}
+        />
         {userInfo && (
           <Cell
-            icon={<Revoke />}
             title="退出登录"
+            icon={<Revoke />}
             isLink
             onClick={handleLogout}
           />

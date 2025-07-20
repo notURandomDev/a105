@@ -1,17 +1,19 @@
 export default defineAppConfig({
   pages: [
     "pages/profile/index",
-    "pages/musician-edit/index",
-    "pages/band-create/index",
     "pages/musician/index",
-    "pages/musician-detail/index",
-    "pages/band/index",
-    "pages/band-detail/index",
     "pages/index/index",
     "pages/calendar/index",
+    "pages/band/index",
+    "pages/musician-edit/index",
+    "pages/band-create/index",
+    "pages/musician-detail/index",
+    "pages/band-detail/index",
     "pages/reserve/index",
     "pages/profile-edit/index",
     "pages/auth/index",
+    "pages/instruction/index",
+    "pages/pay/index",
   ],
 
   window: {
