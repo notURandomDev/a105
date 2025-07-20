@@ -1,5 +1,6 @@
 export default defineAppConfig({
   pages: [
+    "pages/pay/index",
     "pages/profile/index",
     "pages/musician/index",
     "pages/index/index",
@@ -13,7 +14,6 @@ export default defineAppConfig({
     "pages/profile-edit/index",
     "pages/auth/index",
     "pages/instruction/index",
-    "pages/pay/index",
   ],
 
   window: {

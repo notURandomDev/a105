@@ -1,10 +1,12 @@
-import { View, Text } from "@tarojs/components";
+import { View } from "@tarojs/components";
 import "./index.scss";
+import JXMetricCard from "@/components/Cards/JXMetricCard";
 
 export default function Pay() {
   return (
-    <View className="pay">
-      <Text>Pay Page</Text>
+    <View className="pay page page-padding">
+      <JXMetricCard label={"已缴社费"} emoji={"💴"} value={50} />
+      <View className="container-v grow border"></View>
     </View>
   );
 }
