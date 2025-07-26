@@ -6,6 +6,6 @@ interface AppConfigState {
 }
 
 export const useAppConfigStore = create<AppConfigState>((set) => ({
-  disableRemoteFetch: false,
+  disableRemoteFetch: true,
   setDisableRemoteFetch: (value) => set({ disableRemoteFetch: value }),
 }));

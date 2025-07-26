@@ -1,10 +1,10 @@
 export default defineAppConfig({
   pages: [
+    "pages/mail/index",
     "pages/musicians-n-bands/index",
     "pages/profile/index",
     "pages/pay/index",
     "pages/index/index",
-    "pages/musician/index",
     "pages/calendar/index",
     "pages/musician-edit/index",
     "pages/band-create/index",
@@ -14,7 +14,6 @@ export default defineAppConfig({
     "pages/profile-edit/index",
     "pages/auth/index",
     "pages/instruction/index",
-    "pages/mail/index",
   ],
 
   window: {
