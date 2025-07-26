@@ -1,9 +1,9 @@
 export default defineAppConfig({
   pages: [
-    "pages/pay/index",
     "pages/profile/index",
-    "pages/musician/index",
+    "pages/pay/index",
     "pages/index/index",
+    "pages/musician/index",
     "pages/calendar/index",
     "pages/band/index",
     "pages/musician-edit/index",
@@ -45,7 +45,7 @@ export default defineAppConfig({
       },
       {
         pagePath: "pages/band/index",
-        text: "乐队",
+        text: "乐队 & 乐手",
         iconPath: "assets/icons/tab/band.png",
         selectedIconPath: "assets/icons/tab/band-active.png",
       },

@@ -88,7 +88,7 @@ export default function Profile() {
           isLink
         />
         <Cell
-          title="社费缴纳"
+          title="社费缴纳 & 身份认证"
           icon={<CashierOutlined />}
           isLink
           onClick={handlePay}
