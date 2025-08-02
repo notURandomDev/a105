@@ -7,10 +7,11 @@ import { useBandStore } from "./stores/bandStore";
 import { useBandPositionStore } from "./stores/bandPositionStore";
 import { useReservationStore } from "./stores/reservationStore";
 import { useMusicianStore } from "./stores/musicianStore";
+import { useApplicationStore } from "./stores/applicationStore";
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
-    console.log("App launched.");
+    console.log("JXNB！");
   });
 
   const { userInfo } = useUserStore();
@@ -18,12 +19,14 @@ function App({ children }: PropsWithChildren<any>) {
   const fetchBandPositions = useBandPositionStore((s) => s.fetchBandPositions);
   const fetchReservations = useReservationStore((s) => s.fetchReservations);
   const fetchMusicians = useMusicianStore((s) => s.fetchMusicians);
+  const fetchApplications = useApplicationStore((s) => s.fetchApplications);
 
   useEffect(() => {
     fetchBands();
     fetchBandPositions();
     fetchReservations();
     fetchMusicians();
+    fetchApplications();
   }, []);
 
   useEffect(() => {

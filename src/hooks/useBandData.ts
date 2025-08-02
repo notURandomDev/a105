@@ -20,6 +20,8 @@ export const useBandData = () => {
     setMyBands(selectBandsWithPositions(userBands));
   }, [userBands]);
 
+  const bandTabData = { myBands, activeBands, recruitingBands };
+
   const handleCreateBand = async () => {
     const allMusicians = useMusicianStore.getState().musicians;
     const userInfo = useUserStore.getState().userInfo;
@@ -42,9 +44,7 @@ export const useBandData = () => {
   };
 
   return {
-    myBands,
-    activeBands,
-    recruitingBands,
     handleCreateBand,
+    bandTabData,
   };
 };

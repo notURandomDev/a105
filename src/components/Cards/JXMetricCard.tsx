@@ -8,15 +8,18 @@ interface JXMetricCardProps {
   value?: string | number;
   emoji?: string;
   active?: boolean;
+  onClick?: () => void;
 }
 function JXMetricCard({
   label = "标题",
   value = 0,
   emoji = "⭐️",
   active = false,
+  onClick,
 }: JXMetricCardProps) {
   return (
     <JXCardContainer
+      onClick={onClick}
       color={active ? "black" : "gray"}
       className="grow"
       horizontal

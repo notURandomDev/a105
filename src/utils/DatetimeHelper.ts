@@ -85,3 +85,61 @@ export const alignDateWithTime = (date: Date, time: Date) => {
   // 创建新 Date
   return new Date(year, month, day, hours, minutes);
 };
+
+export const getSmartTime = (time: Date) => {
+  const date = new Date(time);
+  const now = new Date();
+
+  const padZero = (n) => (n < 10 ? "0" + n : n);
+
+  const isSameDay = (d1, d2) =>
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate();
+
+  const isYesterday = (d) => {
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+    return isSameDay(d, yesterday);
+  };
+
+  const getWeekdayName = (d) => {
+    const days = [
+      "星期日",
+      "星期一",
+      "星期二",
+      "星期三",
+      "星期四",
+      "星期五",
+      "星期六",
+    ];
+    return days[d.getDay()];
+  };
+
+  const formatTime = (d) =>
+    `${padZero(d.getHours())}:${padZero(d.getMinutes())}`;
+
+  const daysDiff = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (isSameDay(date, now)) {
+    return formatTime(date);
+  }
+
+  if (isYesterday(date)) {
+    return `昨天 ${formatTime(date)}`;
+  }
+
+  if (daysDiff < 7) {
+    return `${getWeekdayName(date)} ${formatTime(date)}`;
+  }
+
+  if (date.getFullYear() === now.getFullYear()) {
+    return `${date.getMonth() + 1}月${date.getDate()}日 ${formatTime(date)}`;
+  }
+
+  return `${date.getFullYear()}年${
+    date.getMonth() + 1
+  }月${date.getDate()}日 ${formatTime(date)}`;
+};

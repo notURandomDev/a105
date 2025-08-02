@@ -74,13 +74,6 @@ export const getBandsByStatus = async ({
   }
 };
 
-interface GetMyBandsParams {
-  userID: string;
-  production?: boolean;
-}
-
-const getBandsByUserId = () => {};
-
 interface GetBandByIdParams {
   _id: string | number;
   production?: boolean;

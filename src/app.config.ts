@@ -1,11 +1,11 @@
 export default defineAppConfig({
   pages: [
+    "pages/musicians-n-bands/index",
+    "pages/mail/index",
     "pages/profile/index",
     "pages/pay/index",
     "pages/index/index",
-    "pages/musician/index",
     "pages/calendar/index",
-    "pages/band/index",
     "pages/musician-edit/index",
     "pages/band-create/index",
     "pages/musician-detail/index",
@@ -44,16 +44,16 @@ export default defineAppConfig({
         selectedIconPath: "assets/icons/tab/calendar-active.png",
       },
       {
-        pagePath: "pages/band/index",
+        pagePath: "pages/musicians-n-bands/index",
         text: "乐队 & 乐手",
         iconPath: "assets/icons/tab/band.png",
         selectedIconPath: "assets/icons/tab/band-active.png",
       },
       {
-        pagePath: "pages/musician/index",
-        text: "乐手",
-        iconPath: "assets/icons/tab/musician.png",
-        selectedIconPath: "assets/icons/tab/musician-active.png",
+        pagePath: "pages/mail/index",
+        text: "收件箱",
+        iconPath: "assets/icons/tab/mail.png",
+        selectedIconPath: "assets/icons/tab/mail-active.png",
       },
       {
         pagePath: "pages/profile/index",

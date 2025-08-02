@@ -8,13 +8,14 @@ import { useBandStore } from "@/stores/bandStore";
 import { useMusicianStore } from "@/stores/musicianStore";
 import { useEffect, useState } from "react";
 
-export type TabsData = {
+export type musicianTabData = {
   [K in MusicianTabs]: K extends "all" ? MusicianProfile[] : Musician[];
 };
 
 export const useMusicianData = () => {
-  const [activeTab, setActiveTab] = useState<MusicianTabs>("all");
-  const [tabsData, setTabsData] = useState<TabsData>({
+  const [activeMusicianTab, setActiveMusicianTab] =
+    useState<MusicianTabs>("all");
+  const [musicianTabData, setMusicianTabData] = useState<musicianTabData>({
     all: [],
     bassist: [],
     drummer: [],
@@ -28,25 +29,27 @@ export const useMusicianData = () => {
   useEffect(() => {
     if (!allMusicians || !bands) return;
     getMusicians();
-  }, [activeTab, allMusicians, bands]);
+  }, [activeMusicianTab, allMusicians, bands]);
 
   const getMusicians = async () => {
     let musicians = allMusicians;
-    if (activeTab === "all") {
+    if (activeMusicianTab === "all") {
       const mps = selectMusicianProfiles(allMusicians, bands);
       if (!mps) return;
-      setTabsData((prev) => ({ ...prev, all: mps }));
+      setMusicianTabData((prev) => ({ ...prev, all: mps }));
       return;
-    } else if (activeTab === "guitarist") {
+    } else if (activeMusicianTab === "guitarist") {
       musicians = selectMusiciansWithPositions(allMusicians, [
         "guitarist_lead",
         "guitarist_rhythm",
       ]);
     } else {
-      musicians = selectMusiciansWithPositions(allMusicians, [activeTab]);
+      musicians = selectMusiciansWithPositions(allMusicians, [
+        activeMusicianTab,
+      ]);
     }
-    setTabsData((prev) => ({ ...prev, [activeTab]: musicians }));
+    setMusicianTabData((prev) => ({ ...prev, [activeMusicianTab]: musicians }));
   };
 
-  return { tabsData, activeTab, setActiveTab };
+  return { musicianTabData, activeMusicianTab, setActiveMusicianTab };
 };
