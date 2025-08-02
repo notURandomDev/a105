@@ -5,21 +5,14 @@ import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXButton from "../JXButton";
 import { Application, ApplicationStatus } from "@/models/application";
-import { MOCK_BAND_POSITIONS } from "@/constants/database/band-positions";
 import { getSmartTime } from "@/utils/DatetimeHelper";
 import { JXColor } from "@/constants/colors/theme";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
-import JXEmoji from "../JXEmoji";
-
-const MOCK_APPLICATION: Application = {
-  _id: 123,
-  appliedAt: new Date(2025, 6, 23, 10, 47), // 申请时间
-  status: "pending", // 申请状态
-  applicantName: "Kyle", // 申请人名称
-  applicantPosition: "drummer", // 申请人职位
-  bandName: "JOINT", // 乐队名称
-  bandPositions: [...MOCK_BAND_POSITIONS.recruiting],
-};
+import { BandPosition } from "@/models/band-position";
+import { PositionType } from "@/models/position";
+import { updateApplicationStatus } from "@/services/applicationService";
+import { useApplicationStore } from "@/stores/applicationStore";
+import { useJoinBand } from "@/hooks/band/useJoinBand";
 
 const ColorMap: Record<ApplicationStatus, JXColor> = {
   pending: "gray",
@@ -27,31 +20,63 @@ const ColorMap: Record<ApplicationStatus, JXColor> = {
   rejected: "pink",
 };
 
-interface JXMailCardProps {
+export interface JXMailCardProps {
   application: Application;
+  bandName: string;
+  bandPositions: BandPosition[];
+  applicantName: string;
+  applicantPosition: PositionType;
+  readonly?: boolean;
 }
 export default function JXMailCard({
-  application = MOCK_APPLICATION,
+  application,
+  bandName,
+  bandPositions,
+  applicantName,
+  applicantPosition,
+  readonly = false,
 }: JXMailCardProps) {
-  const {
-    status,
-    appliedAt,
-    applicantName,
-    applicantPosition,
-    bandName,
-    bandPositions,
-  } = application;
+  const { status, appliedAt, _id } = application;
+
+  const { fetchApplications } = useApplicationStore();
+  const joinBand = useJoinBand();
+
+  const handleApprove = async () => {
+    // 更新申请记录的状态（已通过）
+    await updateApplicationStatus({
+      applicationID: _id,
+      status: "approved",
+    });
+
+    // 加入乐队
+    const { applyingMusicianID, applyingBandPositionID, targetBandID } =
+      application;
+    await joinBand(applyingMusicianID, applyingBandPositionID, targetBandID);
+
+    // 更新全局缓存数据
+    fetchApplications();
+  };
+
+  const handleReject = async () => {
+    const res = await updateApplicationStatus({
+      applicationID: _id,
+      status: "rejected",
+    });
+    if (res) fetchApplications();
+  };
+
+  const getReadonlyButtonTitle = () => {
+    if (status === "approved") return "已通过";
+    if (status === "rejected") return "未通过";
+    return "审核中";
+  };
 
   return (
     <View className="container-v" style={{ gap: 4 }}>
       <View
         className="container-h"
         style={{ justifyContent: "center", paddingTop: 4, paddingBottom: 4 }}
-      >
-        <View className="">
-          <JXSecondaryLabel>{`${getSmartTime(appliedAt)}`}</JXSecondaryLabel>
-        </View>
-      </View>
+      ></View>
       <JXCardContainer color={ColorMap[status]} style={{ gap: 16 }}>
         <View
           className="container-h"
@@ -61,15 +86,16 @@ export default function JXMailCard({
           }}
         >
           <View style={{ flex: 1 }} className="container-v">
-            <JXTitleLabel>{applicantName}</JXTitleLabel>
+            <JXTitleLabel>{readonly ? "我" : applicantName}</JXTitleLabel>
             <JXBodyLabel>{`${MUSICIAN_DISPLAY[applicantPosition].label} ${MUSICIAN_DISPLAY[applicantPosition].emoji}`}</JXBodyLabel>
           </View>
 
           <View
-            style={{ flex: 1, justifyContent: "center" }}
-            className="container-h"
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            className="container-v"
           >
             <JXSecondaryLabel>申请加入乐队</JXSecondaryLabel>
+            <JXSecondaryLabel>{`${getSmartTime(appliedAt)}`}</JXSecondaryLabel>
           </View>
 
           <View
@@ -92,21 +118,34 @@ export default function JXMailCard({
           </View>
         </View>
 
-        <View
-          className="container-h grow"
-          style={{ justifyContent: "space-between", gap: 12 }}
-        >
-          <View className="container-v" style={{ flex: 1 }}>
-            <JXButton disabled={status !== "pending"} variant="outlined">
-              {status === "rejected" ? "已拒绝" : "拒绝"}
-            </JXButton>
+        {readonly ? (
+          <JXButton
+            disabled
+            variant={status === "pending" ? "outlined" : "solid"}
+          >
+            {getReadonlyButtonTitle()}
+          </JXButton>
+        ) : (
+          <View
+            className="container-h grow"
+            style={{ justifyContent: "space-between", gap: 12 }}
+          >
+            <View className="container-v" style={{ flex: 1 }}>
+              <JXButton
+                onClick={handleReject}
+                disabled={status !== "pending"}
+                variant="outlined"
+              >
+                {status === "rejected" ? "已拒绝" : "拒绝"}
+              </JXButton>
+            </View>
+            <View className="container-v" style={{ flex: 1 }}>
+              <JXButton onClick={handleApprove} disabled={status !== "pending"}>
+                {status === "approved" ? "已同意" : "同意"}
+              </JXButton>
+            </View>
           </View>
-          <View className="container-v" style={{ flex: 1 }}>
-            <JXButton disabled={status !== "pending"}>
-              {status === "approved" ? "已同意" : "同意"}
-            </JXButton>
-          </View>
-        </View>
+        )}
       </JXCardContainer>
     </View>
   );
