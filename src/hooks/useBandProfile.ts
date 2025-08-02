@@ -4,22 +4,14 @@ import {
   selectBandByID,
   selectBandsWithPositions,
 } from "@/selectors/bandSelectors";
-import { updateBandPosition } from "@/services/bandPositionService";
 import { updateBand } from "@/services/bandsService";
-import { updateMusicianBandIDs } from "@/services/musicianService";
 import { useBandPositionStore } from "@/stores/bandPositionStore";
 import { useBandStore } from "@/stores/bandStore";
-import { useMusicianStore } from "@/stores/musicianStore";
-import { useUserStore } from "@/stores/userStore";
-import { JXToast } from "@/utils/toast";
-import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 
 export const useBandProfile = () => {
-  const { userInfo } = useUserStore();
   const { bands, fetchBands } = useBandStore();
-  const { bandPositions, fetchBandPositions } = useBandPositionStore();
-  const fetchMusicians = useMusicianStore((s) => s.fetchMusicians);
+  const { bandPositions } = useBandPositionStore();
 
   const [bandID, setBandID] = useState<string | number | null>(null);
   const [band, setBand] = useState<BandWithPositions | null>(null);
@@ -75,53 +67,12 @@ export const useBandProfile = () => {
     }
   };
 
-  // 加入乐队的聚合操作
-  const joinBand = async (
-    musicianID: string | number,
-    bandPositionID: string | number,
-    bandID: string | number
-  ) => {
-    if (!userInfo?.nickName || !userInfo._id) return;
-
-    Taro.showLoading();
-
-    // 更新乐队位置信息（ recruiting -> occupied ）
-    const bpRes = await updateBandPosition({
-      _id: bandPositionID,
-      data: {
-        joinedAt: new Date(),
-        status: "occupied",
-        nickname: userInfo.nickName,
-        musicianID,
-      },
-    });
-
-    // 更新乐手所在乐队信息（ bandIDs列表中添加一项 ）
-    const mRes = await updateMusicianBandIDs({ _id: musicianID, bandID });
-
-    if (!bpRes || !mRes) {
-      Taro.hideLoading();
-      JXToast.networkError();
-      return;
-    }
-
-    await Promise.all([fetchBandPositions(), fetchBands(), fetchMusicians()]);
-
-    Taro.hideLoading();
-    Taro.showModal({
-      title: "操作成功！",
-      content: "你已成功加入乐队",
-      showCancel: false,
-    });
-  };
-
   return {
     band,
     setBand,
     isRecruiting,
     recruitingPositions,
     occupiedPositions,
-    joinBand,
     bandID,
     setBandID,
   };
