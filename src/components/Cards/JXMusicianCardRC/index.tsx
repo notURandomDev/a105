@@ -6,17 +6,20 @@ import { Plus } from "@taroify/icons";
 import JXEmoji from "../../JXEmoji";
 import { BandPosition } from "@/models/band-position";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { Button } from "@taroify/core";
 
 interface JXMusicianCardRCProps {
-  musician: BandPosition;
+  bandPosition: BandPosition;
   onClick?: () => void;
+  readonly: boolean;
 }
 
 function JXMusicianCardRC({
-  musician,
+  bandPosition,
   onClick = () => {},
+  readonly = false,
 }: JXMusicianCardRCProps) {
-  const { position, recruitNote } = musician;
+  const { position, recruitNote } = bandPosition;
   const { emoji, label } = MUSICIAN_DISPLAY[position];
 
   return (
@@ -28,16 +31,18 @@ function JXMusicianCardRC({
         </View>
         <JXSecondaryLabel>{recruitNote}</JXSecondaryLabel>
       </View>
-      <View
+      <Button
+        disabled={readonly}
         className="container-v cc"
         style={{
           backgroundColor: "#000",
           borderRadius: 50,
-          padding: 8,
+          height: 35,
+          width: 35,
         }}
       >
-        <Plus onClick={onClick} color="#fff" />
-      </View>
+        <Plus style={{ zIndex: 2 }} onClick={onClick} color="#fff" />
+      </Button>
     </JXCardContainer>
   );
 }
