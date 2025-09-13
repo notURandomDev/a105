@@ -33,11 +33,3 @@ export const MUSICIAN_DISPLAY: Record<PositionType, MusicianDisplayConfig> = {
 } as const;
 
 // 乐队界面
-
-export type MusicianTabs =
-  | "vocalist"
-  | "guitarist"
-  | "bassist"
-  | "keyboardist"
-  | "drummer"
-  | "all";

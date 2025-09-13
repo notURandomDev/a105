@@ -80,7 +80,7 @@ interface GetMusiciansByPosition {
 
 export const getMusiciansByPositions = async ({
   positions,
-  production,
+  production = true,
 }: GetMusiciansByPosition): Promise<Musician[] | undefined> => {
   if (!production)
     return [{ ...MOCK_MUSICIAN_PROFILE, position: positions[0] }];

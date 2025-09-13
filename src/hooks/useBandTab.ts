@@ -29,28 +29,6 @@ export const useBandTab = () => {
     fetchBands(activeBandTabKey);
   }, [activeBandTabKey]);
 
-  // 处理创建乐队的函数
-  const handleCreateBand = async () => {
-    const allMusicians = useMusicianStore.getState().musicians;
-    const userInfo = useUserStore.getState().userInfo;
-    if (!userInfo) return;
-    const musicians = selectMusiciansByUser(allMusicians, userInfo?._id);
-    if (!musicians.length) {
-      // 如果用户没有任何乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
-      const res = await Taro.showModal({
-        title: "你暂时还没有任何乐手身份",
-        content: "请先创建乐手信息",
-        confirmText: "前往创建",
-      });
-      if (res.confirm) Taro.navigateTo({ url: "/pages/musician-edit/index" });
-      return;
-    }
-
-    Taro.navigateTo({
-      url: `/pages/band-create/index?musicianID=${musicians[0]._id}`,
-    });
-  };
-
   return {
     activeBandTabKey,
     setActiveBandTabKey,
@@ -58,4 +36,26 @@ export const useBandTab = () => {
     bands,
     fetchBands,
   };
+};
+
+// 处理创建乐队的函数
+const handleCreateBand = async () => {
+  const allMusicians = useMusicianStore.getState().musicians;
+  const userInfo = useUserStore.getState().userInfo;
+  if (!userInfo) return;
+  const musicians = selectMusiciansByUser(allMusicians, userInfo?._id);
+  if (!musicians.length) {
+    // 如果用户没有任何乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
+    const res = await Taro.showModal({
+      title: "你暂时还没有任何乐手身份",
+      content: "请先创建乐手信息",
+      confirmText: "前往创建",
+    });
+    if (res.confirm) Taro.navigateTo({ url: "/pages/musician-edit/index" });
+    return;
+  }
+
+  Taro.navigateTo({
+    url: `/pages/band-create/index?musicianID=${musicians[0]._id}`,
+  });
 };
