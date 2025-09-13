@@ -1,5 +1,5 @@
 import { Genre } from "./genre";
-import { BandPosition, CreateBandPositionInput } from "./band-position";
+import { BandPosition } from "./band-position";
 
 export type BandStatus = "recruiting" | "active" | "paused" | "disbanded";
 export type BandStatusLog = {

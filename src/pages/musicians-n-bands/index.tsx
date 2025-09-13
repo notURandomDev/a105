@@ -8,11 +8,12 @@ import JXMusicianProfileCard from "@/components/Cards/JXMusicianProfileCard";
 import JXEmoji from "@/components/JXEmoji";
 import { useMusicianData } from "@/hooks/musician/useMusicianData";
 import { useState } from "react";
-import { useBandData } from "@/hooks/useBandData";
 import JXBandCard from "@/components/Cards/JXBandCard";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
-import { useBandStore } from "@/stores/bandStore";
 import { useMusicianStore } from "@/stores/musicianStore";
+import { useBandTab } from "@/hooks/useBandTab";
+import { BandTabKey } from "@/types/components";
+import { useDidShow } from "@tarojs/taro";
 
 export const MUSICIAN_TABS: {
   label: string;
@@ -27,29 +28,68 @@ export const MUSICIAN_TABS: {
   { value: "drummer", label: "鼓手", emoji: "🥁" },
 ];
 
-export const BAND_TABS: {
-  value: string;
-  label: string;
-}[] = [
-  { value: "myBands", label: "我的" },
-  { value: "activeBands", label: "活跃" },
-  { value: "recruitingBands", label: "招募中" },
-];
+export const BAND_TAB_CONFIG: Record<BandTabKey, { label: string }> = {
+  // myBands: { label: "我的" },
+  activeBands: { label: "活跃" },
+  recruitingBands: { label: "招募中" },
+};
 
 export default function MusiciansNBands() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [activeBandTab, setActiveBandTab] = useState("myBands");
-  const { bandTabData, handleCreateBand } = useBandData();
+  const {
+    activeBandTabKey,
+    setActiveBandTabKey,
+    bands,
+    fetchBands,
+    handleCreateBand,
+  } = useBandTab();
   const { activeMusicianTab, setActiveMusicianTab, musicianTabData } =
     useMusicianData();
-  const { bands } = useBandStore();
   const { musicians } = useMusicianStore();
+
+  useDidShow(() => {
+    fetchBands(activeBandTabKey);
+  });
+
+  const renderTab = () => {
+    if (activeIndex === 0) {
+      // 渲染乐队Tab数据
+      return Object.entries(BAND_TAB_CONFIG).map(([tab, config]) => (
+        <Tabs.TabPane value={tab} title={config.label} className="tab-pane">
+          <View className="tab-container">
+            {bands.map((band) => (
+              <JXBandCard band={band} />
+            ))}
+          </View>
+        </Tabs.TabPane>
+      ));
+    } else {
+      // 渲染乐手Tab数据
+      return MUSICIAN_TABS.map((tab) => (
+        <Tabs.TabPane
+          title={<JXEmoji size="sm">{tab.emoji}</JXEmoji>}
+          className="tab-pane"
+          value={tab.value}
+        >
+          <View className="tab-container">
+            {musicianTabData[activeMusicianTab].map((mp) =>
+              activeMusicianTab === "all" ? (
+                <JXMusicianProfileCard musicianProfile={mp} />
+              ) : (
+                <JXMusicianCard musician={mp} />
+              )
+            )}
+          </View>
+        </Tabs.TabPane>
+      ));
+    }
+  };
 
   return (
     <View className="musicians-n-bands page page-padding card-gap">
       <View className="container-h card-gap">
         <JXMetricCard
-          label={"乐队总数"}
+          label={`${BAND_TAB_CONFIG[activeBandTabKey].label}乐队`}
           emoji={"🤘"}
           value={bands.length}
           active={activeIndex === 0}
@@ -67,40 +107,10 @@ export default function MusiciansNBands() {
         lazyRender
         animated
         swipeable
-        value={activeIndex ? activeMusicianTab : activeBandTab}
-        onChange={activeIndex ? setActiveMusicianTab : setActiveBandTab}
+        value={activeIndex ? activeMusicianTab : activeBandTabKey}
+        onChange={activeIndex ? setActiveMusicianTab : setActiveBandTabKey}
       >
-        {activeIndex === 0
-          ? BAND_TABS.map((tab) => (
-              <Tabs.TabPane
-                value={tab.value}
-                title={tab.label}
-                className="tab-pane"
-              >
-                <View className="tab-container">
-                  {bandTabData[tab.value].map((band) => (
-                    <JXBandCard band={band} />
-                  ))}
-                </View>
-              </Tabs.TabPane>
-            ))
-          : MUSICIAN_TABS.map((tab) => (
-              <Tabs.TabPane
-                title={<JXEmoji size="sm">{tab.emoji}</JXEmoji>}
-                className="tab-pane"
-                value={tab.value}
-              >
-                <View className="tab-container">
-                  {musicianTabData[activeMusicianTab].map((mp) =>
-                    activeMusicianTab === "all" ? (
-                      <JXMusicianProfileCard musicianProfile={mp} />
-                    ) : (
-                      <JXMusicianCard musician={mp} />
-                    )
-                  )}
-                </View>
-              </Tabs.TabPane>
-            ))}
+        {renderTab()}
       </Tabs>
       {activeIndex === 0 && <JXFloatingBubble onClick={handleCreateBand} />}
     </View>

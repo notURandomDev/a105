@@ -1,27 +1,35 @@
-import { useBandsByStatus } from "./band/useBandsByStatus";
-import { useBandsWithPositions } from "./band/useBandsWithPositions";
 import { selectMusiciansByUser } from "@/selectors/musicianSelectors";
 import { useMusicianStore } from "@/stores/musicianStore";
 import { useUserStore } from "@/stores/userStore";
 import Taro from "@tarojs/taro";
-import { useBandsWithUser } from "./band/useBandsWithUser";
 import { useEffect, useState } from "react";
-import { BandWithPositions } from "@/models/band";
-import { selectBandsWithPositions } from "@/selectors/bandSelectors";
+import { Band } from "@/models/band";
+import { getBandsByStatus } from "@/services/bandsService";
+import { BandTabKey } from "@/types/components";
 
-export const useBandData = () => {
-  const activeBands = useBandsWithPositions(useBandsByStatus("active"));
-  const recruitingBands = useBandsWithPositions(useBandsByStatus("recruiting"));
-  const userBands = useBandsWithUser();
+export const useBandTab = () => {
+  // Tab初始值：活跃乐队
+  const [activeBandTabKey, setActiveBandTabKey] =
+    useState<BandTabKey>("activeBands");
+  const [bands, setBands] = useState<Band[]>([]);
 
-  const [myBands, setMyBands] = useState<BandWithPositions[]>([]);
+  // 根据类型获取乐队数据
+  const fetchBands = async (tabKey: BandTabKey) => {
+    let fetchedBands;
+    if (tabKey === "activeBands")
+      fetchedBands = await getBandsByStatus({ status: "active" });
+    if (tabKey === "recruitingBands")
+      fetchedBands = await getBandsByStatus({ status: "recruiting" });
 
+    if (fetchedBands) setBands(fetchedBands);
+  };
+
+  // 监听乐队Tab类型的变化，更新乐队数据
   useEffect(() => {
-    setMyBands(selectBandsWithPositions(userBands));
-  }, [userBands]);
+    fetchBands(activeBandTabKey);
+  }, [activeBandTabKey]);
 
-  const bandTabData = { myBands, activeBands, recruitingBands };
-
+  // 处理创建乐队的函数
   const handleCreateBand = async () => {
     const allMusicians = useMusicianStore.getState().musicians;
     const userInfo = useUserStore.getState().userInfo;
@@ -44,7 +52,10 @@ export const useBandData = () => {
   };
 
   return {
+    activeBandTabKey,
+    setActiveBandTabKey,
     handleCreateBand,
-    bandTabData,
+    bands,
+    fetchBands,
   };
 };

@@ -1,9 +1,5 @@
 import { _, db } from "@/cloud/cloudClient";
-import {
-  MOCK_BAND_ACTIVE,
-  MOCK_BAND_RECRUITING,
-  MOCK_BANDS,
-} from "@/constants/database/bands";
+import { MOCK_BAND_ACTIVE, MOCK_BANDS } from "@/constants/database/bands";
 
 import {
   Band,
@@ -54,7 +50,7 @@ interface GetBandsByStatusParams {
 }
 export const getBandsByStatus = async ({
   status,
-  production = false,
+  production = true,
 }: GetBandsByStatusParams): Promise<Band[] | null> => {
   if (!production) return MOCK_BANDS[status];
 
