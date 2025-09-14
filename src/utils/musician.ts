@@ -81,3 +81,8 @@ export const matchUserMusician = async (
   if (res.confirm) Taro.navigateTo({ url: "/pages/musician-edit/index" });
   return;
 };
+
+// 将乐手数组映射成乐手ID（自动去重）
+export const mapMusiciansIntoIds = (musicians: Musician[]) => [
+  ...new Set(musicians.map((m) => m._id)),
+];

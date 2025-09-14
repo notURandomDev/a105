@@ -62,6 +62,7 @@ export default function BandDetail() {
       applyingBandPositionID: positionID,
       status: "pending",
       targetBandID: band.info._id,
+      targetBandName: band.info.name,
     });
     if (res) fetchApplications();
   };

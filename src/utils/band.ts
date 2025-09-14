@@ -10,6 +10,7 @@ import { Musician } from "@/models/musician";
 import {
   createBandPositions,
   getBandPositionsByBand,
+  updateBandPosition,
 } from "@/services/bandPositionService";
 import {
   createBand,
@@ -108,11 +109,18 @@ export const getBandNameMap = async (
   return new Map(bands.map((b) => [b._id, b.name]));
 };
 
+// 提取乐手所在的所有乐队ID
+export const extractMusicianBaseBandIDs = (musicians: Musician[]) => [
+  ...new Set(musicians.flatMap((b) => b.bandIDs)),
+];
+
 // 获取多个乐手所在的不同乐队
 // 使用场景：乐手档案｜获取一个用户所在的所有乐队
-export const getMusicianBaseBands = async (musicians: Musician[]) => {
+export const getMusicianBaseBands = async (
+  musicians: Musician[]
+): Promise<Band[] | null> => {
   // 将乐手数组的 bandIDs 提取出来 (无重叠)
-  const uniqueBandIDs = [...new Set(musicians.flatMap((b) => b.bandIDs))];
+  const uniqueBandIDs = extractMusicianBaseBandIDs(musicians);
   const bands = await getBandsByIDs({ bandIDs: uniqueBandIDs });
   return bands;
 };
@@ -120,4 +128,32 @@ export const getMusicianBaseBands = async (musicians: Musician[]) => {
 // 将乐队数组映射成乐队ID数组（默认进行自动去重）
 export const mapBandsIntoIds = (bands: Band[]): (string | number)[] => {
   return [...new Set(bands.map((band) => band._id))];
+};
+
+interface JoinBandParams {
+  musicianID: string | number;
+  bandPositionID: string | number;
+  bandID: string | number;
+  userName: string;
+}
+
+// 加入乐队的聚合操作
+export const joinBand = async ({
+  musicianID,
+  bandPositionID,
+  bandID,
+  userName,
+}: JoinBandParams) => {
+  // 1. [BandPosition] 更新乐队位置信息（ recruiting -> occupied ）
+  await updateBandPosition({
+    _id: bandPositionID,
+    data: {
+      joinedAt: new Date(),
+      status: "occupied",
+      nickname: userName,
+      musicianID,
+    },
+  });
+  // 2. [Musician] 更新乐手所在乐队信息（ bandIDs列表中添加一项 ）
+  await updateMusicianBandIDs({ _id: musicianID, bandID });
 };

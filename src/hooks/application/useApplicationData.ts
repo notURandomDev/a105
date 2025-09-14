@@ -1,3 +1,5 @@
+// 已废弃，使用 useMailTab.ts
+
 import { Application } from "@/models/application";
 import {
   selectApplicationsByBands,
@@ -43,11 +45,6 @@ export const useApplicationData = () => {
     if (!filteredApplications) return;
     setMyApplications(filteredApplications);
   }, [applications, userMusicians]);
-
-  useEffect(() => {
-    console.log("myApplications changed", myApplications);
-    console.log("incomingApplications changed", incomingApplications);
-  }, [myApplications, incomingApplications]);
 
   return { myApplications, incomingApplications, allBands };
 };
