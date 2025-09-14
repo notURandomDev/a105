@@ -10,7 +10,13 @@ import { JXColor } from "@/constants/colors/theme";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { PositionType } from "@/models/position";
 import { updateApplicationStatus } from "@/services/applicationService";
-import { joinBand } from "@/utils/band";
+import {
+  getBandPositionsByBand,
+  updateBandPosition,
+} from "@/services/bandPositionService";
+import { updateMusicianBandIDs } from "@/services/musicianService";
+import { isBandFull } from "@/utils/band";
+import { getBandById, updateBand } from "@/services/bandsService";
 
 const ColorMap: Record<ApplicationStatus, JXColor> = {
   pending: "gray",
@@ -32,20 +38,55 @@ export default function JXMailCard({
   readonly = false,
   onStatusChange,
 }: JXMailCardProps) {
-  const { status, appliedAt, _id } = application;
+  const { status, appliedAt, _id, targetBandID } = application;
 
   // ✅ 审批申请：同意
   const handleApprove = async () => {
-    // 1. 更新申请记录的状态（已通过）
+    // 1. [Application] 更新申请记录的状态（已通过）
     await updateApplicationStatus({ applicationID: _id, status: "approved" });
-    // 2. 加入乐队
-    await joinBand({
-      musicianID: application.applyingMusicianID,
-      bandPositionID: application.applyingBandPositionID,
-      bandID: application.targetBandID,
-      userName: applicantName,
+
+    // 2. [Musician] 更新乐手所在乐队信息（ bandIDs列表中添加一项 ）
+    await updateMusicianBandIDs({
+      _id: application.applyingMusicianID,
+      bandID: targetBandID,
     });
-    // 3. 事件上抛给邮箱页面，更新数据
+
+    // 3. [BandPosition] 更新乐队位置信息（ recruiting -> occupied ）
+    await updateBandPosition({
+      _id: application.applyingBandPositionID,
+      data: {
+        joinedAt: new Date(),
+        status: "occupied",
+        nickname: applicantName,
+        musicianID: application.applyingMusicianID,
+      },
+    });
+
+    // 4. [BandPosition] 查询更新乐队位置信息后，该乐队最新的乐队位置信息情况
+    const bandPositions =
+      (await getBandPositionsByBand({ bandID: targetBandID })) || [];
+
+    // 5. ^[Band] 可选，判断是否需要更新乐队状态
+    // 同意申请的前提，是乐队还有空余的位置；因此状态肯定是 recruiting 而不是 active
+    if (isBandFull(bandPositions)) {
+      // 5.1. 获取乐队信息(statusLogs历史)
+      const band = await getBandById({ _id: targetBandID });
+      if (!band) return;
+
+      // 5.2. 更新乐队信息
+      const now = new Date();
+      await updateBand({
+        bandID: targetBandID,
+        data: {
+          formedAt: now,
+          status: "active",
+          statusLogs: [{ at: now, status: "active" }, ...band.statusLogs],
+          statusUpdatedAt: now,
+        },
+      });
+    }
+
+    // 6. 事件上抛给邮箱页面，更新数据
     onStatusChange();
   };
 

@@ -6,7 +6,7 @@ import { getMusiciansByUserID } from "@/services/musicianService";
 import { getMusicianBaseBands } from "@/utils/band";
 
 export const useMusicianProfile = () => {
-  const [userID, setUserID] = useState<string | null>(null);
+  const [userID, setUserID] = useState<string | number | null>(null);
   const [musicianProfile, setMusicianProfile] =
     useState<MusicianProfile | null>(null);
 

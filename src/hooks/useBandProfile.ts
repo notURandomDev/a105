@@ -1,75 +1,89 @@
+import { Application } from "@/models/application";
 import { BandWithPositions } from "@/models/band";
 import { selectPositionsByStatus } from "@/selectors/bandPositionSelectors";
-import {
-  selectBandByID,
-  selectBandsWithPositions,
-} from "@/selectors/bandSelectors";
-import { updateBand } from "@/services/bandsService";
-import { useBandPositionStore } from "@/stores/bandPositionStore";
-import { useBandStore } from "@/stores/bandStore";
+import { getApplicationsByField } from "@/services/applicationService";
+import { getBandPositionsByBand } from "@/services/bandPositionService";
+import { getBandById } from "@/services/bandsService";
+import { getMusiciansByUserID } from "@/services/musicianService";
+import { useUserStore } from "@/stores/userStore";
+import { mapMusiciansIntoIds } from "@/utils/musician";
+import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 
 export const useBandProfile = () => {
-  const { bands, fetchBands } = useBandStore();
-  const { bandPositions } = useBandPositionStore();
-
   const [bandID, setBandID] = useState<string | number | null>(null);
-  const [band, setBand] = useState<BandWithPositions | null>(null);
+  const [bandProfile, setBandProfile] = useState<BandWithPositions | null>(
+    null
+  );
+  // 用户对这个乐队的位置发送过的申请记录
+  const [applications, setApplications] = useState<Application[]>([]);
 
+  const { userInfo } = useUserStore();
+
+  // Derived from `bandProfile`：正在招募的乐队位置
   const recruitingPositions = selectPositionsByStatus(
-    band?.positions ?? [],
+    bandProfile?.positions ?? [],
     "recruiting"
   );
+
+  // Derived from `bandProfile`：已经被加入的乐队位置
   const occupiedPositions = selectPositionsByStatus(
-    band?.positions ?? [],
+    bandProfile?.positions ?? [],
     "occupied"
   );
 
-  useEffect(() => {
-    // 用户加入乐队后，判断当前乐队的状态是否需要更新
-    updateBandStatus();
-  }, [band]);
+  // Derived from `bandProfile`：乐队是否处于招募状态
+  const isRecruiting = bandProfile?.info.status === "recruiting";
 
-  useEffect(() => {
-    if (!bandID || !bands) return;
-
-    // 从所有乐队缓存中，根据ID获取到当前页面乐队的数据
-    const currentBand = selectBandByID(bands, bandID);
-    if (!currentBand) return;
-
-    // 转换成带有乐队位置的加强乐队类型
-    const bandWithPositions = selectBandsWithPositions([currentBand]);
-    setBand(bandWithPositions[0]);
-  }, [bandID, bands, bandPositions]);
-
-  const isRecruiting = band?.info.status === "recruiting";
-
-  // 判断当前乐队的状态是否为 active
-  const isBandFull = () => {
-    const isActive = band?.positions.every((bp) => bp.status === "occupied");
-    return isActive;
+  // 聚合操作：查询乐队 + 查询该乐队的位置情况
+  const fetchBandProfile = async (bandID: string | number) => {
+    const band = await getBandById({ _id: bandID });
+    const positions = await getBandPositionsByBand({ bandID });
+    if (!band || !positions) return;
+    setBandProfile({ info: band, positions: positions });
   };
 
-  // 判断并更新乐队状态为 active
-  const updateBandStatus = async () => {
-    if (isBandFull() && band?.info._id && band.info.status === "recruiting") {
-      const now = new Date();
-      await updateBand({
-        bandID: band.info._id,
-        data: {
-          formedAt: now,
-          status: "active",
-          statusLogs: [{ at: now, status: "active" }, ...band.info.statusLogs],
-          statusUpdatedAt: now,
-        },
-      });
-      fetchBands();
-    }
+  // 聚合操作：获取用户对乐队位置的申请记录
+  const fetchApplications = async (bandID: string | number) => {
+    if (!userInfo?._id) return;
+    // 1. 获取用户的乐手身份
+    // 如果用户暂时没有乐手身份，代表根本没有发出过申请；直接退出
+    const musicians =
+      (await getMusiciansByUserID({ userID: userInfo._id })) || [];
+    if (!musicians.length) return;
+    const musicianIDs = mapMusiciansIntoIds(musicians);
+
+    // 2. 获取对这个乐队的所有申请记录
+    const fetchedApplications =
+      (await getApplicationsByField("targetBandID", [bandID])) || [];
+
+    // 3. 筛选出由用户发出的申请记录
+    const userSentApplications = fetchedApplications.filter((a) =>
+      musicianIDs.includes(a.applyingMusicianID)
+    );
+
+    setApplications(userSentApplications);
   };
+
+  // 监听：乐队ID变化之后，获取乐队数据
+  // 这里通常意味着乐队详情页面被加载
+  useEffect(() => {
+    if (!bandID) return;
+    fetchBandProfile(bandID);
+    fetchApplications(bandID);
+  }, [bandID]);
+
+  // 监听：获取到乐队信息之后，更新页面标题
+  useEffect(() => {
+    const title = bandProfile?.info.name || "乐队详情";
+    Taro.setNavigationBarTitle({ title });
+  }, [bandProfile]);
 
   return {
-    band,
-    setBand,
+    bandProfile,
+    fetchBandProfile,
+    applications,
+    fetchApplications,
     isRecruiting,
     recruitingPositions,
     occupiedPositions,

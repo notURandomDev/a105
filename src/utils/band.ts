@@ -10,7 +10,6 @@ import { Musician } from "@/models/musician";
 import {
   createBandPositions,
   getBandPositionsByBand,
-  updateBandPosition,
 } from "@/services/bandPositionService";
 import {
   createBand,
@@ -130,30 +129,7 @@ export const mapBandsIntoIds = (bands: Band[]): (string | number)[] => {
   return [...new Set(bands.map((band) => band._id))];
 };
 
-interface JoinBandParams {
-  musicianID: string | number;
-  bandPositionID: string | number;
-  bandID: string | number;
-  userName: string;
-}
-
-// 加入乐队的聚合操作
-export const joinBand = async ({
-  musicianID,
-  bandPositionID,
-  bandID,
-  userName,
-}: JoinBandParams) => {
-  // 1. [BandPosition] 更新乐队位置信息（ recruiting -> occupied ）
-  await updateBandPosition({
-    _id: bandPositionID,
-    data: {
-      joinedAt: new Date(),
-      status: "occupied",
-      nickname: userName,
-      musicianID,
-    },
-  });
-  // 2. [Musician] 更新乐手所在乐队信息（ bandIDs列表中添加一项 ）
-  await updateMusicianBandIDs({ _id: musicianID, bandID });
+// 判断乐队当前是否已经满员（不再有正在招聘中的乐队位置）
+export const isBandFull = (bandPositions: BandPosition[]): boolean => {
+  return bandPositions.every((bp) => bp.status === "occupied");
 };

@@ -49,7 +49,7 @@ interface GetBandPositionsByBandParams {
 }
 export const getBandPositionsByBand = async ({
   bandID,
-  production = false,
+  production = true,
 }: GetBandPositionsByBandParams): Promise<BandPosition[] | null> => {
   if (!production)
     return [MOCK_BAND_POSITIONS.occupied[0], ...MOCK_BAND_POSITIONS.recruiting];

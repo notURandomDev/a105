@@ -77,7 +77,7 @@ interface GetBandByIdParams {
 
 export const getBandById = async ({
   _id,
-  production = false,
+  production = true,
 }: GetBandByIdParams): Promise<Band | undefined> => {
   if (!production) return MOCK_BAND_ACTIVE;
 
