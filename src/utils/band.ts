@@ -116,3 +116,8 @@ export const getMusicianBaseBands = async (musicians: Musician[]) => {
   const bands = await getBandsByIDs({ bandIDs: uniqueBandIDs });
   return bands;
 };
+
+// 将乐队数组映射成乐队ID数组（默认进行自动去重）
+export const mapBandsIntoIds = (bands: Band[]): (string | number)[] => {
+  return [...new Set(bands.map((band) => band._id))];
+};

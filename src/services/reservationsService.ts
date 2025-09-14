@@ -81,13 +81,13 @@ export const getReservationsByDateRange = async (
 // 参数：可以传入单个乐队id，也可以是多个
 
 interface GetReservationsByBandIDsOptions {
-  bandIDs: string[];
+  bandIDs: (string | number)[];
   production?: boolean;
   sortByDate?: boolean;
 }
 export const getReservationsByBandIDs = async ({
   bandIDs,
-  production = false,
+  production = true,
   sortByDate = true,
 }: GetReservationsByBandIDsOptions): Promise<Reservation[] | null> => {
   if (!production)
