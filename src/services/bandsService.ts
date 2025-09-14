@@ -95,10 +95,10 @@ interface GetBandsByIDsParams {
   bandIDs: (string | number)[];
 }
 export const getBandsByIDs = async ({
-  production,
+  production = true,
   bandIDs,
-}: GetBandsByIDsParams): Promise<Band[] | undefined> => {
-  if (!production) return;
+}: GetBandsByIDsParams): Promise<Band[] | null> => {
+  if (!production) return null;
   try {
     const res = await bandsCollection.where({ _id: _.in(bandIDs) }).get();
     handleDBResult(
@@ -109,7 +109,7 @@ export const getBandsByIDs = async ({
     return res.data as Band[];
   } catch (error) {
     console.error(error);
-    return;
+    return null;
   }
 };
 

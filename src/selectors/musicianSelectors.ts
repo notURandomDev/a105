@@ -23,9 +23,7 @@ export const selectMusicianProfiles = (
   const userGroup = musicians.reduce<Record<string, Musician[]>>(
     (acc, musician) => {
       const { userID } = musician;
-      if (!acc[userID]) {
-        acc[userID] = [];
-      }
+      if (!acc[userID]) acc[userID] = [];
       acc[userID].push(musician);
       return acc;
     },

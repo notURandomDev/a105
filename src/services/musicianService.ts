@@ -55,8 +55,8 @@ interface GetMusiciansByUserIDParams {
 }
 export const getMusiciansByUserID = async ({
   userID,
-  production = false,
-}: GetMusiciansByUserIDParams): Promise<Musician[] | undefined> => {
+  production = true,
+}: GetMusiciansByUserIDParams): Promise<Musician[] | null> => {
   if (!production) return [MOCK_MUSICIAN_PROFILE];
 
   try {
@@ -69,7 +69,7 @@ export const getMusiciansByUserID = async ({
     return res.data as Musician[];
   } catch (error) {
     console.error(error);
-    return;
+    return null;
   }
 };
 

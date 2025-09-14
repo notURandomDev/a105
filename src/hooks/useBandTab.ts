@@ -10,7 +10,7 @@ import { BandTabKey } from "@/types/components";
 export const useBandTab = () => {
   // Tab初始值：活跃乐队
   const [activeBandTabKey, setActiveBandTabKey] =
-    useState<BandTabKey>("activeBands");
+    useState<BandTabKey>("recruitingBands");
   const [bands, setBands] = useState<Band[]>([]);
 
   // 根据类型获取乐队数据

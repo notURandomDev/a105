@@ -6,6 +6,7 @@ import {
   CreateBandRequest,
 } from "@/models/band";
 import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
+import { Musician } from "@/models/musician";
 import {
   createBandPositions,
   getBandPositionsByBand,
@@ -101,11 +102,17 @@ export const getBandNameMap = async (
   bandsIDs: (string | number)[]
 ): Promise<BandNameMap | undefined> => {
   const uniqueBandIDs = [...new Set(bandsIDs)]; // 乐队ID去重
-  const bands = await getBandsByIDs({
-    bandIDs: uniqueBandIDs,
-    production: true,
-  });
+  const bands = await getBandsByIDs({ bandIDs: uniqueBandIDs });
   if (!bands) return;
 
   return new Map(bands.map((b) => [b._id, b.name]));
+};
+
+// 获取多个乐手所在的不同乐队
+// 使用场景：乐手档案｜获取一个用户所在的所有乐队
+export const getMusicianBaseBands = async (musicians: Musician[]) => {
+  // 将乐手数组的 bandIDs 提取出来 (无重叠)
+  const uniqueBandIDs = [...new Set(musicians.flatMap((b) => b.bandIDs))];
+  const bands = await getBandsByIDs({ bandIDs: uniqueBandIDs });
+  return bands;
 };
