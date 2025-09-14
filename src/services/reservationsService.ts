@@ -48,22 +48,22 @@ export const getReservationByBandName = async (bandName: string) => {
 
 export const getReservationsByDate = async (
   date: Date
-): Promise<Reservation[]> => {
+): Promise<Reservation[] | null> => {
   try {
     const res = await reservationsCollection.where({ date: _.eq(date) }).get();
     handleDBResult(res, "get", "根据排练日期获取预约数据");
     return res.data as Reservation[];
   } catch (error) {
     console.error(error);
-    return [];
+    return null;
   }
 };
 
 export const getReservationsByDateRange = async (
   startDate: Date,
   endDate: Date,
-  production: boolean = false
-): Promise<Reservation[]> => {
+  production: boolean = true
+): Promise<Reservation[] | null> => {
   if (!production) return MOCK_RESERVATIONS.DEFAULT;
 
   try {
@@ -74,7 +74,7 @@ export const getReservationsByDateRange = async (
     return res.data as Reservation[];
   } catch (error) {
     console.error(error);
-    return [];
+    return null;
   }
 };
 
