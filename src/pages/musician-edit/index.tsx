@@ -1,5 +1,4 @@
 import { View } from "@tarojs/components";
-import Taro from "@tarojs/taro";
 import "./index.scss";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
 import { Cell, Field, Input, Textarea } from "@taroify/core";
@@ -79,7 +78,6 @@ export default function MusicianEdit() {
             onClick={async () => {
               await handleSubmit();
               JXToast.success("保存成功！");
-              setTimeout(() => Taro.navigateBack(), 2000);
             }}
           >
             保存
