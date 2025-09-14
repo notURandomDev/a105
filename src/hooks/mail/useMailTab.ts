@@ -8,6 +8,8 @@ import { mapMusiciansIntoIds } from "@/utils/musician";
 import { Musician } from "@/models/musician";
 import { Mail } from "@/models/mail";
 
+const PRODUCTION = false;
+
 export const useMailTab = () => {
   // Tab初始值：待审批申请
   const [activeMailTabKey, setActiveMailTabKey] = useState<MailTabKey>(
@@ -23,7 +25,11 @@ export const useMailTab = () => {
   const fetchIncomingMails = async (musicians: Musician[]) => {
     const targetBandIDs = extractMusicianBaseBandIDs(musicians); // 获取用户所在的乐队ID
     const applications =
-      (await getApplicationsByField("targetBandID", targetBandIDs)) || [];
+      (await getApplicationsByField({
+        field: "targetBandID",
+        value: targetBandIDs,
+        production: PRODUCTION,
+      })) || [];
     return applications.map((a) => ({
       application: a,
       applyingMusician: musicians.find((m) => m._id === a.applyingMusicianID),
@@ -35,10 +41,11 @@ export const useMailTab = () => {
   const fetchOutgoingApplications = async (musicians: Musician[]) => {
     const applyingMusicianIDs = mapMusiciansIntoIds(musicians); // 获取用户所有乐手身份的ID
     const applications =
-      (await getApplicationsByField(
-        "applyingMusicianID",
-        applyingMusicianIDs
-      )) || [];
+      (await getApplicationsByField({
+        field: "applyingMusicianID",
+        value: applyingMusicianIDs,
+        production: PRODUCTION,
+      })) || [];
     return applications.map((a) => ({
       application: a,
       applyingMusician: musicians.find((m) => m._id === a.applyingMusicianID),

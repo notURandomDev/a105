@@ -61,20 +61,28 @@ export const getApplicationsByStatus = async ({
   }
 };
 
+interface GetApplicationsByFieldParams {
+  field: "applyingBandPositionID" | "applyingMusicianID" | "targetBandID";
+  value: (string | number)[];
+  production?: boolean;
+}
+
 // 通用函数，能够根据字段筛选返回申请记录
-export const getApplicationsByField = async (
-  field: "applyingBandPositionID" | "applyingMusicianID" | "targetBandID",
-  ids: (string | number)[]
-): Promise<Application[] | null> => {
+export const getApplicationsByField = async ({
+  field,
+  value,
+  production = true,
+}: GetApplicationsByFieldParams): Promise<Application[] | null> => {
+  if (!production) return [];
   try {
     const res = await applicationCollection
-      .where({ [field]: _.in(ids) })
+      .where({ [field]: _.in(value) })
       .orderBy("appliedAt", "desc") // 按申请的时间降序
       .get();
     handleDBResult(
       res,
       "get",
-      `根据字段 ${field} (${ids.length}) 获取 ${res.data.length} 条申请记录数据`
+      `根据字段 ${field} (${value.length}) 获取 ${res.data.length} 条申请记录数据`
     );
     return res.data as Application[];
   } catch (error) {
