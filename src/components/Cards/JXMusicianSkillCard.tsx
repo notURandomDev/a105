@@ -1,6 +1,5 @@
 import { View } from "@tarojs/components";
 import JXCardContainer from "../JXCardContainer";
-import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXEmoji from "../JXEmoji";
 import JXTitleLabel from "../Labels/JXTitleLabel";
@@ -23,12 +22,6 @@ function JXMusicianSkillCard({ musician }: JXMusicianSkillCardProps) {
           <JXTitleLabel lg>
             {MUSICIAN_DISPLAY[musician.position].label}
           </JXTitleLabel>
-        </View>
-
-        <View className="chip-container">
-          {musician.genre.map((g) => (
-            <JXGenreChip genre={g} />
-          ))}
         </View>
       </View>
 

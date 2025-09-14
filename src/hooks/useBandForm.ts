@@ -2,7 +2,6 @@ import { getAllBands } from "@/services/bandsService";
 import { JXToast } from "@/utils/toast";
 import Taro from "@tarojs/taro";
 import { useEffect, useRef, useState } from "react";
-import { Genre } from "@/models/genre";
 import { PositionType } from "@/models/position";
 import {
   CreateBandPositionInput,
@@ -18,13 +17,11 @@ import { matchUserMusician } from "@/utils/musician";
 const DEFAULT_FORM_DATA_BASE = {
   name: "JOINT",
   description: "这是一段乐队简介",
-  genre: ["EDM"] as Genre[],
 };
 
 interface FormData {
   name: string;
   description: string;
-  genre: Genre[];
   positions: CreateBandPositionInput[];
 }
 
@@ -87,9 +84,6 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
 
   const updateDescription = (value: string) =>
     setFormData((prev) => ({ ...prev, description: value }));
-
-  const updateGenre = (value: Genre[]) =>
-    setFormData((prev) => ({ ...prev, genre: value }));
 
   const updatePositions = async (position: PositionType) => {
     // 更新【你的位置】
@@ -172,7 +166,7 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
   };
 
   const isFormDataValid = () => {
-    const { name, description, genre, positions } = formData;
+    const { name, description, positions } = formData;
 
     const { recruitingPositions, occupiedPositions } =
       getPositionsByStatus(positions);
@@ -180,7 +174,6 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     return (
       name?.length > 0 &&
       description?.length > 0 &&
-      genre.length > 0 &&
       recruitingPositions.length > 0 &&
       occupiedPositions.length > 0
     );
@@ -213,7 +206,6 @@ export const useBandForm = ({ production = false }: UseBandFormParams = {}) => {
     removeRecruitingPosition,
     getRecruitNote,
     updateRecruitNote,
-    updateGenre,
     updateDescription,
     updateName,
   };

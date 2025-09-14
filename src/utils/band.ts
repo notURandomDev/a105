@@ -3,7 +3,7 @@ import {
   Band,
   BandStatus,
   BandWithPositions,
-  CreateBandInput,
+  CreateBandRequest,
 } from "@/models/band";
 import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
 import {
@@ -50,7 +50,7 @@ export const getBandWithPositions = async ({
 
 interface CreateBandWithPositionsParams {
   positions: CreateBandPositionInput[];
-  band: CreateBandInput;
+  band: CreateBandRequest;
 }
 
 export const createBandWithPositions = async ({

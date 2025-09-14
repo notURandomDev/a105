@@ -2,11 +2,8 @@ import { View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import "./index.scss";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
-import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
+import { Cell, Field, Input, Textarea } from "@taroify/core";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
-import JXGenreChip from "@/components/JXGenreChip";
-import { GENRES } from "@/constants/utils/genre";
-import { Genre } from "@/models/genre";
 import JXButton from "@/components/JXButton";
 import { useMusicianForm } from "@/hooks/musician/useMusicianForm";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
@@ -50,23 +47,6 @@ export default function MusicianEdit() {
                   />
                 </Field>
               </Cell.Group>
-              <JXFormLabel px>乐手风格（多选）</JXFormLabel>
-              <Checkbox.Group
-                direction="horizontal"
-                className="chip-container"
-                style={{ padding: "0 16px" }}
-                onChange={(value) => updateFormData(index, { genre: value })}
-                value={formData[index].genre}
-              >
-                {Object.keys(GENRES).map((g: Genre) => (
-                  <Checkbox
-                    name={g}
-                    icon={
-                      <JXGenreChip genre={g} active={mp.genre.includes(g)} />
-                    }
-                  />
-                ))}
-              </Checkbox.Group>
             </View>
           </View>
         );

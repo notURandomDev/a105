@@ -6,7 +6,6 @@ import JXMusicianCardSM from "@/components/Cards/JXMusicianCardSM";
 import { Image, Loading } from "@taroify/core";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
 import JXMetricCard from "@/components/Cards/JXMetricCard";
-import JXGenreChip from "@/components/JXGenreChip";
 import JXMusicianCardRC from "@/components/Cards/JXMusicianCardRC";
 import { useBandProfile } from "@/hooks/useBandProfile";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
@@ -92,12 +91,6 @@ export default function BandDetail() {
                 : getYMDfromDate(band?.info.formedAt ?? new Date())
             }
           />
-          <JXFormLabel>乐队风格</JXFormLabel>
-          <View className="chip-container">
-            {band?.info.genre.map((g) => (
-              <JXGenreChip genre={g} />
-            ))}
-          </View>
 
           <JXFormLabel>乐队成员</JXFormLabel>
           <View className="card-gap container-v">

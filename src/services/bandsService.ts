@@ -5,7 +5,7 @@ import {
   Band,
   BandStatus,
   BandStatusLog,
-  CreateBandInput,
+  CreateBandRequest,
 } from "@/models/band";
 import { handleDBResult } from "@/utils/database";
 import { DB } from "@tarojs/taro";
@@ -14,7 +14,7 @@ const bandsCollection = db.collection("band");
 /* CREATE */
 
 export const createBand = async (
-  band: CreateBandInput
+  band: CreateBandRequest
 ): Promise<string | number | null> => {
   try {
     const bandID = await bandsCollection.add({ data: band });

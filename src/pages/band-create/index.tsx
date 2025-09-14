@@ -1,15 +1,12 @@
 import { View } from "@tarojs/components";
 import "./index.scss";
-import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
-import JXGenreChip from "@/components/JXGenreChip";
+import { Cell, Field, Input, Textarea } from "@taroify/core";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
-import { GENRES } from "@/constants/utils/genre";
 import JXButton from "@/components/JXButton";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { Close } from "@taroify/icons";
 import { useBandForm } from "@/hooks/useBandForm";
-import { Genre } from "@/models/genre";
 import { getPositionsByStatus } from "@/utils/band";
 import { useLoad } from "@tarojs/taro";
 import { PositionType } from "@/models/position";
@@ -49,7 +46,6 @@ export default function BandCreate() {
     removeRecruitingPosition,
     getRecruitNote,
     updateRecruitNote,
-    updateGenre,
     updateDescription,
     updateName,
   } = useBandForm();
@@ -60,7 +56,7 @@ export default function BandCreate() {
 
   return (
     <View className="band-create config-page">
-      <JXFormLabel px>乐队基本信息</JXFormLabel>
+      <JXFormLabel px>填写乐队基本信息</JXFormLabel>
       <Cell.Group inset bordered={false}>
         <Field
           feedback={
@@ -86,23 +82,7 @@ export default function BandCreate() {
         </Field>
       </Cell.Group>
 
-      <JXFormLabel px>乐队风格（多选）</JXFormLabel>
-      <Checkbox.Group
-        onChange={updateGenre}
-        value={formData.genre}
-        direction="horizontal"
-        className="chip-container"
-        style={{ padding: "0 16px" }}
-      >
-        {Object.keys(GENRES).map((g: Genre) => (
-          <Checkbox
-            name={g}
-            icon={<JXGenreChip genre={g} active={formData.genre.includes(g)} />}
-          />
-        ))}
-      </Checkbox.Group>
-
-      <JXFormLabel px>你的位置</JXFormLabel>
+      <JXFormLabel px>填写你在乐队中的位置</JXFormLabel>
       <View
         className="container-v"
         style={{ gap: occupiedPositions.length ? 12 : 0 }}
@@ -125,7 +105,7 @@ export default function BandCreate() {
         )}
       </View>
 
-      <JXFormLabel px>招募乐手位置</JXFormLabel>
+      <JXFormLabel px>填写你想招募的乐手位置</JXFormLabel>
       <View
         className="container-v"
         style={{ gap: recruitingPositions.length ? 12 : 0 }}

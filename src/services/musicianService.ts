@@ -1,9 +1,9 @@
 import { _, db } from "@/cloud/cloudClient";
 import { MOCK_MUSICIAN_PROFILE } from "@/constants/database/musician";
 import {
-  CreateMusicianInput,
+  CreateMusicianRequest,
   Musician,
-  UpdateMusicianInput,
+  UpdateMusicianRequest,
 } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import { handleDBResult } from "@/utils/database";
@@ -11,7 +11,7 @@ import { handleDBResult } from "@/utils/database";
 const musiciansCollection = db.collection("musician");
 
 interface CreateMusicianParams {
-  musicians: CreateMusicianInput[];
+  musicians: CreateMusicianRequest[];
 }
 
 // CREATE
@@ -131,15 +131,15 @@ export const getMatchingMusician = async ({
 // UPDATE
 
 interface UpdateMusiciansParams {
-  musicians: UpdateMusicianInput[];
+  musicians: UpdateMusicianRequest[];
 }
 export const updateMusicians = async ({
   musicians,
 }: UpdateMusiciansParams): Promise<Boolean> => {
   try {
     const res = await Promise.all(
-      musicians.map(({ _id, position, bio, genre }) =>
-        musiciansCollection.doc(_id).update({ data: { position, bio, genre } })
+      musicians.map(({ _id, position, bio }) =>
+        musiciansCollection.doc(_id).update({ data: { position, bio } })
       )
     );
     res.map((r) => handleDBResult(r, "update", `更新乐手档案数据`));

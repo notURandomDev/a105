@@ -55,9 +55,8 @@ export const selectMusicianProfiles = (
             })
           )
       );
-    const combinedGenres = [...new Set(musicians.flatMap((m) => m.genre))];
     const nickname = musicians[0].nickname ?? "no-musician-profile";
-    musicianProfiles.push({ musicians, bandConfigs, nickname, combinedGenres });
+    musicianProfiles.push({ musicians, bandConfigs, nickname });
   }
 
   return musicianProfiles;

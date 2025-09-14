@@ -1,7 +1,6 @@
 import { View } from "@tarojs/components";
 import JXAvatar from "../JXAvatar";
 import JXCardContainer from "../JXCardContainer";
-import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
@@ -13,7 +12,7 @@ interface JXMusicianCardProps {
 }
 
 function JXMusicianCard({ musician }: JXMusicianCardProps) {
-  const { bandIDs, nickname, bio, genre } = musician;
+  const { bandIDs, nickname, bio } = musician;
 
   const navigate = () => {
     Taro.navigateTo({
@@ -33,12 +32,6 @@ function JXMusicianCard({ musician }: JXMusicianCardProps) {
               : "TA暂无归属乐队"}
           </JXSecondaryLabel>
         </View>
-      </View>
-
-      <View className="chip-container">
-        {genre.map((g) => (
-          <JXGenreChip genre={g} />
-        ))}
       </View>
 
       <JXBodyLabel>{`乐手简介：${bio}`}</JXBodyLabel>

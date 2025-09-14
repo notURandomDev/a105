@@ -1,6 +1,5 @@
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
-import { Genre } from "@/models/genre";
-import { CreateMusicianInput } from "@/models/musician";
+import { CreateMusicianRequest } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import { createMusicians, updateMusicians } from "@/services/musicianService";
 import { useUserStore } from "@/stores/userStore";
@@ -13,7 +12,6 @@ export interface MusicianFormItem {
   _id?: string | number; // 更新接口需要使用
   position: PositionType;
   bio: string;
-  genre: Genre[];
   status: FormItemStatus;
 }
 
@@ -47,7 +45,7 @@ export const useMusicianForm = () => {
   const appendMusicianProfile = (value: PositionType) =>
     setFormData((prev) => [
       ...prev,
-      { position: value, genre: [], bio: "", status: "new" },
+      { position: value, bio: "", status: "new" },
     ]);
 
   const getExcludedPositions = () => {
@@ -58,7 +56,7 @@ export const useMusicianForm = () => {
   };
 
   const handleSubmit = async () => {
-    const toCreate: CreateMusicianInput[] = formData
+    const toCreate: CreateMusicianRequest[] = formData
       .filter((item) => item.status === "new")
       .map((item) => ({
         ...item,

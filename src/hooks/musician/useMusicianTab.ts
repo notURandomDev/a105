@@ -21,7 +21,6 @@ export const useMusicianTab = () => {
         positions: [tabKey],
       });
     }
-    console.log("DEBUG: Musicians", musicians);
     if (musicians) setMusicians(musicians);
   };
 

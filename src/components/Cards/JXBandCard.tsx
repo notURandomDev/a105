@@ -2,7 +2,6 @@ import { View } from "@tarojs/components";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
 import JXButton from "../JXButton";
 import JXCardContainer from "../JXCardContainer";
-import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import Taro from "@tarojs/taro";
@@ -14,7 +13,7 @@ interface JXBandCardProps {
   addBtnDisabled?: boolean;
 }
 const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
-  const { status, name, genre, description, statusUpdatedAt, _id } = band;
+  const { status, name, description, statusUpdatedAt, _id } = band;
 
   const isRecruiting = status === "recruiting";
 
@@ -26,15 +25,7 @@ const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
 
   return (
     <JXCardContainer onClick={navigate} style={{ gap: 8 }}>
-      <View className="container-v" style={{ gap: isRecruiting ? 4 : 0 }}>
-        <JXTitleLabel lg>{name ?? ""}</JXTitleLabel>
-
-        <View className="chip-container">
-          {genre.map((g) => (
-            <JXGenreChip genre={g} />
-          ))}
-        </View>
-      </View>
+      <JXTitleLabel lg>{name ?? ""}</JXTitleLabel>
 
       <View className="container-v">
         <JXBodyLabel>
