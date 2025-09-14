@@ -1,10 +1,13 @@
 import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
 import { CreateMusicianRequest } from "@/models/musician";
 import { PositionType } from "@/models/position";
-import { createMusicians, updateMusicians } from "@/services/musicianService";
+import {
+  createMusicians,
+  getMusiciansByUserID,
+  updateMusicians,
+} from "@/services/musicianService";
 import { useUserStore } from "@/stores/userStore";
 import { useEffect, useState } from "react";
-import { useMusiciansWithUser } from "./useMusiciansWithUser";
 
 type FormItemStatus = "new" | "edited" | "pristine";
 
@@ -20,42 +23,63 @@ export const useMusicianForm = () => {
   const [formData, setFormData] = useState<MusicianFormItem[]>([]);
   const [pickerActive, setPickerActive] = useState(false);
 
-  const { userMusicians, fetchMusicians } = useMusiciansWithUser();
+  // 获取用户乐手信息，更新表单
+  const fetchMusicians = async () => {
+    const userID = userInfo?._id;
+    if (!userID) return;
 
+    // 获取用户所有的乐手身份
+    const fetchedMusicians = (await getMusiciansByUserID({ userID })) || [];
+    if (!fetchedMusicians.length) return;
+
+    // 根据获取到的用户乐手信息，更新表单
+    setFormData(fetchedMusicians.map((m) => ({ ...m, status: "pristine" })));
+  };
+
+  // 监听：获取到用户信息的全局状态，加载用户的乐手身份数据
   useEffect(() => {
-    if (!userMusicians) return;
-    setFormData(userMusicians.map((m) => ({ ...m, status: "pristine" })));
-  }, [userMusicians]);
+    fetchMusicians();
+  }, [userInfo?._id]);
 
+  // 判断用户是否对表单进行了编辑
   const didUserEdit = () => formData.some((mp) => mp.status !== "pristine");
 
+  // 更新表单数据
   const updateFormData = (index: number, updates: Partial<MusicianFormItem>) =>
     setFormData((prev) =>
       prev.map((mp, idx) =>
-        idx === index
+        idx === index // 被更新的乐手身份下标
           ? {
               ...mp,
               ...updates,
-              status: mp.status !== "new" ? "edited" : mp.status,
+              // 新创建(new)的乐手身份 优先级大于 被修改(edited)的乐手身份信息
+              // 如果是新创建的乐手身份，就算信息更新，状态还是 new
+              // 因为 `handleSubmit` 对于这两种状态的处理逻辑不同
+              status: mp.status !== "new" ? "edited" : "new",
             }
           : mp
       )
     );
 
+  // 创建新的乐手身份
   const appendMusicianProfile = (value: PositionType) =>
     setFormData((prev) => [
-      ...prev,
+      ...prev, // 保持其它乐手身份不变
       { position: value, bio: "", status: "new" },
     ]);
 
+  // 返回一个用户还未创建过的乐手身份列表，给 picker 使用
   const getExcludedPositions = () => {
+    // 已经存在的乐手位置
     const existingPositions = formData.flatMap((mp) => mp.position);
     return Object.keys(MUSICIAN_DISPLAY).filter((p) =>
       existingPositions.includes(p as PositionType)
     ) as PositionType[];
   };
 
+  // 处理表单提交操作
   const handleSubmit = async () => {
+    // 需要进行创建的新身份
     const toCreate: CreateMusicianRequest[] = formData
       .filter((item) => item.status === "new")
       .map((item) => ({
@@ -71,11 +95,11 @@ export const useMusicianForm = () => {
       .filter((item) => item.status === "edited")
       .map((item) => ({ ...item, _id: item._id ?? "" }));
 
-    await Promise.all([
-      createMusicians({ musicians: toCreate }),
-      updateMusicians({ musicians: toUpdate }),
-    ]);
+    // 创建身份 / 更新身份
+    if (toCreate.length) await createMusicians({ musicians: toCreate });
+    if (toUpdate.length) await updateMusicians({ musicians: toUpdate });
 
+    // 刷新乐手数据，重新渲染乐手表单
     fetchMusicians();
   };
 
