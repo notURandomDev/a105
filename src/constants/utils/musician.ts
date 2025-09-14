@@ -5,7 +5,10 @@ export type MusicianDisplayConfig = {
   emoji: string;
 };
 
-export const MUSICIAN_DISPLAY: Record<PositionType, MusicianDisplayConfig> = {
+export const MUSICIAN_DISPLAY_CONFIG: Record<
+  PositionType,
+  MusicianDisplayConfig
+> = {
   vocalist: {
     label: "主唱",
     emoji: "🎤",

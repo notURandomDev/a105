@@ -7,7 +7,7 @@ import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import Taro from "@tarojs/taro";
 import { MusicianProfile } from "@/models/musician";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 
 interface JXMusicianProfileCardProps {
   musicianProfile: MusicianProfile;
@@ -42,7 +42,7 @@ function JXMusicianProfileCard({
 
       <View className="container-v">
         {bandConfigs.map(({ position, bandName }) => {
-          const { label, emoji } = MUSICIAN_DISPLAY[position];
+          const { label, emoji } = MUSICIAN_DISPLAY_CONFIG[position];
           return (
             <JXBodyLabel>{`${emoji} 在 ${bandName} 乐队中担任${label}`}</JXBodyLabel>
           );

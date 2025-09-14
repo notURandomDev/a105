@@ -1,14 +1,14 @@
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { PositionType } from "@/models/position";
 import { Picker, Popup } from "@taroify/core";
 import { PickerOptionData } from "@taroify/core/picker/picker.shared";
 
-const BAND_POS_COLUMNS: PickerOptionData[] = Object.keys(MUSICIAN_DISPLAY).map(
-  (p) => ({
-    label: `${MUSICIAN_DISPLAY[p].emoji} ${MUSICIAN_DISPLAY[p].label}`,
-    value: p,
-  })
-);
+const BAND_POS_COLUMNS: PickerOptionData[] = Object.keys(
+  MUSICIAN_DISPLAY_CONFIG
+).map((p) => ({
+  label: `${MUSICIAN_DISPLAY_CONFIG[p].emoji} ${MUSICIAN_DISPLAY_CONFIG[p].label}`,
+  value: p,
+}));
 
 interface JXBandPosPickerProps {
   title: string;

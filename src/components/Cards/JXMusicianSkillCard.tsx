@@ -4,7 +4,7 @@ import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXEmoji from "../JXEmoji";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import { Musician } from "@/models/musician";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 
 interface JXMusicianSkillCardProps {
   musician: Musician;
@@ -18,9 +18,9 @@ function JXMusicianSkillCard({ musician }: JXMusicianSkillCardProps) {
           className="container-h grow"
           style={{ alignItems: "center", gap: 12 }}
         >
-          <JXEmoji>{MUSICIAN_DISPLAY[musician.position].emoji}</JXEmoji>
+          <JXEmoji>{MUSICIAN_DISPLAY_CONFIG[musician.position].emoji}</JXEmoji>
           <JXTitleLabel lg>
-            {MUSICIAN_DISPLAY[musician.position].label}
+            {MUSICIAN_DISPLAY_CONFIG[musician.position].label}
           </JXTitleLabel>
         </View>
       </View>

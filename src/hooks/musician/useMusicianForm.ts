@@ -1,4 +1,4 @@
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { CreateMusicianRequest } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import {
@@ -72,7 +72,7 @@ export const useMusicianForm = () => {
   const getExcludedPositions = () => {
     // 已经存在的乐手位置
     const existingPositions = formData.flatMap((mp) => mp.position);
-    return Object.keys(MUSICIAN_DISPLAY).filter((p) =>
+    return Object.keys(MUSICIAN_DISPLAY_CONFIG).filter((p) =>
       existingPositions.includes(p as PositionType)
     ) as PositionType[];
   };

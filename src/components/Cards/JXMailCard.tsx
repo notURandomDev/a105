@@ -7,7 +7,7 @@ import JXButton from "../JXButton";
 import { Application, ApplicationStatus } from "@/models/application";
 import { getSmartTime } from "@/utils/DatetimeHelper";
 import { JXColor } from "@/constants/colors/theme";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { PositionType } from "@/models/position";
 import { updateApplicationStatus } from "@/services/applicationService";
 import {
@@ -156,7 +156,7 @@ export default function JXMailCard({
         >
           <View style={{ flex: 1 }} className="container-v">
             <JXTitleLabel>{readonly ? "我" : applicantName}</JXTitleLabel>
-            <JXBodyLabel>{`${MUSICIAN_DISPLAY[applicantPosition].label} ${MUSICIAN_DISPLAY[applicantPosition].emoji}`}</JXBodyLabel>
+            <JXBodyLabel>{`${MUSICIAN_DISPLAY_CONFIG[applicantPosition].label} ${MUSICIAN_DISPLAY_CONFIG[applicantPosition].emoji}`}</JXBodyLabel>
           </View>
 
           <View

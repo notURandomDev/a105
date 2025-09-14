@@ -4,7 +4,7 @@ import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
 import { BandPosition } from "@/models/band-position";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
 
 interface JXMusicianCardSMProps {
@@ -13,7 +13,7 @@ interface JXMusicianCardSMProps {
 
 function JXMusicianCardSM({ musician }: JXMusicianCardSMProps) {
   const { position, nickname, joinedAt } = musician;
-  const { emoji, label } = MUSICIAN_DISPLAY[position];
+  const { emoji, label } = MUSICIAN_DISPLAY_CONFIG[position];
 
   return (
     <JXCardContainer horizontal style={{ gap: 12, alignItems: "center" }}>

@@ -4,7 +4,7 @@ import { Cell, Field, Input, Textarea } from "@taroify/core";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
 import JXButton from "@/components/JXButton";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { Close } from "@taroify/icons";
 import { useBandForm } from "@/hooks/useBandForm";
 import { getPositionsByStatus } from "@/utils/band";
@@ -97,8 +97,10 @@ export default function BandCreate() {
               <Input
                 readonly
                 value={`${
-                  MUSICIAN_DISPLAY[occupiedPositions[0].position].emoji
-                }  ${MUSICIAN_DISPLAY[occupiedPositions[0].position].label}`}
+                  MUSICIAN_DISPLAY_CONFIG[occupiedPositions[0].position].emoji
+                }  ${
+                  MUSICIAN_DISPLAY_CONFIG[occupiedPositions[0].position].label
+                }`}
               />
             </Field>
           </Cell.Group>
@@ -112,7 +114,7 @@ export default function BandCreate() {
       >
         <Cell.Group inset bordered={false}>
           {recruitingPositions.map(({ position: p }, index) => {
-            const { emoji, label } = MUSICIAN_DISPLAY[p];
+            const { emoji, label } = MUSICIAN_DISPLAY_CONFIG[p];
             return (
               <>
                 <Field label={`位置${index + 1}`}>

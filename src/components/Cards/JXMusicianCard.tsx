@@ -6,7 +6,7 @@ import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import { Musician } from "@/models/musician";
 import Taro from "@tarojs/taro";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 
 interface JXMusicianCardProps {
   musician: Musician;
@@ -29,7 +29,7 @@ function JXMusicianCard({ musician }: JXMusicianCardProps) {
           <JXTitleLabel>{nickname}</JXTitleLabel>
           <JXSecondaryLabel>
             {bandIDs.length
-              ? `TA 是 ${bandIDs.length} 个乐队的${MUSICIAN_DISPLAY[position].label}`
+              ? `TA 是 ${bandIDs.length} 个乐队的${MUSICIAN_DISPLAY_CONFIG[position].label}`
               : "TA暂无归属乐队"}
           </JXSecondaryLabel>
         </View>

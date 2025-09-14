@@ -6,7 +6,7 @@ import { Cell, Field, Input, Textarea } from "@taroify/core";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
 import JXButton from "@/components/JXButton";
 import { useMusicianForm } from "@/hooks/musician/useMusicianForm";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { JXToast } from "@/utils/toast";
 
 export default function MusicianEdit() {
@@ -25,7 +25,7 @@ export default function MusicianEdit() {
     <View className="musician-edit config-page">
       {formData.map((mp, index) => {
         // mp stands for musician-profile
-        const { label, emoji } = MUSICIAN_DISPLAY[mp.position];
+        const { label, emoji } = MUSICIAN_DISPLAY_CONFIG[mp.position];
 
         return (
           <View className="container-v" style={{ gap: 24 }}>
