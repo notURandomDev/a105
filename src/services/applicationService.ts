@@ -67,7 +67,10 @@ export const getApplicationsByField = async (
   ids: (string | number)[]
 ): Promise<Application[] | null> => {
   try {
-    const res = await applicationCollection.where({ [field]: _.in(ids) }).get();
+    const res = await applicationCollection
+      .where({ [field]: _.in(ids) })
+      .orderBy("appliedAt", "desc") // 按申请的时间降序
+      .get();
     handleDBResult(
       res,
       "get",

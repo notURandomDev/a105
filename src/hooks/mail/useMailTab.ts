@@ -9,7 +9,7 @@ import { Musician } from "@/models/musician";
 import { Mail } from "@/models/mail";
 
 export const useMailTab = () => {
-  // Tab初始值：活跃乐队
+  // Tab初始值：待审批申请
   const [activeMailTabKey, setActiveMailTabKey] = useState<MailTabKey>(
     "incomingApplications"
   );
