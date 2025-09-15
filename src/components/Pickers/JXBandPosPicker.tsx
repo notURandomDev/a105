@@ -1,14 +1,19 @@
 import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { PositionType } from "@/models/position";
 import { Picker, Popup } from "@taroify/core";
-import { PickerOptionData } from "@taroify/core/picker/picker.shared";
 
-const BAND_POS_COLUMNS: PickerOptionData[] = Object.keys(
-  MUSICIAN_DISPLAY_CONFIG
-).map((p) => ({
-  label: `${MUSICIAN_DISPLAY_CONFIG[p].emoji} ${MUSICIAN_DISPLAY_CONFIG[p].label}`,
-  value: p,
-}));
+// 将 乐手位置数组 映射成能被 Picker 使用的 Column 结构数组
+const mapPositionsIntoColumns = (positions: PositionType[]) =>
+  positions.map((p) => {
+    const { emoji, label } = MUSICIAN_DISPLAY_CONFIG[p];
+    return {
+      label: `${emoji} ${label}`,
+      value: p,
+    };
+  });
+
+// Picker 默认包含所有数组
+const allPositions = Object.keys(MUSICIAN_DISPLAY_CONFIG) as PositionType[];
 
 interface JXBandPosPickerProps {
   title: string;
@@ -16,6 +21,7 @@ interface JXBandPosPickerProps {
   onConfirm?: (position: PositionType) => void;
   onCancel?: () => void;
   exclude?: PositionType[];
+  include?: PositionType[];
 }
 
 function JXBandPosPicker({
@@ -24,24 +30,26 @@ function JXBandPosPicker({
   onConfirm = () => {},
   onCancel = () => {},
   exclude,
+  include = allPositions,
 }: JXBandPosPickerProps) {
+  let columns = mapPositionsIntoColumns(include);
+
+  // 过滤掉显式声明需要排除的内容
+  if (exclude?.length)
+    columns = columns.filter((p) => !exclude.includes(p.value as PositionType));
+
   const handleConfirm = (position: string) => {
     onConfirm(position as PositionType);
   };
-
-  const optionsToExclude = new Set(exclude);
-  const pickerColumns = BAND_POS_COLUMNS.filter(
-    (p) => p.value && !optionsToExclude.has(p.value as PositionType)
-  );
 
   return (
     <Popup open={open} rounded placement="bottom">
       <Popup.Backdrop />
       <Picker
         title={title}
-        cancelText="取消"
         confirmText="确认"
-        columns={pickerColumns}
+        cancelText="取消"
+        columns={columns}
         onCancel={onCancel}
         onConfirm={(option) => handleConfirm(option[0])}
       />

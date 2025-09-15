@@ -13,7 +13,7 @@ export interface BandPosition {
   joinedAt?: Date; // 加入时间（可选）
 }
 
-export type CreateBandPositionInput = Pick<
+export type CreateBandPositionRequest = Pick<
   BandPosition,
   "position" | "status" | "recruitNote" | "musicianID" | "nickname" | "joinedAt"
 >;

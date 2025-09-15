@@ -79,3 +79,8 @@ export const matchUserMusician = async (
 export const mapMusiciansIntoIds = (musicians: Musician[]) => [
   ...new Set(musicians.map((m) => m._id)),
 ];
+
+// 将乐手数组映射成乐手位置（自动去重）
+export const mapMusiciansIntoPositions = (musicians: Musician[]) => [
+  ...new Set(musicians.map((m) => m.position)),
+];

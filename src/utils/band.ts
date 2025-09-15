@@ -5,7 +5,10 @@ import {
   BandWithPositions,
   CreateBandRequest,
 } from "@/models/band";
-import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
+import {
+  BandPosition,
+  CreateBandPositionRequest,
+} from "@/models/band-position";
 import { Musician } from "@/models/musician";
 import {
   createBandPositions,
@@ -19,7 +22,7 @@ import {
 import { updateMusicianBandIDs } from "@/services/musicianService";
 
 export const getPositionsByStatus = (
-  positions: CreateBandPositionInput[] | BandPosition[]
+  positions: CreateBandPositionRequest[] | BandPosition[]
 ) => {
   const recruitingPositions = positions.filter(
     (p) => p.status === "recruiting"
@@ -50,7 +53,7 @@ export const getBandWithPositions = async ({
 };
 
 interface CreateBandWithPositionsParams {
-  positions: CreateBandPositionInput[];
+  positions: CreateBandPositionRequest[];
   band: CreateBandRequest;
 }
 
@@ -58,19 +61,20 @@ export const createBandWithPositions = async ({
   positions,
   band,
 }: CreateBandWithPositionsParams) => {
-  // 首先，创建乐队，获取到乐队的ID
+  // 1. 创建乐队，获取到乐队的ID
   const bandID = await createBand(band);
   if (!bandID) return;
 
-  // 找到乐队创建人的position
+  // 2. 找到乐队创建人的乐手ID
+  //    此处能找到的前提是，picker 只提供用户有的乐手身份
   const occupiedPosition = positions.find((p) => p.status === "occupied");
   const creatorMusicianID = occupiedPosition?.musicianID;
   if (!creatorMusicianID) return;
 
-  // 对创建人的乐手身份 bandIDs 字段进行修改 (加入新建的乐队)
+  // 3. 更新创建人的乐手身份 bandIDs 字段 (加入新建的乐队)
   await updateMusicianBandIDs({ _id: creatorMusicianID, bandID });
 
-  // 根据乐队ID，创建乐队位置记录
+  // 4. 根据乐队ID，创建乐队位置记录
   await createBandPositions({ positions, bandID });
 
   return true;

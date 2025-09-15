@@ -11,6 +11,7 @@ import { getPositionsByStatus } from "@/utils/band";
 import { useLoad } from "@tarojs/taro";
 import { PositionType } from "@/models/position";
 import { selectMusicianByID } from "@/selectors/musicianSelectors";
+import { mapMusiciansIntoPositions } from "@/utils/musician";
 
 export default function BandCreate() {
   useLoad((options: Record<string, string>) => {
@@ -48,11 +49,17 @@ export default function BandCreate() {
     updateRecruitNote,
     updateDescription,
     updateName,
+    musicians,
   } = useBandForm();
 
   const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
     formData.positions
   );
+
+  const pickerPositions =
+    activePicker === "occupied"
+      ? mapMusiciansIntoPositions(musicians) // [用户位置] 只提供用户已经创建的乐手位置
+      : undefined; // [招募位置] include字段为空，允许 picker 展示所有位置
 
   return (
     <View className="band-create config-page">
@@ -154,6 +161,7 @@ export default function BandCreate() {
           updatePositions(position);
           setActivePicker(null);
         }}
+        include={pickerPositions}
       />
       {isFormDataValid() && (
         <View
