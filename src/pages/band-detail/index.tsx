@@ -71,6 +71,13 @@ export default function BandDetail() {
     // 3. 刷新乐队档案 + 申请记录信息
     fetchApplications(bandID);
     fetchBandProfile(bandID);
+
+    // 4. 操作成功提示
+    Taro.showModal({
+      title: "申请成功！",
+      content: "请耐心等待乐队成员审核，可在收件箱中查看审批进度",
+      confirmText: "我了解了",
+    });
   };
 
   return (
