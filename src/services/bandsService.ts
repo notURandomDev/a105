@@ -59,7 +59,10 @@ export const getBandsByStatus = async ({
     if (!status) {
       res = await bandsCollection.get();
     } else {
-      res = await bandsCollection.where({ status: _.eq(status) }).get();
+      res = await bandsCollection
+        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
+        .where({ status: _.eq(status) })
+        .get();
     }
 
     handleDBResult(res, "get", `根据乐队状态(${status})获取乐队数据`);
