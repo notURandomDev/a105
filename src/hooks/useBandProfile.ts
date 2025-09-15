@@ -55,7 +55,10 @@ export const useBandProfile = () => {
 
     // 2. 获取对这个乐队的所有申请记录
     const fetchedApplications =
-      (await getApplicationsByField("targetBandID", [bandID])) || [];
+      (await getApplicationsByField({
+        field: "targetBandID",
+        value: [bandID],
+      })) || [];
 
     // 3. 筛选出由用户发出的申请记录
     const userSentApplications = fetchedApplications.filter((a) =>
