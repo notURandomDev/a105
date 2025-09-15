@@ -14,6 +14,7 @@ import { PositionType } from "@/models/position";
 import { useUserStore } from "@/stores/userStore";
 import { matchUserMusician } from "@/utils/musician";
 import { createApplication } from "@/services/applicationService";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 
 export default function BandDetail() {
   useLoad((options: Record<string, string>) => {
@@ -46,10 +47,11 @@ export default function BandDetail() {
     const matchedMusician = await matchUserMusician(userInfo._id, position);
     // 如果用户没有该 position 的乐手身份，引导用户创建该乐手身份
     if (!matchedMusician) {
+      const positionLabel = MUSICIAN_DISPLAY_CONFIG[position].label;
       const res = await Taro.showModal({
-        title: "你暂时还没有该乐手身份",
-        content: "请先完善乐手信息",
-        confirmText: "前往完善",
+        title: `请创建 「${positionLabel}」 身份`,
+        content: `想要以该身份加入乐队，请先完善信息～`,
+        confirmText: "前往创建",
       });
       if (res.confirm) Taro.navigateTo({ url: "/pages/musician-edit/index" });
       // 不更新乐队位置信息，提前退出
