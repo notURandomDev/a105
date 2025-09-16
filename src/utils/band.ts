@@ -112,7 +112,7 @@ export const getBandNameMap = async (
   return new Map(bands.map((b) => [b._id, b.name]));
 };
 
-// 提取乐手所在的所有乐队ID
+// 提取乐手所在的所有乐队ID(自动去重)
 export const extractMusicianBaseBandIDs = (musicians: Musician[]) => [
   ...new Set(musicians.flatMap((b) => b.bandIDs)),
 ];
