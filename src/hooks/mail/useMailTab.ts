@@ -71,7 +71,7 @@ export const useMailTab = () => {
   // 监听乐队Tab类型的变化，更新乐队数据
   useEffect(() => {
     fetchMails(activeMailTabKey);
-  }, [activeMailTabKey]);
+  }, [activeMailTabKey, userMusicians]);
 
   return {
     activeMailTabKey,

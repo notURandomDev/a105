@@ -33,7 +33,7 @@ export const useBandPickerData = () => {
 
     // 将用户所在的活跃乐队作为 picker 数据源
     fetchData();
-  }, []);
+  }, [userMusicians]);
 
   return { bands, bandColumns };
 };
