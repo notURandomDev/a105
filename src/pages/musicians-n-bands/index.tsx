@@ -4,7 +4,7 @@ import { useDidShow } from "@tarojs/taro";
 import { Tabs } from "@taroify/core";
 import { BandTabKey, MusicianTabKey } from "@/types/components";
 import { useMusicianTab } from "@/hooks/musician/useMusicianTab";
-import { useBandTab } from "@/hooks/useBandTab";
+import { useBandTab } from "@/hooks/band/useBandTab";
 import JXMetricCard from "@/components/Cards/JXMetricCard";
 import JXMusicianCard from "@/components/Cards/JXMusicianCard";
 import JXBandCard from "@/components/Cards/JXBandCard";

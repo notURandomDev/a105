@@ -6,7 +6,7 @@ import JXButton from "@/components/JXButton";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
 import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { Close } from "@taroify/icons";
-import { useBandForm } from "@/hooks/useBandForm";
+import { useBandForm } from "@/hooks/band/useBandForm";
 import { getPositionsByStatus } from "@/utils/band";
 import { mapMusiciansIntoPositions } from "@/utils/musician";
 

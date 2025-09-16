@@ -7,7 +7,7 @@ import { Image, Loading } from "@taroify/core";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
 import JXMetricCard from "@/components/Cards/JXMetricCard";
 import JXMusicianCardRC from "@/components/Cards/JXMusicianCardRC";
-import { useBandProfile } from "@/hooks/useBandProfile";
+import { useBandProfile } from "@/hooks/band/useBandProfile";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
 import { BandPosition } from "@/models/band-position";
 import { PositionType } from "@/models/position";

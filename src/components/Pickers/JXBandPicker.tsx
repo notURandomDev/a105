@@ -1,4 +1,4 @@
-import { useBandPickerData } from "@/hooks/useBandPickerData";
+import { useBandPickerData } from "@/hooks/band/useBandPickerData";
 import { BandPickerConfig } from "@/models/band";
 import { Picker, Popup } from "@taroify/core";
 
