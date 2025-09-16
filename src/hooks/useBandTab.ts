@@ -51,7 +51,7 @@ export const useBandTab = () => {
 
     // 如果用户有乐手身份，允许创建乐队
     Taro.navigateTo({
-      url: `/pages/band-create/index?musicianID=${musicians[0]._id}`,
+      url: "/pages/band-create/index",
     });
   };
 
