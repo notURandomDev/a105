@@ -1,11 +1,11 @@
 import { Application } from "@/models/application";
 import { BandWithPositions } from "@/models/band";
-import { selectPositionsByStatus } from "@/selectors/bandPositionSelectors";
 import { getApplicationsByField } from "@/services/applicationService";
 import { getBandPositionsByBand } from "@/services/bandPositionService";
 import { getBandById } from "@/services/bandsService";
 import { getMusiciansByUserID } from "@/services/musicianService";
 import { useUserStore } from "@/stores/userStore";
+import { filterPositionsByStatus } from "@/utils/band-position";
 import { mapMusiciansIntoIds } from "@/utils/musician";
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
@@ -21,13 +21,13 @@ export const useBandProfile = () => {
   const { userInfo } = useUserStore();
 
   // Derived from `bandProfile`：正在招募的乐队位置
-  const recruitingPositions = selectPositionsByStatus(
+  const recruitingPositions = filterPositionsByStatus(
     bandProfile?.positions ?? [],
     "recruiting"
   );
 
   // Derived from `bandProfile`：已经被加入的乐队位置
-  const occupiedPositions = selectPositionsByStatus(
+  const occupiedPositions = filterPositionsByStatus(
     bandProfile?.positions ?? [],
     "occupied"
   );

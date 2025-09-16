@@ -4,8 +4,7 @@ import { Band } from "@/models/band";
 import { useUserStore } from "@/stores/userStore";
 import { getMusiciansByUserID } from "@/services/musicianService";
 import { getBandsByIDs } from "@/services/bandsService";
-import { selectBandsByStatus } from "@/selectors/bandSelectors";
-import { extractMusicianBaseBandIDs } from "@/utils/band";
+import { extractMusicianBaseBandIDs, filterBandsByStatus } from "@/utils/band";
 
 const mapBandsIntoColumns = (bands: Band[]): PickerOptionData[] =>
   bands.map(({ name, _id }) => ({
@@ -38,7 +37,7 @@ export const useBandPickerData = () => {
       const musicians = (await fetchMusicians(userID)) || [];
       const bandIDs = extractMusicianBaseBandIDs(musicians);
       const fetchedBands = (await fetchBands(bandIDs)) || [];
-      const activeBands = selectBandsByStatus(fetchedBands, "active");
+      const activeBands = filterBandsByStatus(fetchedBands, "active");
       setBands(activeBands);
     };
 

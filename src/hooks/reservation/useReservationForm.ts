@@ -1,8 +1,8 @@
 import { BandPickerConfig } from "@/models/band";
-import { selectReservationsByDate } from "@/selectors/reservationSelectors";
 import { createReservation } from "@/services/reservationsService";
 import { useReservationStore } from "@/stores/reservationStore";
 import { compareHM } from "@/utils/DatetimeHelper";
+import { filterReservationsByDate } from "@/utils/reservation";
 import Taro from "@tarojs/taro";
 import { useState } from "react";
 
@@ -99,7 +99,7 @@ export const useReservationForm = () => {
     startTime: Date,
     endTime: Date
   ) => {
-    const reservationsToday = selectReservationsByDate(reservations, date);
+    const reservationsToday = filterReservationsByDate(reservations, date);
     return reservationsToday.some((reservation) => {
       const noConflict =
         endTime <= reservation.startTime || startTime >= reservation.endTime;

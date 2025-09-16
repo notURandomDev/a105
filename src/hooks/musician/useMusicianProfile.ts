@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Taro from "@tarojs/taro";
 import { Musician, MusicianProfile } from "@/models/musician";
-import { selectMusicianProfiles } from "@/selectors/musicianSelectors";
 import { getMusiciansByUserID } from "@/services/musicianService";
 import { getMusicianBaseBands } from "@/utils/band";
+import { aggregateMusicianProfiles } from "@/utils/musician";
 
 export const useMusicianProfile = () => {
   const [userID, setUserID] = useState<string | number | null>(null);
@@ -30,7 +30,7 @@ export const useMusicianProfile = () => {
 
     setPageTitle(musicians[0].nickname);
 
-    const musicianProfile = selectMusicianProfiles(musicians, bands);
+    const musicianProfile = aggregateMusicianProfiles(musicians, bands);
     setMusicianProfile(musicianProfile[0]);
   };
 
