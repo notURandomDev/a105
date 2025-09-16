@@ -11,8 +11,9 @@ import { Reservation } from "@/models/reservation";
 import { getMusicianBaseBands, mapBandsIntoIds } from "@/utils/band";
 import { sortReservationsOnState } from "@/utils/reservation";
 import { getMusiciansByUserID } from "@/services/musicianService";
-import { getReservationsByBandIDs } from "@/services/reservationsService";
+import { getReservationsByOptions } from "@/services/reservationsService";
 import { useDidShow } from "@tarojs/taro";
+import { getWeekRange } from "@/utils/DatetimeHelper";
 
 export default function Index() {
   const { userInfo } = useUserStore();
@@ -31,10 +32,13 @@ export default function Index() {
     return getMusicianBaseBands(musicians);
   };
 
-  // 3. 获取用户所在乐队预约的排练
+  // 3. 获取用户所在乐队预约的排练（本周）
   const fetchReservations = async (bands: Band[]) => {
-    const bandIDs = mapBandsIntoIds(bands);
-    return getReservationsByBandIDs({ bandIDs });
+    const { monday, sunday } = getWeekRange();
+    return getReservationsByOptions({
+      bandIDs: mapBandsIntoIds(bands),
+      timeRange: { startTime: monday, endTime: sunday },
+    });
   };
 
   // 4. wrapper函数

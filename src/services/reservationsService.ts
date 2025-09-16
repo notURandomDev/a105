@@ -114,5 +114,49 @@ export const getReservationsByBandIDs = async ({
   }
 };
 
+// 聚合查询（时间筛选 + 乐队ID筛选）
+// TODO：refactor到后端
+
+interface GetReservationsByOptionsParams {
+  timeRange?: { startTime: Date; endTime: Date };
+  bandIDs?: (string | number)[];
+}
+
+export const getReservationsByOptions = async (
+  params: GetReservationsByOptionsParams
+) => {
+  // 查询参数
+  const query: Record<string, any> = {};
+
+  // 筛选条件：日期时间段
+  if (params.timeRange) {
+    const { startTime, endTime } = params.timeRange;
+    query.date = _.gte(startTime).and(_.lte(endTime));
+  }
+
+  // 筛选条件：数组中包含的乐队
+  if (params.bandIDs) {
+    query.bandID = _.in(params.bandIDs);
+  }
+
+  try {
+    const res = await reservationsCollection.where(query).get();
+    handleDBResult(
+      res,
+      "get",
+      `根据查询参数（${
+        params.timeRange &&
+        "时间：" + params.timeRange.startTime + " - " + params.timeRange.endTime
+      }${
+        params.bandIDs && "，乐队ID：" + params.bandIDs.join(", ")
+      }）获取预约数据`
+    );
+    return res.data as Reservation[];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 /* UPDATE */
 /* DELETE */
