@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Taro from "@tarojs/taro";
 import { Musician, MusicianProfile } from "@/models/musician";
-import { getMusiciansByUserID } from "@/services/musicianService";
 import { getMusicianBaseBands } from "@/utils/band";
 import { aggregateMusicianProfiles } from "@/utils/musician";
+import { useUserMusicians } from "./useUserMusicians";
 
 export const useMusicianProfile = () => {
   const [userID, setUserID] = useState<string | number | null>(null);
@@ -11,10 +11,7 @@ export const useMusicianProfile = () => {
     useState<MusicianProfile | null>(null);
 
   // 1. 获取用户所有的乐手身份
-  const fetchMusicians = async (userID: string | number) => {
-    const musicians = await getMusiciansByUserID({ userID });
-    return musicians;
-  };
+  const { userMusicians } = useUserMusicians();
 
   // 2. 获取用户所在的乐队
   const fetchBands = async (musicians: Musician[]) => {
@@ -24,20 +21,16 @@ export const useMusicianProfile = () => {
 
   // 3. 聚合乐手和乐队实体
   // 主要是为了得到 bandConfigs，展示用户在不同乐队中的乐手位置
-  const aggregateMusicianProfile = async (userID: string | number) => {
-    const musicians = (await fetchMusicians(userID)) || [];
-    const bands = (await fetchBands(musicians)) || [];
-
-    setPageTitle(musicians[0].nickname);
-
-    const musicianProfile = aggregateMusicianProfiles(musicians, bands);
+  const aggregateMusicianProfile = async () => {
+    const bands = (await fetchBands(userMusicians)) || [];
+    setPageTitle(userMusicians[0].nickname);
+    const musicianProfile = aggregateMusicianProfiles(userMusicians, bands);
     setMusicianProfile(musicianProfile[0]);
   };
 
   useEffect(() => {
-    if (!userID) return;
-    aggregateMusicianProfile(userID);
-  }, [userID]);
+    aggregateMusicianProfile();
+  }, [userMusicians]);
 
   // 设置页面标题
   const setPageTitle = (nickName: string) =>

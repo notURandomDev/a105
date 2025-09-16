@@ -26,7 +26,7 @@ export default function BandCreate() {
     updateRecruitNote,
     updateDescription,
     updateName,
-    musicians,
+    userMusicians,
   } = useBandForm();
 
   const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
@@ -35,7 +35,7 @@ export default function BandCreate() {
 
   const pickerPositions =
     activePicker === "occupied"
-      ? mapMusiciansIntoPositions(musicians) // [用户位置] 只提供用户已经创建的乐手位置
+      ? mapMusiciansIntoPositions(userMusicians) // [用户位置] 只提供用户已经创建的乐手位置
       : undefined; // [招募位置] include字段为空，允许 picker 展示所有位置
 
   return (

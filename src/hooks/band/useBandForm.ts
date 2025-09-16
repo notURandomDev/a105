@@ -7,9 +7,7 @@ import {
   PositionStatus,
 } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
-import { useUserStore } from "@/stores/userStore";
-import { Musician } from "@/models/musician";
-import { getMusiciansByUserID } from "@/services/musicianService";
+import { useUserMusicians } from "../musician/useUserMusicians";
 
 const DEFAULT_FORM_BASE_DATA = {
   name: "JOINT", // 乐队名
@@ -26,11 +24,13 @@ type ActivePickerState = "recruiting" | "occupied" | null;
 
 // 在创建乐队时使用的表单数据
 export const useBandForm = () => {
-  const { userInfo } = useUserStore();
   const bandNamesRef = useRef<string[]>([]);
   const [feedback, setFeedback] = useState({ name: "" }); // 将来可扩展
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
-  const [musicians, setMusicians] = useState<Musician[]>([]);
+
+  // 获取用户的所有乐手身份，作为 picker 的数据来源
+  // picker 不能展示用户没有注册过的乐手身份！
+  const { userInfo, userMusicians } = useUserMusicians();
 
   const occupiedMusicianBaseData = {
     status: "occupied" as PositionStatus,
@@ -56,20 +56,6 @@ export const useBandForm = () => {
   useEffect(() => {
     fetchBands();
   }, []); // 只需要初始化一次
-
-  useEffect(() => {
-    // 获取用户的所有乐手身份，作为 picker 的数据来源
-    // picker 不能展示用户没有注册过的乐手身份！
-    const fetchMusicians = async () => {
-      const userID = userInfo?._id;
-      if (!userID) return;
-
-      const fetchedMusicians = (await getMusiciansByUserID({ userID })) || [];
-      setMusicians(fetchedMusicians);
-    };
-
-    fetchMusicians();
-  }, [userInfo?._id]);
 
   // 获取全部乐队，判断用户起的乐队名是否已经存在
   const fetchBands = async () => {
@@ -108,7 +94,7 @@ export const useBandForm = () => {
                 joinedAt,
                 // 能进入创建乐队的前提，是用于已经有乐手身份了
                 // 因此这里访问下标的操作是安全的
-                musicianID: musicians[0]._id,
+                musicianID: userMusicians[0]._id,
               }
             : p
         ),
@@ -209,6 +195,6 @@ export const useBandForm = () => {
     updateRecruitNote,
     updateDescription,
     updateName,
-    musicians,
+    userMusicians,
   };
 };

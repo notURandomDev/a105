@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { View } from "@tarojs/components";
 import "./index.scss";
-import { useUserStore } from "@/stores/userStore";
 import JXAvatar from "@/components/JXAvatar";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
@@ -10,22 +9,19 @@ import { Musician } from "@/models/musician";
 import { Reservation } from "@/models/reservation";
 import { getMusicianBaseBands, mapBandsIntoIds } from "@/utils/band";
 import { sortReservationsOnState } from "@/utils/reservation";
-import { getMusiciansByUserID } from "@/services/musicianService";
 import { getReservationsByOptions } from "@/services/reservationsService";
 import { useDidShow } from "@tarojs/taro";
 import { getWeekRange } from "@/utils/DatetimeHelper";
+import { useUserMusicians } from "@/hooks/musician/useUserMusicians";
 
 export default function Index() {
-  const { userInfo } = useUserStore();
   const [reservations, setReservations] = useState<Reservation[]>([]);
 
   // 获取数据逻辑：
   // 用户 -> 乐手 -> 乐队 -> 预约记录
 
   // 1. 获取当前登录用户的所有乐手身份
-  const fetchMusicians = (userID: string | number) => {
-    return getMusiciansByUserID({ userID });
-  };
+  const { userInfo, userMusicians } = useUserMusicians();
 
   // 2. 获取当前登录用户所在的乐队
   const fetchBands = (musicians: Musician[]) => {
@@ -44,16 +40,11 @@ export default function Index() {
   // 4. wrapper函数
   // TODO：这个函数本质上是聚合查询，应该放在后端执行
   const fetchData = async () => {
-    // 用户ID的获取写在函数内，因为此逻辑可以在 useEffect 和 useDidShow 中复用
-    const userID = userInfo?._id;
-    if (!userID) return;
-
     // 如果用户没有 musician 身份，那么就没有加入乐队；没有加入乐队不能进行预约
-    const musicians = await fetchMusicians(userID);
-    if (!musicians) return;
+    if (!userMusicians) return;
 
     // 如果用户没有加入乐队，那么不能进行预约
-    const bands = await fetchBands(musicians);
+    const bands = await fetchBands(userMusicians);
     if (!bands) return;
 
     const reservations = (await fetchReservations(bands)) || [];
@@ -65,10 +56,10 @@ export default function Index() {
     fetchData();
   });
 
-  // 监听：用户ID发生改变时，重新获取预约数据
+  // 监听：用户乐手身份数据发生改变时，重新获取预约数据
   useEffect(() => {
     fetchData();
-  }, [userInfo?._id]);
+  }, [userMusicians]);
 
   return (
     <View className="index page page-padding">

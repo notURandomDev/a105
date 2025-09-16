@@ -1,10 +1,9 @@
-import { useUserStore } from "@/stores/userStore";
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 import { Band } from "@/models/band";
 import { getBandsByStatus } from "@/services/bandsService";
 import { BandTabKey } from "@/types/components";
-import { getMusiciansByUserID } from "@/services/musicianService";
+import { useUserMusicians } from "../musician/useUserMusicians";
 
 export const useBandTab = () => {
   // Tab初始值：活跃乐队
@@ -12,7 +11,7 @@ export const useBandTab = () => {
     useState<BandTabKey>("recruitingBands");
   const [bands, setBands] = useState<Band[]>([]);
 
-  const { userInfo } = useUserStore();
+  const { userMusicians } = useUserMusicians();
 
   // 根据类型获取乐队数据
   const fetchBands = async (tabKey: BandTabKey) => {
@@ -32,13 +31,8 @@ export const useBandTab = () => {
 
   // 处理创建乐队的函数
   const handleCreateBand = async () => {
-    const userID = userInfo?._id;
-    // TODO：提醒用户登录，跳转至登录页面
-    if (!userID) return;
-
     // 获取用户的所有乐手身份
-    const musicians = (await getMusiciansByUserID({ userID })) || [];
-    if (!musicians.length) {
+    if (!userMusicians.length) {
       // 如果用户没有任何乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
       const res = await Taro.showModal({
         title: "你暂时还没有任何乐手身份",

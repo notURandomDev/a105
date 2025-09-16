@@ -1,13 +1,9 @@
 import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { CreateMusicianRequest } from "@/models/musician";
 import { PositionType } from "@/models/position";
-import {
-  createMusicians,
-  getMusiciansByUserID,
-  updateMusicians,
-} from "@/services/musicianService";
-import { useUserStore } from "@/stores/userStore";
+import { createMusicians, updateMusicians } from "@/services/musicianService";
 import { useEffect, useState } from "react";
+import { useUserMusicians } from "./useUserMusicians";
 
 type FormItemStatus = "new" | "edited" | "pristine";
 
@@ -19,27 +15,23 @@ export interface MusicianFormItem {
 }
 
 export const useMusicianForm = () => {
-  const { userInfo } = useUserStore();
   const [formData, setFormData] = useState<MusicianFormItem[]>([]);
   const [pickerActive, setPickerActive] = useState(false);
 
+  const { userInfo, userMusicians } = useUserMusicians();
+
   // 获取用户乐手信息，更新表单
   const fetchMusicians = async () => {
-    const userID = userInfo?._id;
-    if (!userID) return;
-
     // 获取用户所有的乐手身份
-    const fetchedMusicians = (await getMusiciansByUserID({ userID })) || [];
-    if (!fetchedMusicians.length) return;
-
+    if (!userMusicians.length) return;
     // 根据获取到的用户乐手信息，更新表单
-    setFormData(fetchedMusicians.map((m) => ({ ...m, status: "pristine" })));
+    setFormData(userMusicians.map((m) => ({ ...m, status: "pristine" })));
   };
 
-  // 监听：获取到用户信息的全局状态，加载用户的乐手身份数据
+  // 监听：获取到用户乐手身份的数据，更新表单
   useEffect(() => {
     fetchMusicians();
-  }, [userInfo?._id]);
+  }, [userMusicians]);
 
   // 判断用户是否对表单进行了编辑
   const didUserEdit = () => formData.some((mp) => mp.status !== "pristine");

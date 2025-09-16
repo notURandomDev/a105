@@ -1,10 +1,9 @@
 import { PickerOptionData } from "@taroify/core/picker/picker.shared";
 import { useEffect, useState } from "react";
 import { Band } from "@/models/band";
-import { useUserStore } from "@/stores/userStore";
-import { getMusiciansByUserID } from "@/services/musicianService";
 import { getBandsByIDs } from "@/services/bandsService";
 import { extractMusicianBaseBandIDs, filterBandsByStatus } from "@/utils/band";
+import { useUserMusicians } from "../musician/useUserMusicians";
 
 const mapBandsIntoColumns = (bands: Band[]): PickerOptionData[] =>
   bands.map(({ name, _id }) => ({
@@ -13,16 +12,11 @@ const mapBandsIntoColumns = (bands: Band[]): PickerOptionData[] =>
   }));
 
 export const useBandPickerData = () => {
-  const { userInfo } = useUserStore();
   const [bands, setBands] = useState<Band[]>([]);
-
-  // Derived from `bands`
-  const bandColumns = mapBandsIntoColumns(bands);
+  const bandColumns = mapBandsIntoColumns(bands); // Derived from `bands`
 
   // 1. 获取用户的乐手数据
-  const fetchMusicians = (userID: string | number) => {
-    return getMusiciansByUserID({ userID });
-  };
+  const { userMusicians } = useUserMusicians();
 
   // 2. 获取用户乐手所在的band
   const fetchBands = (bandIDs: (string | number)[]) => {
@@ -31,11 +25,7 @@ export const useBandPickerData = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const userID = userInfo?._id;
-      if (!userID) return;
-
-      const musicians = (await fetchMusicians(userID)) || [];
-      const bandIDs = extractMusicianBaseBandIDs(musicians);
+      const bandIDs = extractMusicianBaseBandIDs(userMusicians);
       const fetchedBands = (await fetchBands(bandIDs)) || [];
       const activeBands = filterBandsByStatus(fetchedBands, "active");
       setBands(activeBands);
