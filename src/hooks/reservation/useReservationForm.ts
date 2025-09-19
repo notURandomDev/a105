@@ -1,8 +1,9 @@
 import { BandPickerConfig } from "@/models/band";
-import { createReservation } from "@/services/reservationsService";
-import { useReservationStore } from "@/stores/reservationStore";
+import {
+  createReservation,
+  getReservationsByDate,
+} from "@/services/reservationsService";
 import { compareHM } from "@/utils/DatetimeHelper";
-import { filterReservationsByDate } from "@/utils/reservation";
 import Taro from "@tarojs/taro";
 import { useState } from "react";
 
@@ -16,7 +17,6 @@ export type FormData = {
 };
 
 export const useReservationForm = () => {
-  const { reservations, fetchReservations } = useReservationStore();
   const [formData, setFormData] = useState<FormData>({
     startTime: null,
     endTime: null,
@@ -99,7 +99,11 @@ export const useReservationForm = () => {
     startTime: Date,
     endTime: Date
   ) => {
-    const reservationsToday = filterReservationsByDate(reservations, date);
+    // 获取当天的排练数据
+    const reservationsToday = (await getReservationsByDate(date)) || [];
+    // 任意已经预约的排练如果满足以下条件，则想要预约的排练时间一定没冲突：
+    // - 预约的排练开始时间，比已有的排练结束时间晚；那么预约的结束时间一定也比已有的排练结束时间晚
+    // - 预约的排练结束时间，比已有的排练开始时间早；那么预约的开始时间一定也比已有的排练开始时间早
     return reservationsToday.some((reservation) => {
       const noConflict =
         endTime <= reservation.startTime || startTime >= reservation.endTime;
@@ -133,6 +137,7 @@ export const useReservationForm = () => {
     const { band, date, startTime, endTime } = formData;
     if (!date || !startTime || !endTime || !band) return;
 
+    // 在提交表单的时候再进行检查，减少请求的数量
     if (await checkReservationConflict(date, startTime, endTime)) {
       Taro.showToast({ icon: "error", title: "预约时间冲突" });
       return;
@@ -148,7 +153,6 @@ export const useReservationForm = () => {
     });
 
     if (res) {
-      await fetchReservations();
       Taro.hideLoading();
       Taro.showToast({ icon: "success", title: "预约成功" });
       setTimeout(() => Taro.navigateBack(), 1000);
