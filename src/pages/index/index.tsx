@@ -5,14 +5,13 @@ import JXAvatar from "@/components/JXAvatar";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { Band } from "@/models/band";
-import { Musician } from "@/models/musician";
 import { Reservation } from "@/models/reservation";
-import { getMusicianBaseBands, mapBandsIntoIds } from "@/utils/band";
+import { mapBandsIntoIds } from "@/utils/band";
 import { sortReservationsOnState } from "@/utils/reservation";
 import { getReservationsByOptions } from "@/services/reservationsService";
 import { useDidShow } from "@tarojs/taro";
 import { getWeekRange } from "@/utils/DatetimeHelper";
-import { useUserMusicians } from "@/hooks/user/useUserMusicians";
+import { useUserBands } from "@/hooks/user/useUserBands";
 
 export default function Index() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -20,15 +19,10 @@ export default function Index() {
   // 获取数据逻辑：
   // 用户 -> 乐手 -> 乐队 -> 预约记录
 
-  // 1. 获取当前登录用户的所有乐手身份
-  const { userInfo, userMusicians } = useUserMusicians();
+  // 1. 获取当前登录用户的所有乐手身份 + 所在的乐队
+  const { userInfo, userBands } = useUserBands();
 
-  // 2. 获取当前登录用户所在的乐队
-  const fetchBands = (musicians: Musician[]) => {
-    return getMusicianBaseBands(musicians);
-  };
-
-  // 3. 获取用户所在乐队预约的排练（本周）
+  // 2. 获取用户所在乐队预约的排练（本周）
   const fetchReservations = async (bands: Band[]) => {
     const { monday, sunday } = getWeekRange();
     return getReservationsByOptions({
@@ -37,17 +31,12 @@ export default function Index() {
     });
   };
 
-  // 4. wrapper函数
+  // 1+2: wrapper函数
   // TODO：这个函数本质上是聚合查询，应该放在后端执行
   const fetchData = async () => {
-    // 如果用户没有 musician 身份，那么就没有加入乐队；没有加入乐队不能进行预约
-    if (!userMusicians) return;
-
     // 如果用户没有加入乐队，那么不能进行预约
-    const bands = await fetchBands(userMusicians);
-    if (!bands) return;
-
-    const reservations = (await fetchReservations(bands)) || [];
+    if (!userBands.length) return;
+    const reservations = (await fetchReservations(userBands)) || [];
     setReservations(reservations);
   };
 
@@ -56,10 +45,10 @@ export default function Index() {
     fetchData();
   });
 
-  // 监听：用户乐手身份数据发生改变时，重新获取预约数据
+  // 监听：用户乐手乐队数据发生改变时，重新获取预约数据
   useEffect(() => {
     fetchData();
-  }, [userMusicians]);
+  }, [userBands]);
 
   return (
     <View className="index page page-padding">

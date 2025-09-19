@@ -13,10 +13,10 @@ function JXBandPicker({
   onConfirm = () => {},
   onCancel = () => {},
 }: JXBandPickerProps) {
-  const { bands, bandColumns } = useBandPickerData();
+  const { userBands, bandColumns } = useBandPickerData();
 
   const handleConfirm = (_id: number | string) => {
-    const band = bands.find((band) => band._id === _id);
+    const band = userBands.find((band) => band._id === _id);
     onConfirm({ _id, name: band!.name } as BandPickerConfig);
   };
 

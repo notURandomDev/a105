@@ -11,10 +11,9 @@ export const useUserMusicians = () => {
   const userID = userInfo?._id;
 
   useEffect(() => {
-    const fetchMusicians = async () => {
-      const userID = userInfo?._id;
-      if (!userID) return;
+    if (!userID) return;
 
+    const fetchMusicians = async () => {
       const musicians = (await getMusiciansByUserID({ userID })) || [];
       setUserMusicians(musicians);
     };

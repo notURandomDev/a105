@@ -4,17 +4,11 @@ import JXFormLabel from "@/components/Labels/JXFormLabel";
 import JXMusicianSkillCard from "@/components/Cards/JXMusicianSkillCard";
 import JXAvatar from "@/components/JXAvatar";
 import JXHugeLabel from "@/components/Labels/JXHugeLabel";
-import { useLoad } from "@tarojs/taro";
 import { useMusicianProfile } from "@/hooks/musician/useMusicianProfile";
 import "./index.scss";
 
 export default function MusicianDetail() {
-  const { setUserID, musicianProfile } = useMusicianProfile();
-
-  useLoad((options: Record<string, string>) => {
-    if (!options.userID) return;
-    setUserID(options.userID);
-  });
+  const { musicianProfile } = useMusicianProfile();
 
   return (
     <View className="musician-detail page-padding">
