@@ -5,7 +5,7 @@ import { extractMusicianBaseBandIDs } from "@/utils/band";
 import { mapMusiciansIntoIds } from "@/utils/musician";
 import { Musician } from "@/models/musician";
 import { Mail } from "@/models/mail";
-import { useUserMusicians } from "../musician/useUserMusicians";
+import { useUserMusicians } from "../user/useUserMusicians";
 
 const PRODUCTION = true;
 

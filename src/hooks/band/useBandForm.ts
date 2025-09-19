@@ -7,7 +7,7 @@ import {
   PositionStatus,
 } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
-import { useUserMusicians } from "../musician/useUserMusicians";
+import { useUserMusicians } from "../user/useUserMusicians";
 
 const DEFAULT_FORM_BASE_DATA = {
   name: "JOINT", // 乐队名

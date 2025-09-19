@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Band } from "@/models/band";
 import { getBandsByIDs } from "@/services/bandsService";
 import { extractMusicianBaseBandIDs, filterBandsByStatus } from "@/utils/band";
-import { useUserMusicians } from "../musician/useUserMusicians";
+import { useUserMusicians } from "../user/useUserMusicians";
 
 const mapBandsIntoColumns = (bands: Band[]): PickerOptionData[] =>
   bands.map(({ name, _id }) => ({

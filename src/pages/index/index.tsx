@@ -12,7 +12,7 @@ import { sortReservationsOnState } from "@/utils/reservation";
 import { getReservationsByOptions } from "@/services/reservationsService";
 import { useDidShow } from "@tarojs/taro";
 import { getWeekRange } from "@/utils/DatetimeHelper";
-import { useUserMusicians } from "@/hooks/musician/useUserMusicians";
+import { useUserMusicians } from "@/hooks/user/useUserMusicians";
 
 export default function Index() {
   const [reservations, setReservations] = useState<Reservation[]>([]);

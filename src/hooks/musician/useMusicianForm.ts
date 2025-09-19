@@ -3,7 +3,7 @@ import { CreateMusicianRequest } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import { createMusicians, updateMusicians } from "@/services/musicianService";
 import { useEffect, useState } from "react";
-import { useUserMusicians } from "./useUserMusicians";
+import { useUserMusicians } from "../user/useUserMusicians";
 
 type FormItemStatus = "new" | "edited" | "pristine";
 

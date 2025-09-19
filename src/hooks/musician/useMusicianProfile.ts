@@ -3,7 +3,7 @@ import Taro from "@tarojs/taro";
 import { Musician, MusicianProfile } from "@/models/musician";
 import { getMusicianBaseBands } from "@/utils/band";
 import { aggregateMusicianProfiles } from "@/utils/musician";
-import { useUserMusicians } from "./useUserMusicians";
+import { useUserMusicians } from "../user/useUserMusicians";
 
 export const useMusicianProfile = () => {
   const [userID, setUserID] = useState<string | number | null>(null);

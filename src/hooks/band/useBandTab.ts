@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Band } from "@/models/band";
 import { getBandsByStatus } from "@/services/bandsService";
 import { BandTabKey } from "@/types/components";
-import { useUserMusicians } from "../musician/useUserMusicians";
+import { useUserMusicians } from "../user/useUserMusicians";
 
 export const useBandTab = () => {
   // Tab初始值：活跃乐队
