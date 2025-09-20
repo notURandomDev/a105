@@ -12,6 +12,7 @@ import { useReservationForm } from "@/hooks/reservation/useReservationForm";
 export default function Reserve() {
   useLoad((options: Record<string, string>) => {
     const dateIntent = JSON.parse(options.date);
+    // 该日期已经重置到当日凌晨
     const defaultDate = new Date(dateIntent);
     setFormData((prev) => ({
       ...prev,

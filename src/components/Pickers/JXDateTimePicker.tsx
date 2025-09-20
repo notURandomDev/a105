@@ -33,7 +33,7 @@ function JXDateTimePicker({
     let alignedTime: Date;
     switch (type) {
       case "month-day":
-        alignedTime = time;
+        alignedTime = resetTimewithDate(time);
         break;
       case "hour-minute":
         alignedTime = alignDateWithTime(date, time);

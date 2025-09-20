@@ -53,11 +53,7 @@ export default function Calendar() {
       <JXCalendar onChange={setSelectedDate} reservations={weekReservations} />
       <View
         className="container-h grow"
-        style={{
-          padding: 16,
-
-          justifyContent: "space-between",
-        }}
+        style={{ padding: 16, justifyContent: "space-between" }}
       >
         <Text style={{ fontWeight: 500 }}>{getMDWfromDate(selectedDate)}</Text>
         <Text style={{ fontWeight: 500 }}>
@@ -66,11 +62,7 @@ export default function Calendar() {
       </View>
       <View
         className="container-v"
-        style={{
-          paddingBottom: 24,
-          padding: "0 12px",
-          gap: 12,
-        }}
+        style={{ paddingBottom: 24, padding: "0 12px", gap: 12 }}
       >
         {dayReservations.map((r) => {
           return <JXReservationCard hideDate reservation={r} />;
