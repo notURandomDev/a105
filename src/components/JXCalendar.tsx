@@ -72,13 +72,7 @@ function JXCalendar({ onChange, reservations }: JXCalendarProps) {
       formatter={customDayFormatter}
       showSubtitle={false}
       defaultValue={new Date()}
-      onChange={(selectedDate) => {
-        console.log(
-          "[Calendar Component - On Change] selectedDate",
-          selectedDate
-        );
-        return onChange;
-      }}
+      onChange={onChange}
       title="时间表"
       style={{
         height: 510,
