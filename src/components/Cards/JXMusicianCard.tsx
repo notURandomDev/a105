@@ -1,19 +1,19 @@
 import { View } from "@tarojs/components";
 import JXAvatar from "../JXAvatar";
 import JXCardContainer from "../JXCardContainer";
-import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import { Musician } from "@/models/musician";
 import Taro from "@tarojs/taro";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 
 interface JXMusicianCardProps {
   musician: Musician;
 }
 
 function JXMusicianCard({ musician }: JXMusicianCardProps) {
-  const { bandIDs, nickname, bio, genre } = musician;
+  const { bandIDs, nickname, bio, position } = musician;
 
   const navigate = () => {
     Taro.navigateTo({
@@ -29,16 +29,10 @@ function JXMusicianCard({ musician }: JXMusicianCardProps) {
           <JXTitleLabel>{nickname}</JXTitleLabel>
           <JXSecondaryLabel>
             {bandIDs.length
-              ? `TA 是 ${bandIDs.length} 个乐队的吉他手`
+              ? `TA 是 ${bandIDs.length} 个乐队的${MUSICIAN_DISPLAY_CONFIG[position].label}`
               : "TA暂无归属乐队"}
           </JXSecondaryLabel>
         </View>
-      </View>
-
-      <View className="chip-container">
-        {genre.map((g) => (
-          <JXGenreChip genre={g} />
-        ))}
       </View>
 
       <JXBodyLabel>{`乐手简介：${bio}`}</JXBodyLabel>

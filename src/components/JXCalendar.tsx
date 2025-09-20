@@ -1,42 +1,25 @@
 // 该组件在预约界面中使用
 
-import { useReservationWithDateRange } from "@/hooks/reservation/useReservationWithDateRange";
-import { Reservation } from "@/models/reservation";
-import { getWeekRange, resetTimewithDate } from "@/utils/DatetimeHelper";
+import { ReactNode, useEffect, useState } from "react";
+import { Text, View } from "@tarojs/components";
 import { Calendar } from "@taroify/core";
 import { CalendarDayObject } from "@taroify/core/calendar/calendar.shared";
-import { Text, View } from "@tarojs/components";
-import { ReactNode, useEffect, useState } from "react";
-
-const Top = ({ active, bandNum }: { active: boolean; bandNum: number }) => (
-  <View style={{ paddingTop: 5 }}>
-    <Text
-      style={{
-        color: active ? "white" : "black",
-      }}
-    >
-      已预约: {bandNum}
-    </Text>
-  </View>
-);
-
-const Bottom = ({ active }: { active: boolean }) => (
-  <View style={{ paddingBottom: 5 }}>
-    <Text style={{ color: active ? "white" : "black" }}>今天</Text>
-  </View>
-);
+import { Reservation } from "@/models/reservation";
+import { getWeekRange, resetTimewithDate } from "@/utils/DatetimeHelper";
 
 type ReservationMap = { [timestamp: number]: Reservation[] };
 
 interface JXCalendarProps {
+  // 日历组件的选择日期发生变化时，将事件上抛给日历页面，同时附带最新的选择日期
   onChange: (value: Date) => void;
+  reservations: Reservation[];
 }
-function JXCalendar({ onChange }: JXCalendarProps) {
+
+function JXCalendar({ onChange, reservations }: JXCalendarProps) {
+  const [reservationsMap, setReservationsMap] = useState({});
+
   const today = resetTimewithDate(new Date());
   const { monday: _, sunday } = getWeekRange();
-
-  const reservations = useReservationWithDateRange(today, sunday);
-  const [reservationsMap, setReservationsMap] = useState({});
 
   // 自定义的单元格格式化处理器
   const customDayFormatter = (day: CalendarDayObject): CalendarDayObject => {
@@ -62,7 +45,7 @@ function JXCalendar({ onChange }: JXCalendarProps) {
   };
 
   // 初始化日历数据
-  const initCalendar = () => {
+  const initCalendar = async () => {
     const map: ReservationMap = {};
     reservations.forEach((reservation) => {
       // 预约时间是当天的 0 点
@@ -70,6 +53,7 @@ function JXCalendar({ onChange }: JXCalendarProps) {
       if (!map[key]) map[key] = [];
       map[key].push(reservation);
     });
+
     // 深比较，如果 map 本身没有变化，就不重新给 reservationMap 赋值，避免循环渲染
     setReservationsMap((prev) => {
       const prevStr = JSON.stringify(prev);
@@ -80,7 +64,6 @@ function JXCalendar({ onChange }: JXCalendarProps) {
   };
 
   useEffect(() => {
-    if (!reservations) return;
     initCalendar();
   }, [reservations]);
 
@@ -103,5 +86,23 @@ function JXCalendar({ onChange }: JXCalendarProps) {
     </Calendar>
   );
 }
+
+const Top = ({ active, bandNum }: { active: boolean; bandNum: number }) => (
+  <View style={{ paddingTop: 5 }}>
+    <Text
+      style={{
+        color: active ? "white" : "black",
+      }}
+    >
+      已预约: {bandNum}
+    </Text>
+  </View>
+);
+
+const Bottom = ({ active }: { active: boolean }) => (
+  <View style={{ paddingBottom: 5 }}>
+    <Text style={{ color: active ? "white" : "black" }}>今天</Text>
+  </View>
+);
 
 export default JXCalendar;

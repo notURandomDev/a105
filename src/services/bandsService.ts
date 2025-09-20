@@ -1,15 +1,11 @@
 import { _, db } from "@/cloud/cloudClient";
-import {
-  MOCK_BAND_ACTIVE,
-  MOCK_BAND_RECRUITING,
-  MOCK_BANDS,
-} from "@/constants/database/bands";
+import { MOCK_BAND_ACTIVE, MOCK_BANDS } from "@/constants/database/bands";
 
 import {
   Band,
   BandStatus,
   BandStatusLog,
-  CreateBandInput,
+  CreateBandRequest,
 } from "@/models/band";
 import { handleDBResult } from "@/utils/database";
 import { DB } from "@tarojs/taro";
@@ -18,7 +14,7 @@ const bandsCollection = db.collection("band");
 /* CREATE */
 
 export const createBand = async (
-  band: CreateBandInput
+  band: CreateBandRequest
 ): Promise<string | number | null> => {
   try {
     const bandID = await bandsCollection.add({ data: band });
@@ -54,7 +50,7 @@ interface GetBandsByStatusParams {
 }
 export const getBandsByStatus = async ({
   status,
-  production = false,
+  production = true,
 }: GetBandsByStatusParams): Promise<Band[] | null> => {
   if (!production) return MOCK_BANDS[status];
 
@@ -63,7 +59,10 @@ export const getBandsByStatus = async ({
     if (!status) {
       res = await bandsCollection.get();
     } else {
-      res = await bandsCollection.where({ status: _.eq(status) }).get();
+      res = await bandsCollection
+        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
+        .where({ status: _.eq(status) })
+        .get();
     }
 
     handleDBResult(res, "get", `根据乐队状态(${status})获取乐队数据`);
@@ -81,7 +80,7 @@ interface GetBandByIdParams {
 
 export const getBandById = async ({
   _id,
-  production = false,
+  production = true,
 }: GetBandByIdParams): Promise<Band | undefined> => {
   if (!production) return MOCK_BAND_ACTIVE;
 
@@ -99,10 +98,10 @@ interface GetBandsByIDsParams {
   bandIDs: (string | number)[];
 }
 export const getBandsByIDs = async ({
-  production,
+  production = true,
   bandIDs,
-}: GetBandsByIDsParams): Promise<Band[] | undefined> => {
-  if (!production) return;
+}: GetBandsByIDsParams): Promise<Band[] | null> => {
+  if (!production) return null;
   try {
     const res = await bandsCollection.where({ _id: _.in(bandIDs) }).get();
     handleDBResult(
@@ -113,7 +112,7 @@ export const getBandsByIDs = async ({
     return res.data as Band[];
   } catch (error) {
     console.error(error);
-    return;
+    return null;
   }
 };
 

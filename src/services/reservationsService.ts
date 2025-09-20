@@ -48,22 +48,22 @@ export const getReservationByBandName = async (bandName: string) => {
 
 export const getReservationsByDate = async (
   date: Date
-): Promise<Reservation[]> => {
+): Promise<Reservation[] | null> => {
   try {
     const res = await reservationsCollection.where({ date: _.eq(date) }).get();
     handleDBResult(res, "get", "根据排练日期获取预约数据");
     return res.data as Reservation[];
   } catch (error) {
     console.error(error);
-    return [];
+    return null;
   }
 };
 
 export const getReservationsByDateRange = async (
   startDate: Date,
   endDate: Date,
-  production: boolean = false
-): Promise<Reservation[]> => {
+  production: boolean = true
+): Promise<Reservation[] | null> => {
   if (!production) return MOCK_RESERVATIONS.DEFAULT;
 
   try {
@@ -74,20 +74,20 @@ export const getReservationsByDateRange = async (
     return res.data as Reservation[];
   } catch (error) {
     console.error(error);
-    return [];
+    return null;
   }
 };
 
 // 参数：可以传入单个乐队id，也可以是多个
 
 interface GetReservationsByBandIDsOptions {
-  bandIDs: string[];
+  bandIDs: (string | number)[];
   production?: boolean;
   sortByDate?: boolean;
 }
 export const getReservationsByBandIDs = async ({
   bandIDs,
-  production = false,
+  production = true,
   sortByDate = true,
 }: GetReservationsByBandIDsOptions): Promise<Reservation[] | null> => {
   if (!production)
@@ -107,6 +107,50 @@ export const getReservationsByBandIDs = async ({
     }
     handleDBResult(res, "get", "根据排练乐队ID获取预约数据");
 
+    return res.data as Reservation[];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+// 聚合查询（时间筛选 + 乐队ID筛选）
+// TODO：refactor到后端
+
+interface GetReservationsByOptionsParams {
+  timeRange?: { startTime: Date; endTime: Date };
+  bandIDs?: (string | number)[];
+}
+
+export const getReservationsByOptions = async (
+  params: GetReservationsByOptionsParams
+) => {
+  // 查询参数
+  const query: Record<string, any> = {};
+
+  // 筛选条件：日期时间段
+  if (params.timeRange) {
+    const { startTime, endTime } = params.timeRange;
+    query.date = _.gte(startTime).and(_.lte(endTime));
+  }
+
+  // 筛选条件：数组中包含的乐队
+  if (params.bandIDs) {
+    query.bandID = _.in(params.bandIDs);
+  }
+
+  try {
+    const res = await reservationsCollection.where(query).get();
+    handleDBResult(
+      res,
+      "get",
+      `根据查询参数（${
+        params.timeRange &&
+        "时间：" + params.timeRange.startTime + " - " + params.timeRange.endTime
+      }${
+        params.bandIDs && "，乐队ID：" + params.bandIDs.join(", ")
+      }）获取预约数据`
+    );
     return res.data as Reservation[];
   } catch (error) {
     console.error(error);

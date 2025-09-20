@@ -1,5 +1,4 @@
 import { Band, BandStatus, BandWithPositions } from "@/models/band";
-import { Genre } from "@/models/genre";
 import { MOCK_BAND_POSITIONS } from "./band-positions";
 
 const MOCK_BAND_BASE_DATA = {
@@ -8,7 +7,6 @@ const MOCK_BAND_BASE_DATA = {
   statusUpdatedAt: new Date(),
   description:
     "这是一段乐队简介，很长很长很长很长很长很长很长很长很长的乐队简介",
-  genre: ["Rock", "Pop"] as Genre[],
   statusLogs: [],
   formedAt: new Date(),
 };

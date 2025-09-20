@@ -6,7 +6,7 @@ import Taro from "@tarojs/taro";
 import JXTitleLabel from "../Labels/JXTitleLabel";
 import JXEmoji from "../JXEmoji";
 import { BandConfig } from "@/models/musician";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 
 interface JXBandCardSMProps {
   bandConfig: BandConfig;
@@ -31,7 +31,7 @@ function JXBandCardSM({ bandConfig }: JXBandCardSMProps) {
         className="container-h grow"
         style={{ alignItems: "center", gap: 12 }}
       >
-        <JXEmoji>{MUSICIAN_DISPLAY[position].emoji}</JXEmoji>
+        <JXEmoji>{MUSICIAN_DISPLAY_CONFIG[position].emoji}</JXEmoji>
         <JXTitleLabel lg>{bandName}</JXTitleLabel>
       </View>
       <Arrow size={18} color={JX_COLOR["black"].borderColor} />

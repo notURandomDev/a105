@@ -41,7 +41,7 @@ export const getWeekRange = () => {
 
   return {
     monday: resetTimewithDate(monday),
-    sunday: resetTimewithDate(sunday),
+    sunday: new Date(sunday.setHours(23, 59, 59)),
   };
 };
 

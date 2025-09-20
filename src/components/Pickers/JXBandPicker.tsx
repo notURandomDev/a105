@@ -1,4 +1,4 @@
-import { useBandPickerData } from "@/hooks/useBandPickerData";
+import { useBandPickerData } from "@/hooks/band/useBandPickerData";
 import { BandPickerConfig } from "@/models/band";
 import { Picker, Popup } from "@taroify/core";
 
@@ -13,10 +13,10 @@ function JXBandPicker({
   onConfirm = () => {},
   onCancel = () => {},
 }: JXBandPickerProps) {
-  const { bands, bandColumns } = useBandPickerData();
+  const { userBands, bandColumns } = useBandPickerData();
 
   const handleConfirm = (_id: number | string) => {
-    const band = bands.find((band) => band._id === _id);
+    const band = userBands.find((band) => band._id === _id);
     onConfirm({ _id, name: band!.name } as BandPickerConfig);
   };
 

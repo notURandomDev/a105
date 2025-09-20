@@ -1,7 +1,7 @@
 import { Text } from "@tarojs/components";
 
 interface JXTitleLabelProps {
-  children: string;
+  children: string | number;
   color?: "black" | "white";
   lg?: boolean;
 }

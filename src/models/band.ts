@@ -1,5 +1,4 @@
-import { Genre } from "./genre";
-import { BandPosition, CreateBandPositionInput } from "./band-position";
+import { BandPosition } from "./band-position";
 
 export type BandStatus = "recruiting" | "active" | "paused" | "disbanded";
 export type BandStatusLog = {
@@ -12,7 +11,6 @@ export interface Band {
   _id: string | number;
   name: string;
   description: string;
-  genre: Genre[];
   formedAt: Date;
   status: BandStatus;
   statusUpdatedAt: Date;
@@ -20,10 +18,9 @@ export interface Band {
 }
 
 // 创建乐队用的表单类型
-export interface CreateBandInput {
+export interface CreateBandRequest {
   name: string;
   description: string;
-  genre: Genre[];
   status: BandStatus;
   statusUpdatedAt: Date;
   statusLogs: BandStatusLog[];

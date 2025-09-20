@@ -1,15 +1,11 @@
 import { View } from "@tarojs/components";
-import Taro from "@tarojs/taro";
 import "./index.scss";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
-import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
+import { Cell, Field, Input, Textarea } from "@taroify/core";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
-import JXGenreChip from "@/components/JXGenreChip";
-import { GENRES } from "@/constants/utils/genre";
-import { Genre } from "@/models/genre";
 import JXButton from "@/components/JXButton";
 import { useMusicianForm } from "@/hooks/musician/useMusicianForm";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { JXToast } from "@/utils/toast";
 
 export default function MusicianEdit() {
@@ -28,7 +24,7 @@ export default function MusicianEdit() {
     <View className="musician-edit config-page">
       {formData.map((mp, index) => {
         // mp stands for musician-profile
-        const { label, emoji } = MUSICIAN_DISPLAY[mp.position];
+        const { label, emoji } = MUSICIAN_DISPLAY_CONFIG[mp.position];
 
         return (
           <View className="container-v" style={{ gap: 24 }}>
@@ -50,23 +46,6 @@ export default function MusicianEdit() {
                   />
                 </Field>
               </Cell.Group>
-              <JXFormLabel px>乐手风格（多选）</JXFormLabel>
-              <Checkbox.Group
-                direction="horizontal"
-                className="chip-container"
-                style={{ padding: "0 16px" }}
-                onChange={(value) => updateFormData(index, { genre: value })}
-                value={formData[index].genre}
-              >
-                {Object.keys(GENRES).map((g: Genre) => (
-                  <Checkbox
-                    name={g}
-                    icon={
-                      <JXGenreChip genre={g} active={mp.genre.includes(g)} />
-                    }
-                  />
-                ))}
-              </Checkbox.Group>
             </View>
           </View>
         );
@@ -99,7 +78,6 @@ export default function MusicianEdit() {
             onClick={async () => {
               await handleSubmit();
               JXToast.success("保存成功！");
-              setTimeout(() => Taro.navigateBack(), 2000);
             }}
           >
             保存

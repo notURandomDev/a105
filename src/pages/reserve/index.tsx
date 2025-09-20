@@ -12,6 +12,7 @@ import { useReservationForm } from "@/hooks/reservation/useReservationForm";
 export default function Reserve() {
   useLoad((options: Record<string, string>) => {
     const dateIntent = JSON.parse(options.date);
+    // 该日期已经重置到当日凌晨
     const defaultDate = new Date(dateIntent);
     setFormData((prev) => ({
       ...prev,
@@ -35,7 +36,7 @@ export default function Reserve() {
 
   return (
     <View className="reserve config-page">
-      <JXFormLabel px>乐队信息</JXFormLabel>
+      <JXFormLabel px>为你的乐队预约排练</JXFormLabel>
       <Cell.Group inset>
         <Field isLink label="乐队名称" onClick={() => setActivePicker("band")}>
           <Input
@@ -50,7 +51,7 @@ export default function Reserve() {
         onConfirm={updateBandPicker}
         onCancel={() => setActivePicker(null)}
       />
-      <JXFormLabel px>排练信息</JXFormLabel>
+      <JXFormLabel px>填写排练的时间信息</JXFormLabel>
       <Cell.Group inset>
         <Field label="排练日期" isLink onClick={() => setActivePicker("date")}>
           <Input

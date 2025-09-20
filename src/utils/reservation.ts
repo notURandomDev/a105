@@ -1,4 +1,5 @@
 import { Reservation } from "@/models/reservation";
+import { resetTimewithDate } from "./DatetimeHelper";
 
 export type JXReservationState = "pending" | "active" | "over";
 
@@ -55,4 +56,15 @@ export const sortReservationsOnState = (reservations: Reservation[]) => {
     ...sortReservationsOnStartTime(groupedReservations.pending),
     ...sortReservationsOnStartTime(groupedReservations.over, "desc"),
   ];
+};
+
+// 筛选当前一天的预约记录
+export const filterReservationsByDate = (
+  reservations: Reservation[],
+  date: Date
+) => {
+  const getResetTime = (date: Date) => resetTimewithDate(date).getTime();
+  return reservations.filter(
+    (r) => getResetTime(r.date) === getResetTime(date)
+  );
 };

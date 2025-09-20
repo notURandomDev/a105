@@ -5,7 +5,7 @@ import JXTitleLabel from "../../Labels/JXTitleLabel";
 import { Plus } from "@taroify/icons";
 import JXEmoji from "../../JXEmoji";
 import { BandPosition } from "@/models/band-position";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { Button } from "@taroify/core";
 
 interface JXMusicianCardRCProps {
@@ -20,7 +20,7 @@ function JXMusicianCardRC({
   readonly = false,
 }: JXMusicianCardRCProps) {
   const { position, recruitNote } = bandPosition;
-  const { emoji, label } = MUSICIAN_DISPLAY[position];
+  const { emoji, label } = MUSICIAN_DISPLAY_CONFIG[position];
 
   return (
     <JXCardContainer horizontal className="center-v" style={{ gap: 12 }}>

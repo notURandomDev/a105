@@ -1,7 +1,8 @@
 import { BandPickerConfig } from "@/models/band";
-import { selectReservationsByDate } from "@/selectors/reservationSelectors";
-import { createReservation } from "@/services/reservationsService";
-import { useReservationStore } from "@/stores/reservationStore";
+import {
+  createReservation,
+  getReservationsByDate,
+} from "@/services/reservationsService";
 import { compareHM } from "@/utils/DatetimeHelper";
 import Taro from "@tarojs/taro";
 import { useState } from "react";
@@ -16,7 +17,6 @@ export type FormData = {
 };
 
 export const useReservationForm = () => {
-  const { reservations, fetchReservations } = useReservationStore();
   const [formData, setFormData] = useState<FormData>({
     startTime: null,
     endTime: null,
@@ -41,31 +41,14 @@ export const useReservationForm = () => {
     return "";
   };
 
-  const updatePickerValue = (value: Date) => {
+  const updatePickerValue = (time: Date) => {
     if (!activePicker) return;
-
-    setFormData((prev) => ({
-      ...prev,
-      [activePicker]: value,
-    }));
-  };
-
-  const updateBandPicker = (band: BandPickerConfig) => {
-    setActivePicker(null);
-    setFormData((prev) => ({ ...prev, band }));
-  };
-
-  const updateDatetimePicker = (date: Date) => {
-    autoAdjustTime(date);
-    updatePickerValue(date);
-    setActivePicker(null);
-  };
-
-  // 自动调整预约时间
-  const autoAdjustTime = (time: Date) => {
     const { startTime, endTime } = formData;
 
-    // 开始时间晚于结束时间
+    // 在更新当前活跃 picker field 的值之前
+    // 判断将要更新的值对于表单的其它 field 有没有影响
+
+    // [Auto Adjust - `endTime`] 开始时间晚于结束时间
     if (activePicker === "startTime" && endTime && !compareHM(time, endTime)) {
       const newEndTime = new Date(time.getTime());
       // 自动将结束时间基于新的开始时间往后推延一个小时
@@ -76,8 +59,7 @@ export const useReservationForm = () => {
       setFormData((prev) => ({ ...prev, endTime: newEndTime }));
     }
 
-    // 结束时间早于开始时间
-
+    // [Auto Adjust - `startTime`] 结束时间早于开始时间
     if (
       activePicker === "endTime" &&
       startTime &&
@@ -91,6 +73,45 @@ export const useReservationForm = () => {
       newStartTime.setHours(newStartHour);
       setFormData((prev) => ({ ...prev, startTime: newStartTime }));
     }
+
+    // [Auto Adjust - `date`]
+    // 更新日期时，开始时间或结束时间如果已经有选中的值
+    // 需要更新开始时间或结束时间的日期
+    if (activePicker === "date") {
+      // 获取当前表单已有日期与待更新日期之间的差值
+      const dayDiff = time.getTime() - formData.date.getTime();
+
+      // 如果已经有开始时间，更新开始时间的日期
+      if (startTime) {
+        const newStartTime = startTime.getTime() + dayDiff;
+        setFormData((prev) => ({ ...prev, startTime: new Date(newStartTime) }));
+      }
+
+      // 如果已经有结束时间，更新结束时间的日期
+      if (endTime) {
+        const newEndTime = endTime.getTime() + dayDiff;
+        setFormData((prev) => ({ ...prev, endTime: new Date(newEndTime) }));
+      }
+    }
+
+    // 最后，更新当前选中 field 的值
+    setFormData((prev) => ({
+      ...prev,
+      [activePicker]: time,
+    }));
+  };
+
+  const updateBandPicker = (band: BandPickerConfig) => {
+    setActivePicker(null);
+    setFormData((prev) => ({ ...prev, band }));
+  };
+
+  // 在点击 picker 的确认按钮时调用
+  const updateDatetimePicker = (date: Date) => {
+    // 1. 更新表单数据
+    updatePickerValue(date);
+    // 2. 重置选中的 picker field
+    setActivePicker(null);
   };
 
   // 检查是否与当前已有的排练冲突
@@ -99,7 +120,11 @@ export const useReservationForm = () => {
     startTime: Date,
     endTime: Date
   ) => {
-    const reservationsToday = selectReservationsByDate(reservations, date);
+    // 获取当天的排练数据
+    const reservationsToday = (await getReservationsByDate(date)) || [];
+    // 任意已经预约的排练如果满足以下条件，则想要预约的排练时间一定没冲突：
+    // - 预约的排练开始时间，比已有的排练结束时间晚；那么预约的结束时间一定也比已有的排练结束时间晚
+    // - 预约的排练结束时间，比已有的排练开始时间早；那么预约的开始时间一定也比已有的排练开始时间早
     return reservationsToday.some((reservation) => {
       const noConflict =
         endTime <= reservation.startTime || startTime >= reservation.endTime;
@@ -133,6 +158,7 @@ export const useReservationForm = () => {
     const { band, date, startTime, endTime } = formData;
     if (!date || !startTime || !endTime || !band) return;
 
+    // 在提交表单的时候再进行检查，减少请求的数量
     if (await checkReservationConflict(date, startTime, endTime)) {
       Taro.showToast({ icon: "error", title: "预约时间冲突" });
       return;
@@ -148,7 +174,6 @@ export const useReservationForm = () => {
     });
 
     if (res) {
-      await fetchReservations();
       Taro.hideLoading();
       Taro.showToast({ icon: "success", title: "预约成功" });
       setTimeout(() => Taro.navigateBack(), 1000);

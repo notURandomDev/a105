@@ -1,74 +1,55 @@
 import { View } from "@tarojs/components";
 import "./index.scss";
 import JXMailCard, { JXMailCardProps } from "@/components/Cards/JXMailCard";
-import { selectBandByID } from "@/selectors/bandSelectors";
-import { selectPositionsByBand } from "@/selectors/bandPositionSelectors";
-import { useBandPositionStore } from "@/stores/bandPositionStore";
-import { selectMusicianByID } from "@/selectors/musicianSelectors";
 import { Tabs } from "@taroify/core";
-import { useApplicationData } from "@/hooks/application/useApplicationData";
-import { useState } from "react";
-import { selectApplicationsByTime } from "@/selectors/applicationSelectors";
+import { MailTabKey } from "@/types/components";
+import { useMailTab } from "@/hooks/mail/useMailTab";
+import { useDidShow } from "@tarojs/taro";
 
-export type MailTab = "incomingApplications" | "myApplications";
-
-const MAIL_TABS: { value: MailTab; label: string }[] = [
-  { value: "incomingApplications", label: "待审批申请" },
-  { value: "myApplications", label: "我的申请" },
-];
+const MAIL_TAB_CONFIG: Record<MailTabKey, { label: string }> = {
+  incomingApplications: { label: "待审批申请" },
+  myApplications: { label: "我的申请" },
+};
 
 export default function Mail() {
-  const allBandPositions = useBandPositionStore((s) => s.bandPositions);
+  const { activeMailTabKey, setActiveMailTabKey, mails, fetchMails } =
+    useMailTab();
 
-  const { myApplications, incomingApplications, allBands } =
-    useApplicationData();
-  const [activeTab, setActiveTab] = useState<MailTab>("myApplications");
+  // 页面出现时，刷新数据
+  useDidShow(() => {
+    fetchMails(activeMailTabKey);
+  });
 
   return (
     <Tabs
-      value={activeTab}
-      onChange={setActiveTab}
+      value={activeMailTabKey}
+      onChange={setActiveMailTabKey}
       sticky
       lazyRender
       animated
       swipeable
     >
-      {MAIL_TABS.map((tab) => {
-        const isIncomingApplicationsTab = tab.value === "incomingApplications";
-        const applicationData = selectApplicationsByTime(
-          isIncomingApplicationsTab ? incomingApplications : myApplications
-        );
+      {Object.entries(MAIL_TAB_CONFIG).map(([tabKey, config]) => {
+        const readonly = tabKey === "myApplications";
 
         return (
           <Tabs.TabPane
-            value={tab.value}
-            title={tab.label}
+            value={tabKey}
+            title={config.label}
             className="tab-pane"
           >
             <View
               className="tab-container"
               style={{ paddingLeft: 24, paddingRight: 24 }}
             >
-              {applicationData.map((application) => {
-                const bandID = application.targetBandID;
-                const applyingMusician = selectMusicianByID(
-                  application.applyingMusicianID
-                );
-                const band = selectBandByID(allBands, bandID);
-
-                if (!band || !applyingMusician) return;
-                const bandPositions = selectPositionsByBand(
-                  allBandPositions,
-                  bandID
-                );
-                const { nickname, position } = applyingMusician;
+              {mails.map((mail) => {
+                const { application, applyingMusician } = mail;
                 const mailCardData: JXMailCardProps = {
                   application,
-                  bandName: band.name,
-                  bandPositions,
-                  applicantName: nickname,
-                  applicantPosition: position,
-                  readonly: !isIncomingApplicationsTab,
+                  applicantName: applyingMusician?.nickname || "applicantName", // 为application实体添加冗余字段处理
+                  applicantPosition: applyingMusician?.position || "bassist",
+                  readonly,
+                  onStatusChange: () => fetchMails(activeMailTabKey),
                 };
                 return <JXMailCard {...mailCardData} />;
               })}

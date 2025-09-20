@@ -1,43 +1,18 @@
 import { View } from "@tarojs/components";
 import "./index.scss";
-import { Cell, Checkbox, Field, Input, Textarea } from "@taroify/core";
-import JXGenreChip from "@/components/JXGenreChip";
+import { Cell, Field, Input, Textarea } from "@taroify/core";
 import JXFormLabel from "@/components/Labels/JXFormLabel";
-import { GENRES } from "@/constants/utils/genre";
 import JXButton from "@/components/JXButton";
 import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
 import { Close } from "@taroify/icons";
-import { useBandForm } from "@/hooks/useBandForm";
-import { Genre } from "@/models/genre";
+import { useBandForm } from "@/hooks/band/useBandForm";
 import { getPositionsByStatus } from "@/utils/band";
-import { useLoad } from "@tarojs/taro";
-import { PositionType } from "@/models/position";
-import { selectMusicianByID } from "@/selectors/musicianSelectors";
+import { mapMusiciansIntoPositions } from "@/utils/musician";
 
 export default function BandCreate() {
-  useLoad((options: Record<string, string>) => {
-    const defaultMusicianID = options.musicianID as PositionType;
-    if (!defaultMusicianID) return;
-    const defaultMusician = selectMusicianByID(defaultMusicianID);
-    if (!defaultMusician) return;
-    setFormData((prev) => ({
-      ...prev,
-      positions: prev.positions.map((p) =>
-        p.status === "occupied"
-          ? {
-              ...p,
-              position: defaultMusician?.position,
-              musicianID: defaultMusician._id,
-            }
-          : p
-      ),
-    }));
-  });
-
   const {
     formData,
-    setFormData,
     activePicker,
     setActivePicker,
     feedback,
@@ -49,18 +24,23 @@ export default function BandCreate() {
     removeRecruitingPosition,
     getRecruitNote,
     updateRecruitNote,
-    updateGenre,
     updateDescription,
     updateName,
+    userMusicians,
   } = useBandForm();
 
   const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
     formData.positions
   );
 
+  const pickerPositions =
+    activePicker === "occupied"
+      ? mapMusiciansIntoPositions(userMusicians) // [用户位置] 只提供用户已经创建的乐手位置
+      : undefined; // [招募位置] include字段为空，允许 picker 展示所有位置
+
   return (
     <View className="band-create config-page">
-      <JXFormLabel px>乐队基本信息</JXFormLabel>
+      <JXFormLabel px>填写乐队基本信息</JXFormLabel>
       <Cell.Group inset bordered={false}>
         <Field
           feedback={
@@ -86,23 +66,7 @@ export default function BandCreate() {
         </Field>
       </Cell.Group>
 
-      <JXFormLabel px>乐队风格（多选）</JXFormLabel>
-      <Checkbox.Group
-        onChange={updateGenre}
-        value={formData.genre}
-        direction="horizontal"
-        className="chip-container"
-        style={{ padding: "0 16px" }}
-      >
-        {Object.keys(GENRES).map((g: Genre) => (
-          <Checkbox
-            name={g}
-            icon={<JXGenreChip genre={g} active={formData.genre.includes(g)} />}
-          />
-        ))}
-      </Checkbox.Group>
-
-      <JXFormLabel px>你的位置</JXFormLabel>
+      <JXFormLabel px>填写你在乐队中的位置</JXFormLabel>
       <View
         className="container-v"
         style={{ gap: occupiedPositions.length ? 12 : 0 }}
@@ -117,22 +81,24 @@ export default function BandCreate() {
               <Input
                 readonly
                 value={`${
-                  MUSICIAN_DISPLAY[occupiedPositions[0].position].emoji
-                }  ${MUSICIAN_DISPLAY[occupiedPositions[0].position].label}`}
+                  MUSICIAN_DISPLAY_CONFIG[occupiedPositions[0].position].emoji
+                }  ${
+                  MUSICIAN_DISPLAY_CONFIG[occupiedPositions[0].position].label
+                }`}
               />
             </Field>
           </Cell.Group>
         )}
       </View>
 
-      <JXFormLabel px>招募乐手位置</JXFormLabel>
+      <JXFormLabel px>填写你想招募的乐手位置</JXFormLabel>
       <View
         className="container-v"
         style={{ gap: recruitingPositions.length ? 12 : 0 }}
       >
         <Cell.Group inset bordered={false}>
           {recruitingPositions.map(({ position: p }, index) => {
-            const { emoji, label } = MUSICIAN_DISPLAY[p];
+            const { emoji, label } = MUSICIAN_DISPLAY_CONFIG[p];
             return (
               <>
                 <Field label={`位置${index + 1}`}>
@@ -172,6 +138,7 @@ export default function BandCreate() {
           updatePositions(position);
           setActivePicker(null);
         }}
+        include={pickerPositions}
       />
       {isFormDataValid() && (
         <View

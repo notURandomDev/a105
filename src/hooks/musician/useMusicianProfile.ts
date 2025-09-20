@@ -1,33 +1,38 @@
-import { MusicianProfile } from "@/models/musician";
-import { selectBandsByMusicians } from "@/selectors/bandSelectors";
-import {
-  selectMusicianProfiles,
-  selectMusiciansByUser,
-} from "@/selectors/musicianSelectors";
-import { useBandStore } from "@/stores/bandStore";
-import { useMusicianStore } from "@/stores/musicianStore";
-import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
+import Taro from "@tarojs/taro";
+import { MusicianProfile } from "@/models/musician";
+import { aggregateMusicianProfiles } from "@/utils/musician";
+import { useUserBands } from "../user/useUserBands";
 
 export const useMusicianProfile = () => {
-  const [userID, setUserID] = useState<string | null>(null);
   const [musicianProfile, setMusicianProfile] =
     useState<MusicianProfile | null>(null);
-  const allMusicians = useMusicianStore((s) => s.musicians);
-  const allBands = useBandStore((s) => s.bands);
+
+  // 1. 获取用户所有的乐手身份 + 所在的乐队
+  const { userBands, userMusicians } = useUserBands();
 
   useEffect(() => {
-    if (!userID || !allMusicians || !allBands) return;
+    if (!userMusicians.length || !userBands.length) return;
 
-    const userMusicians = selectMusiciansByUser(allMusicians, userID);
-    const userBands = selectBandsByMusicians(allBands, userMusicians);
-    const mps = selectMusicianProfiles(userMusicians, userBands);
-    setMusicianProfile(mps[0]);
+    // 2. 聚合乐手和乐队实体
+    // 主要是为了得到 bandConfigs，展示用户在不同乐队中的乐手位置
+    const aggregateMusicianProfile = async () => {
+      setPageTitle(userMusicians[0].nickname);
+      const musicianProfile = aggregateMusicianProfiles(
+        userMusicians,
+        userBands
+      );
+      setMusicianProfile(musicianProfile[0]);
+    };
 
+    aggregateMusicianProfile();
+  }, [userMusicians, userBands]);
+
+  // 设置页面标题
+  const setPageTitle = (nickName: string) =>
     Taro.setNavigationBarTitle({
-      title: "乐手档案｜" + userMusicians[0].nickname,
+      title: "乐手档案｜" + nickName,
     });
-  }, [userID, allMusicians, allBands]);
 
-  return { userID, setUserID, musicianProfile };
+  return { musicianProfile };
 };

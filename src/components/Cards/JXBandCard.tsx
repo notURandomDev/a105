@@ -1,84 +1,19 @@
-import { View, Text } from "@tarojs/components";
-import { MUSICIAN_DISPLAY } from "@/constants/utils/musician";
+import { View } from "@tarojs/components";
 import { getYMDfromDate } from "@/utils/DatetimeHelper";
 import JXButton from "../JXButton";
 import JXCardContainer from "../JXCardContainer";
-import JXGenreChip from "../JXGenreChip";
 import JXBodyLabel from "../Labels/JXBodyLabel";
 import JXSecondaryLabel from "../Labels/JXSecondaryLabel";
 import Taro from "@tarojs/taro";
 import JXTitleLabel from "../Labels/JXTitleLabel";
-import JXEmoji from "../JXEmoji";
-import { BandWithPositions } from "@/models/band";
-import { BandPosition } from "@/models/band-position";
-
-const getPositionEmojis = (positions: BandPosition[]) => {
-  if (!positions.length) return {};
-
-  const recruitingEmojis = positions
-    .filter(({ status }) => status === "recruiting")
-    .map(({ position }) => MUSICIAN_DISPLAY[position].emoji);
-  const occupiedEmojis = positions
-    .filter(({ status }) => status === "occupied")
-    .map(({ position }) => MUSICIAN_DISPLAY[position].emoji);
-
-  return { recruitingEmojis, occupiedEmojis };
-};
-
-interface JXBandCardHeaderProps {
-  isRecruiting: boolean;
-  title?: string;
-  occupiedEmojis: string[];
-  recruitingEmojis?: string[];
-}
-
-const JXBandCardEmojis = ({
-  isRecruiting,
-  occupiedEmojis,
-  recruitingEmojis = [],
-}: JXBandCardHeaderProps) => {
-  const emojiSize = isRecruiting ? 28 : 20;
-  const emojiGap = isRecruiting ? 12 : 8;
-  return (
-    <View
-      className="container-h grow"
-      style={{
-        justifyContent: isRecruiting ? "space-between" : "flex-end",
-      }}
-    >
-      <View className="container-h" style={{ gap: emojiGap }}>
-        {occupiedEmojis.map((emoji) => (
-          <JXEmoji size={isRecruiting ? "lg" : "sm"}>{emoji}</JXEmoji>
-        ))}
-      </View>
-      {isRecruiting && (
-        <View className="container-h" style={{ gap: emojiGap }}>
-          {recruitingEmojis.map((emoji) => (
-            <Text
-              style={{
-                fontSize: emojiSize,
-                filter: "grayscale(100%)",
-                opacity: 0.5,
-              }}
-            >
-              {emoji}
-            </Text>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
+import { Band } from "@/models/band";
 
 interface JXBandCardProps {
-  band: BandWithPositions;
+  band: Band;
   addBtnDisabled?: boolean;
 }
 const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
-  const { status, name, genre, description, statusUpdatedAt, _id } = band.info;
-  const { recruitingEmojis, occupiedEmojis } = getPositionEmojis(
-    band.positions
-  );
+  const { status, name, description, statusUpdatedAt, _id } = band;
 
   const isRecruiting = status === "recruiting";
 
@@ -90,23 +25,7 @@ const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
 
   return (
     <JXCardContainer onClick={navigate} style={{ gap: 8 }}>
-      <View className="container-v" style={{ gap: isRecruiting ? 4 : 0 }}>
-        {isRecruiting ? (
-          <JXBandCardEmojis
-            isRecruiting={isRecruiting}
-            occupiedEmojis={occupiedEmojis ?? []}
-            recruitingEmojis={recruitingEmojis}
-          />
-        ) : (
-          <JXTitleLabel lg>{name ?? ""}</JXTitleLabel>
-        )}
-
-        <View className="chip-container">
-          {genre.map((g) => (
-            <JXGenreChip genre={g} />
-          ))}
-        </View>
-      </View>
+      <JXTitleLabel lg>{name ?? ""}</JXTitleLabel>
 
       <View className="container-v">
         <JXBodyLabel>
@@ -124,15 +43,7 @@ const JXBandCard = ({ band, addBtnDisabled }: JXBandCardProps) => {
               statusUpdatedAt
             )}`}
           </JXSecondaryLabel>
-          {isRecruiting ? (
-            <JXButton disabled={addBtnDisabled}>加入</JXButton>
-          ) : (
-            <JXBandCardEmojis
-              isRecruiting={isRecruiting}
-              occupiedEmojis={occupiedEmojis ?? []}
-              recruitingEmojis={recruitingEmojis}
-            />
-          )}
+          {isRecruiting && <JXButton disabled={addBtnDisabled}>加入</JXButton>}
         </View>
       </View>
     </JXCardContainer>

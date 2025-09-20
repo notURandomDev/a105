@@ -1,6 +1,9 @@
 import { _, db } from "@/cloud/cloudClient";
 import { MOCK_BAND_POSITIONS } from "@/constants/database/band-positions";
-import { BandPosition, CreateBandPositionInput } from "@/models/band-position";
+import {
+  BandPosition,
+  CreateBandPositionRequest,
+} from "@/models/band-position";
 import { handleDBResult } from "@/utils/database";
 
 const bandPositionCollection = db.collection("band_position");
@@ -8,7 +11,7 @@ const bandPositionCollection = db.collection("band_position");
 // CREATE
 
 interface CreateBandPositionsParams {
-  positions: CreateBandPositionInput[];
+  positions: CreateBandPositionRequest[];
   bandID: string | number;
 }
 export const createBandPositions = async ({
@@ -49,7 +52,7 @@ interface GetBandPositionsByBandParams {
 }
 export const getBandPositionsByBand = async ({
   bandID,
-  production = false,
+  production = true,
 }: GetBandPositionsByBandParams): Promise<BandPosition[] | null> => {
   if (!production)
     return [MOCK_BAND_POSITIONS.occupied[0], ...MOCK_BAND_POSITIONS.recruiting];
