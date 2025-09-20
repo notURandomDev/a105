@@ -18,19 +18,14 @@ export const useMusicianForm = () => {
   const [formData, setFormData] = useState<MusicianFormItem[]>([]);
   const [pickerActive, setPickerActive] = useState(false);
 
-  const { userInfo, userMusicians } = useUserMusicians();
-
-  // 获取用户乐手信息，更新表单
-  const fetchMusicians = async () => {
-    // 获取用户所有的乐手身份
-    if (!userMusicians.length) return;
-    // 根据获取到的用户乐手信息，更新表单
-    setFormData(userMusicians.map((m) => ({ ...m, status: "pristine" })));
-  };
+  // 获取用户所有的乐手身份
+  const { userInfo, userMusicians, fetchUserMusicians } = useUserMusicians();
 
   // 监听：获取到用户乐手身份的数据，更新表单
   useEffect(() => {
-    fetchMusicians();
+    if (!userMusicians.length) return;
+    // 根据获取到的用户乐手信息，更新表单
+    setFormData(userMusicians.map((m) => ({ ...m, status: "pristine" })));
   }, [userMusicians]);
 
   // 判断用户是否对表单进行了编辑
@@ -91,8 +86,8 @@ export const useMusicianForm = () => {
     if (toCreate.length) await createMusicians({ musicians: toCreate });
     if (toUpdate.length) await updateMusicians({ musicians: toUpdate });
 
-    // 刷新乐手数据，重新渲染乐手表单
-    fetchMusicians();
+    // 更新用户的乐手身份信息
+    fetchUserMusicians();
   };
 
   return {

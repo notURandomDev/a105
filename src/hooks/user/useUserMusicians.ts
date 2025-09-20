@@ -10,16 +10,15 @@ export const useUserMusicians = () => {
   // Derived from `userInfo`
   const userID = userInfo?._id;
 
-  useEffect(() => {
+  const fetchUserMusicians = async () => {
     if (!userID) return;
+    const musicians = (await getMusiciansByUserID({ userID })) || [];
+    setUserMusicians(musicians);
+  };
 
-    const fetchMusicians = async () => {
-      const musicians = (await getMusiciansByUserID({ userID })) || [];
-      setUserMusicians(musicians);
-    };
-
-    fetchMusicians();
+  useEffect(() => {
+    fetchUserMusicians();
   }, [userID]);
 
-  return { userInfo, userMusicians };
+  return { userInfo, userMusicians, fetchUserMusicians };
 };
