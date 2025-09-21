@@ -14,8 +14,13 @@ const MAIL_TAB_CONFIG: Record<MailTabKey, { label: string }> = {
 };
 
 export default function MailPage() {
-  const { activeMailTabKey, setActiveMailTabKey, mailsData, fetchMails } =
-    useMailTab();
+  const {
+    activeMailTabKey,
+    setActiveMailTabKey,
+    mailsData,
+    fetchMails,
+    fetchUserMusicians,
+  } = useMailTab();
 
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +31,13 @@ export default function MailPage() {
 
   // 页面出现时，刷新数据；不进行自动分页
   useDidShow(() => {
-    fetchMails(false);
+    const refreshData = async () => {
+      // 用户离开邮箱界面之后，有可能去创建了乐队
+      // 这就导致用户的乐手身份数据有可能过时了
+      await fetchUserMusicians();
+      fetchMails(false);
+    };
+    refreshData();
   });
 
   // 点击按钮，加载更多数据

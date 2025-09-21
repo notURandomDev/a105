@@ -38,7 +38,9 @@ export const useMailTab = () => {
   const [mailsData, setMailsData] = useState<MailsData>(DefaultMailsData);
 
   // 获取用户的所有乐手数据
-  const { userMusicians } = useUserMusicians({ production });
+  const { userMusicians, fetchUserMusicians } = useUserMusicians({
+    production,
+  });
 
   // 更加简洁地更新状态
   const updateMailsData = async (
@@ -127,5 +129,6 @@ export const useMailTab = () => {
     lastFetchedMailTabKey,
     mailsData,
     fetchMails,
+    fetchUserMusicians,
   };
 };
