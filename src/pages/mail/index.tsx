@@ -87,7 +87,7 @@ export default function MailPage() {
                   applicantName: applyingMusician?.nickname || "applicantName", // 为application实体添加冗余字段处理
                   applicantPosition: applyingMusician?.position || "bassist",
                   readonly,
-                  onStatusChange: () => fetchMails(),
+                  onStatusChange: () => fetchMails(false),
                 };
                 return <JXMailCard {...mailCardData} />;
               })}
