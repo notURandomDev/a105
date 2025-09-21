@@ -62,10 +62,19 @@ export const getApplicationsByStatus = async ({
   }
 };
 
+type ApplicationRequestField =
+  | "applyingBandPositionID"
+  | "applyingMusicianID"
+  | "targetBandID"
+  | "status";
+
 interface GetApplicationsByFieldParams {
-  field: "applyingBandPositionID" | "applyingMusicianID" | "targetBandID";
-  value: (string | number)[];
-  pageIndex: number;
+  // Not all fields in the query need to be used.
+  // e.g.: { "targetBandID": [] }
+  query: Partial<
+    Record<ApplicationRequestField, (ApplicationStatus | string | number)[]>
+  >;
+  pageIndex?: number;
   production?: boolean;
 }
 
@@ -78,19 +87,31 @@ type GetApplicationsByField = TcbService<
 export const getApplicationsByField: GetApplicationsByField = async (
   params
 ) => {
-  const { field, value, production = true, pageIndex } = params;
+  const { query, production = true, pageIndex = 0 } = params;
   let hasMore = false;
   if (!production) return { data: [] as Application[], hasMore, error: null };
+
+  // 逐个添加查询条件：{ [field]: _.in(value) }
+  const queryConditions = Object.entries(query).reduce(
+    (acc, [field, value]) => {
+      acc[field] = _.in(value);
+      return acc;
+    },
+    {} as Record<ApplicationRequestField, DB.Query.IStringQueryCondition>
+  );
+
   try {
     const res = await applicationCollection
-      .where({ [field]: _.in(value) })
+      .where(queryConditions)
       .skip(PageSize * pageIndex)
       .orderBy("appliedAt", "desc") // 按申请的时间降序
       .get();
     handleDBResult(
       res,
       "get",
-      `根据字段 ${field} (${value.length}) 获取 ${res.data.length} 条申请记录数据`
+      `根据字段 ${Object.keys(queryConditions).join(", ")} 获取 ${
+        res.data.length
+      } 条申请记录数据`
     );
 
     // 如果返回数据的长度与分页数据限制相同，代表可能有更多数据（也可能刚好没有更多数据了）

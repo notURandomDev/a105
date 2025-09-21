@@ -88,8 +88,9 @@ export const useMailTab = () => {
       const targetBandIDs = extractMusicianBaseBandIDs(userMusicians); // 获取用户所在的乐队ID
       await updateMailsData(autoPagination, () =>
         getApplicationsByField({
-          field: "targetBandID",
-          value: targetBandIDs,
+          query: {
+            targetBandID: targetBandIDs,
+          },
           pageIndex,
           production,
         })
@@ -102,8 +103,9 @@ export const useMailTab = () => {
       const applyingMusicianIDs = mapMusiciansIntoIds(userMusicians); // 获取用户所有乐手身份的ID
       await updateMailsData(autoPagination, () =>
         getApplicationsByField({
-          field: "applyingMusicianID",
-          value: applyingMusicianIDs,
+          query: {
+            applyingMusicianID: applyingMusicianIDs,
+          },
           pageIndex,
           production,
         })

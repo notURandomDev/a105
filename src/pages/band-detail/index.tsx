@@ -121,7 +121,6 @@ export default function BandDetail() {
                   // 判断用户是否不能对该位置重复发送申请
                   // 用户有没有对该位置待审核的申请记录
                   const isLocked = applications
-                    .filter((a) => a.status === "pending")
                     .map((a) => a.applyingBandPositionID)
                     .includes(bp._id);
 
