@@ -6,7 +6,7 @@ import { CreateBandPositionRequest } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserMusicians } from "../user/useUserMusicians";
 
-const DEFAULT_FORM_BASE_DATA = {
+const DefaultFormDataBase = {
   name: "JOINT", // 乐队名
   description: "这是一段乐队简介",
 };
@@ -30,23 +30,32 @@ export const useBandForm = () => {
   const { userInfo, userMusicians } = useUserMusicians();
 
   const [formData, setFormData] = useState<FormData>({
-    ...DEFAULT_FORM_BASE_DATA,
-    positions: [
-      {
-        status: "occupied",
-        position: "vocalist",
-      },
-      {
-        position: "bassist",
-        status: "recruiting",
-        recruitNote: "律动强",
-      },
-    ],
+    ...DefaultFormDataBase,
+    positions: [],
   });
 
   useEffect(() => {
     fetchBands();
   }, []); // 只需要初始化一次
+
+  useEffect(() => {
+    if (!userMusicians.length) return;
+    // 根据用户的乐手信息，对表单数据进行初始化
+    setFormData({
+      ...DefaultFormDataBase,
+      positions: [
+        {
+          status: "occupied",
+          position: userMusicians[0].position,
+        },
+        {
+          position: "bassist",
+          status: "recruiting",
+          recruitNote: "律动强",
+        },
+      ],
+    });
+  }, [userMusicians]);
 
   // 获取全部乐队，判断用户起的乐队名是否已经存在
   const fetchBands = async () => {

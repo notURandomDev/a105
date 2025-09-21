@@ -139,6 +139,9 @@ export default function BandCreate() {
           setActivePicker(null);
         }}
         include={pickerPositions}
+        defaultPosition={
+          userMusicians.length ? userMusicians[0].position : undefined
+        }
       />
       {isFormDataValid() && (
         <View

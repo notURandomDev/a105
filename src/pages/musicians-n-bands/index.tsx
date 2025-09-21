@@ -33,7 +33,7 @@ export const BAND_TAB_CONFIG: Record<BandTabKey, { label: string }> = {
 };
 
 export default function MusiciansNBands() {
-  const [activeTabIndex, setActiveTabIndex] = useState(1);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
   const {
     activeBandTabKey,
     setActiveBandTabKey,
