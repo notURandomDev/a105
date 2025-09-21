@@ -2,18 +2,18 @@ import { PositionType } from "./position";
 
 export type PositionStatus = "recruiting" | "occupied";
 
-export interface BandPosition {
-  _id: string | number;
+interface BandPositionBase {
   position: PositionType;
-  musicianID?: string | number; // 如果 status 为 occupied，则为乐手 ID
-  nickname?: string;
-  bandID: string | number;
   status: PositionStatus;
-  recruitNote?: string; // 招募说明
+  musicianID?: string | number; // 如果 status 为 occupied，则为乐手 ID
   joinedAt?: Date; // 加入时间（可选）
+  nickname?: string;
+  recruitNote?: string; // 招募说明
 }
 
-export type CreateBandPositionRequest = Pick<
-  BandPosition,
-  "position" | "status" | "recruitNote" | "musicianID" | "nickname" | "joinedAt"
->;
+export interface BandPosition extends BandPositionBase {
+  _id: string | number;
+  bandID: string | number;
+}
+
+export type CreateBandPositionRequest = BandPositionBase;

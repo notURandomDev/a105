@@ -2,10 +2,7 @@ import { getAllBands } from "@/services/bandsService";
 import Taro from "@tarojs/taro";
 import { useEffect, useRef, useState } from "react";
 import { PositionType } from "@/models/position";
-import {
-  CreateBandPositionRequest,
-  PositionStatus,
-} from "@/models/band-position";
+import { CreateBandPositionRequest } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserMusicians } from "../user/useUserMusicians";
 
@@ -32,18 +29,12 @@ export const useBandForm = () => {
   // picker 不能展示用户没有注册过的乐手身份！
   const { userInfo, userMusicians } = useUserMusicians();
 
-  const occupiedMusicianBaseData = {
-    status: "occupied" as PositionStatus,
-    nickname: userInfo?.nickName ?? "replace-this-with-actual-user-nickname",
-  };
-
   const [formData, setFormData] = useState<FormData>({
     ...DEFAULT_FORM_BASE_DATA,
     positions: [
       {
-        ...occupiedMusicianBaseData,
+        status: "occupied",
         position: "vocalist",
-        joinedAt: new Date(),
       },
       {
         position: "bassist",
@@ -83,20 +74,10 @@ export const useBandForm = () => {
   const updatePositions = async (position: PositionType) => {
     // 更新用户的乐手位置
     if (activePicker === "occupied") {
-      const joinedAt = new Date();
       setFormData((prev) => ({
         ...prev,
         positions: prev.positions.map((p) =>
-          p.status === "occupied"
-            ? {
-                ...occupiedMusicianBaseData,
-                position,
-                joinedAt,
-                // 能进入创建乐队的前提，是用于已经有乐手身份了
-                // 因此这里访问下标的操作是安全的
-                musicianID: userMusicians[0]._id,
-              }
-            : p
+          p.status === "occupied" ? { ...p, position } : p
         ),
       }));
     }
@@ -145,7 +126,20 @@ export const useBandForm = () => {
         statusUpdatedAt: now,
         statusLogs: [{ at: now, status: "recruiting" }],
       },
-      positions,
+      positions: positions.map((p) =>
+        p.status === "occupied"
+          ? {
+              ...p,
+              joinedAt: new Date(),
+              nickname: userInfo?.nickName ?? "something-is-wrong",
+              // 能进入创建乐队的前提，是用于已经有乐手身份了；因此这里访问下标的操作是安全的
+              musicianID: userMusicians[0]._id,
+            }
+          : {
+              ...p,
+              recruitNote: "喜欢就申请加入吧！",
+            }
+      ),
     });
 
     Taro.showToast({ icon: "success", title: "乐队创建成功" });
