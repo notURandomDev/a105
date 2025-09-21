@@ -3,7 +3,13 @@ import { getMusiciansByUserID } from "@/services/musicianService";
 import { useUserStore } from "@/stores/userStore";
 import { useEffect, useState } from "react";
 
-export const useUserMusicians = () => {
+interface UseUserMusiciansProps {
+  production?: boolean;
+}
+
+export const useUserMusicians = ({
+  production = true,
+}: UseUserMusiciansProps = {}) => {
   const { userInfo } = useUserStore();
   const [userMusicians, setUserMusicians] = useState<Musician[]>([]);
 
@@ -12,7 +18,8 @@ export const useUserMusicians = () => {
 
   const fetchUserMusicians = async () => {
     if (!userID) return;
-    const musicians = (await getMusiciansByUserID({ userID })) || [];
+    const musicians =
+      (await getMusiciansByUserID({ userID, production })) || [];
     setUserMusicians(musicians);
   };
 

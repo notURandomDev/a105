@@ -4,7 +4,8 @@ import {
   ApplicationStatus,
   CreateApplicationRequest,
 } from "@/models/application";
-import { handleDBResult } from "@/utils/database";
+import { TcbService } from "@/types/service/shared";
+import { handleDBResult, PageSize } from "@/utils/database";
 import { DB } from "@tarojs/taro";
 
 const applicationCollection = db.collection("application");
@@ -64,19 +65,26 @@ export const getApplicationsByStatus = async ({
 interface GetApplicationsByFieldParams {
   field: "applyingBandPositionID" | "applyingMusicianID" | "targetBandID";
   value: (string | number)[];
+  pageIndex: number;
   production?: boolean;
 }
 
+type GetApplicationsByField = TcbService<
+  GetApplicationsByFieldParams,
+  Application[]
+>;
+
 // 通用函数，能够根据字段筛选返回申请记录
-export const getApplicationsByField = async ({
-  field,
-  value,
-  production = true,
-}: GetApplicationsByFieldParams): Promise<Application[] | null> => {
-  if (!production) return [];
+export const getApplicationsByField: GetApplicationsByField = async (
+  params
+) => {
+  const { field, value, production = true, pageIndex } = params;
+  let hasMore = false;
+  if (!production) return { data: [] as Application[], hasMore, error: null };
   try {
     const res = await applicationCollection
       .where({ [field]: _.in(value) })
+      .skip(PageSize * pageIndex)
       .orderBy("appliedAt", "desc") // 按申请的时间降序
       .get();
     handleDBResult(
@@ -84,10 +92,15 @@ export const getApplicationsByField = async ({
       "get",
       `根据字段 ${field} (${value.length}) 获取 ${res.data.length} 条申请记录数据`
     );
-    return res.data as Application[];
+
+    // 如果返回数据的长度与分页数据限制相同，代表可能有更多数据（也可能刚好没有更多数据了）
+    hasMore = Boolean(res.data.length === PageSize);
+    console.log("[getApplicationsByField] hasMore:", hasMore);
+
+    return { data: res.data as Application[], hasMore, error: null };
   } catch (error) {
     console.error(error);
-    return null;
+    return { data: [] as Application[], hasMore, error };
   }
 };
 
