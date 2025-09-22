@@ -9,6 +9,7 @@ import { Close } from "@taroify/icons";
 import { useBandForm } from "@/hooks/band/useBandForm";
 import { getPositionsByStatus } from "@/utils/band";
 import { mapMusiciansIntoPositions } from "@/utils/musician";
+import { useRef } from "react";
 
 export default function BandCreate() {
   const {
@@ -28,6 +29,8 @@ export default function BandCreate() {
     updateName,
     userMusicians,
   } = useBandForm();
+
+  const lastFocusedBandName = useRef("");
 
   const { recruitingPositions, occupiedPositions } = getPositionsByStatus(
     formData.positions
@@ -49,7 +52,14 @@ export default function BandCreate() {
           label="乐队名"
         >
           <Input
-            onBlur={(e) => checkDuplicateBandName(e.detail.value)}
+            onBlur={(e) => {
+              const newBandName = e.detail.value;
+              if (lastFocusedBandName.current !== newBandName) {
+                checkDuplicateBandName(newBandName);
+              }
+              // 如果未改动名字，不需要进行查重
+              lastFocusedBandName.current = newBandName;
+            }}
             placeholder="取个响亮的队名！"
             value={formData.name || ""}
             onChange={(e) => updateName(e.detail.value)}

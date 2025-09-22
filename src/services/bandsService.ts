@@ -32,7 +32,7 @@ interface GetAllBandsParams {
   production?: boolean;
 }
 export const getAllBands = async ({
-  production = false,
+  production = true,
 }: GetAllBandsParams = {}): Promise<Band[] | undefined> => {
   if (!production) return MOCK_BANDS.active;
   try {
