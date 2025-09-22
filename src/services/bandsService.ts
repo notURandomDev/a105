@@ -7,7 +7,7 @@ import {
   BandStatusLog,
   CreateBandRequest,
 } from "@/models/band";
-import { handleDBResult } from "@/utils/database";
+import { handleDBResult, PageSize } from "@/utils/database";
 import { DB } from "@tarojs/taro";
 
 const bandsCollection = db.collection("band");
@@ -36,9 +36,25 @@ export const getAllBands = async ({
 }: GetAllBandsParams = {}): Promise<Band[] | undefined> => {
   if (!production) return MOCK_BANDS.active;
   try {
-    const res = await bandsCollection.get();
-    handleDBResult(res, "get", "获取全部乐队数据");
-    return res.data as Band[];
+    let pageIndex = 0;
+    let bands: Band[] = [];
+    while (true) {
+      const res =
+        (await bandsCollection.skip(PageSize * pageIndex).get()) || [];
+      handleDBResult(
+        res,
+        "get",
+        `[batch-request-${pageIndex + 1}]获取到${res.data.length}条乐队数据`
+      );
+      bands.push(...(res.data as Band[]));
+
+      if (res.data.length !== PageSize) break;
+
+      pageIndex++;
+    }
+
+    if (pageIndex) console.log(`批量获取到${bands.length}条乐队数据`);
+    return bands;
   } catch (error) {
     console.error(error);
   }
