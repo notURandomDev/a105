@@ -87,10 +87,7 @@ export default function MusiciansNBands() {
   };
 
   return (
-    <View
-      style={{ padding: "16px 0" }}
-      className="musicians-n-bands page page-padding card-gap"
-    >
+    <View className="musicians-n-bands page card-gap">
       <View style={{ padding: "0 24px" }} className="container-h card-gap">
         <JXMetricCard
           label={
