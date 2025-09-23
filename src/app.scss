@@ -79,6 +79,7 @@ page {
   display: flex;
   flex-direction: column;
   flex: 1;
+  padding: 16px 0;
   min-height: 90vh;
 }
 
@@ -88,10 +89,6 @@ page {
   flex: 1;
   padding: 8px 0;
   gap: 24px;
-}
-
-.tab-pane {
-  padding: 16px 0;
 }
 
 .chip-container {

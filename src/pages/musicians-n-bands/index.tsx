@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View } from "@tarojs/components";
+import { ScrollView, View } from "@tarojs/components";
 import { useDidShow } from "@tarojs/taro";
 import { Tabs } from "@taroify/core";
 import { BandTabKey, MusicianTabKey } from "@/types/components";
@@ -56,36 +56,42 @@ export default function MusiciansNBands() {
   const renderTab = () => {
     if (activeTabIndex === 0) {
       // 渲染乐队Tab数据
-      return Object.entries(BAND_TAB_CONFIG).map(([tab, config]) => (
-        <Tabs.TabPane value={tab} title={config.label} className="tab-pane">
-          <View className="tab-container">
-            {bands.map((band) => (
-              <JXBandCard band={band} />
-            ))}
-          </View>
+      return Object.entries(BAND_TAB_CONFIG).map(([key, tab]) => (
+        <Tabs.TabPane value={key} title={tab.label}>
+          <ScrollView scrollY className="scrollable">
+            <View className="tab-container page-padding-compensate">
+              {bands.map((band) => (
+                <JXBandCard band={band} />
+              ))}
+            </View>
+          </ScrollView>
         </Tabs.TabPane>
       ));
     } else {
       // 渲染乐手Tab数据
       return Object.entries(MUSICIAN_TAB_CONFIG).map(([key, tab]) => (
         <Tabs.TabPane
-          title={<JXEmoji size="sm">{tab.emoji}</JXEmoji>}
-          className="tab-pane"
           value={key}
+          title={<JXEmoji size="sm">{tab.emoji}</JXEmoji>}
         >
-          <View className="tab-container">
-            {musicians.map((m) => (
-              <JXMusicianCard musician={m} />
-            ))}
-          </View>
+          <ScrollView scrollY className="scrollable">
+            <View className="tab-container page-padding-compensate">
+              {musicians.map((m) => (
+                <JXMusicianCard musician={m} />
+              ))}
+            </View>
+          </ScrollView>
         </Tabs.TabPane>
       ));
     }
   };
 
   return (
-    <View className="musicians-n-bands page page-padding card-gap">
-      <View className="container-h card-gap">
+    <View
+      style={{ padding: "16px 0" }}
+      className="musicians-n-bands page page-padding card-gap"
+    >
+      <View style={{ padding: "0 24px" }} className="container-h card-gap">
         <JXMetricCard
           label={
             activeTabIndex === 0
@@ -109,17 +115,19 @@ export default function MusiciansNBands() {
           onClick={() => setActiveTabIndex(1)}
         />
       </View>
-      <Tabs
-        lazyRender
-        animated
-        swipeable
-        value={activeTabIndex ? activeMusicianTabKey : activeBandTabKey}
-        onChange={
-          activeTabIndex ? setActiveMusicianTabKey : setActiveBandTabKey
-        }
-      >
-        {renderTab()}
-      </Tabs>
+      <View className="flex">
+        <Tabs
+          lazyRender
+          animated
+          swipeable
+          value={activeTabIndex ? activeMusicianTabKey : activeBandTabKey}
+          onChange={
+            activeTabIndex ? setActiveMusicianTabKey : setActiveBandTabKey
+          }
+        >
+          {renderTab()}
+        </Tabs>
+      </View>
       {activeTabIndex === 0 && <JXFloatingBubble onClick={handleCreateBand} />}
     </View>
   );
