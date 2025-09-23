@@ -1,4 +1,4 @@
-import { View } from "@tarojs/components";
+import { ScrollView, View } from "@tarojs/components";
 import "./index.scss";
 import JXMailCard, { JXMailCardProps } from "@/components/Cards/JXMailCard";
 import { Divider, Loading, Tabs } from "@taroify/core";
@@ -59,43 +59,44 @@ export default function MailPage() {
   };
 
   return (
-    <Tabs
-      defaultValue={DefaultMailTabKey}
-      value={activeMailTabKey}
-      onChange={setActiveMailTabKey}
-      sticky
-      lazyRender
-      animated
-      swipeable
-    >
-      {Object.entries(MAIL_TAB_CONFIG).map(([tabKey, config]) => {
-        const readonly = tabKey === "myApplications";
-        return (
-          <Tabs.TabPane
-            value={tabKey}
-            title={config.label}
-            className="tab-pane"
-          >
-            <View
-              className="tab-container"
-              style={{ paddingLeft: 24, paddingRight: 24 }}
-            >
-              {mails.map((mail) => {
-                const { application, applyingMusician } = mail;
-                const mailCardData: JXMailCardProps = {
-                  application,
-                  applicantName: applyingMusician?.nickname || "applicantName", // 为application实体添加冗余字段处理
-                  applicantPosition: applyingMusician?.position || "bassist",
-                  readonly,
-                  onStatusChange: () => fetchMails(false),
-                };
-                return <JXMailCard {...mailCardData} />;
-              })}
-              <Bottom />
-            </View>
-          </Tabs.TabPane>
-        );
-      })}
-    </Tabs>
+    <View className="mail page">
+      <View className="flex">
+        <Tabs
+          defaultValue={DefaultMailTabKey}
+          value={activeMailTabKey}
+          onChange={setActiveMailTabKey}
+          sticky
+          lazyRender
+          animated
+          swipeable
+        >
+          {Object.entries(MAIL_TAB_CONFIG).map(([tabKey, config]) => {
+            const readonly = tabKey === "myApplications";
+            return (
+              <Tabs.TabPane value={tabKey} title={config.label}>
+                <ScrollView scrollY className="scrollable">
+                  <View className="tab-container page-padding-compensate">
+                    {mails.map((mail) => {
+                      const { application, applyingMusician } = mail;
+                      const mailCardData: JXMailCardProps = {
+                        application,
+                        applicantName:
+                          applyingMusician?.nickname || "applicantName", // 为application实体添加冗余字段处理
+                        applicantPosition:
+                          applyingMusician?.position || "bassist",
+                        readonly,
+                        onStatusChange: () => fetchMails(false),
+                      };
+                      return <JXMailCard {...mailCardData} />;
+                    })}
+                    <Bottom />
+                  </View>
+                </ScrollView>
+              </Tabs.TabPane>
+            );
+          })}
+        </Tabs>
+      </View>
+    </View>
   );
 }
