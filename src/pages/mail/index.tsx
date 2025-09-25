@@ -1,10 +1,10 @@
 import { ScrollView, View } from "@tarojs/components";
 import "./index.scss";
 import JXMailCard, { JXMailCardProps } from "@/components/Cards/JXMailCard";
-import { Divider, Loading, Tabs } from "@taroify/core";
+import { Divider, Loading, PullRefresh, Tabs } from "@taroify/core";
 import { MailTabKey } from "@/types/components";
 import { DefaultMailTabKey, useMailTab } from "@/hooks/mail/useMailTab";
-import { useDidShow } from "@tarojs/taro";
+import { useDidShow, usePageScroll } from "@tarojs/taro";
 import { useState } from "react";
 import JXButton from "@/components/JXButton";
 
@@ -20,10 +20,13 @@ export default function MailPage() {
     mailsData,
     fetchMails,
     fetchUserMusicians,
-    autoPagination,
+    disablePagination,
   } = useMailTab();
 
   const [loading, setLoading] = useState(false);
+  const [reachTop, setReachTop] = useState(true);
+
+  usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
 
   const {
     mails,
@@ -34,7 +37,7 @@ export default function MailPage() {
   useDidShow(() => {
     // 用户离开邮箱界面之后，有可能去创建了乐队
     // 这就导致用户的乐手身份数据有可能过时了
-    autoPagination.current = false;
+    disablePagination();
     fetchUserMusicians();
   });
 
@@ -43,6 +46,20 @@ export default function MailPage() {
     setLoading(true);
     await fetchMails();
     setLoading(false);
+  };
+
+  // 下拉刷新，重新获取第一页的数据
+  const handlePullRefresh = async () => {
+    setLoading(true);
+    disablePagination();
+    await fetchMails();
+    setLoading(false);
+  };
+
+  // 审批状态更新，重新获取第一页数据
+  const handleStatusChange = () => {
+    disablePagination();
+    fetchMails();
   };
 
   // 根据不同场景，返回不同的底部组件
@@ -73,7 +90,12 @@ export default function MailPage() {
             return (
               <Tabs.TabPane value={tabKey} title={config.label}>
                 <ScrollView scrollY className="scrollable">
-                  <View className="tab-container page-padding-compensate">
+                  <PullRefresh
+                    className="tab-container page-padding-compensate"
+                    loading={loading}
+                    reachTop={reachTop}
+                    onRefresh={handlePullRefresh}
+                  >
                     {mails.map((mail) => {
                       const { application, applyingMusician } = mail;
                       const mailCardData: JXMailCardProps = {
@@ -83,15 +105,14 @@ export default function MailPage() {
                         applicantPosition:
                           applyingMusician?.position || "bassist",
                         readonly,
-                        onStatusChange: async () => {
-                          autoPagination.current = false;
-                          fetchMails();
-                        },
+                        onStatusChange: handleStatusChange,
                       };
                       return <JXMailCard {...mailCardData} />;
                     })}
-                    <Bottom />
-                  </View>
+                    <View className="flex grow" style={{ paddingTop: 12 }}>
+                      <Bottom />
+                    </View>
+                  </PullRefresh>
                 </ScrollView>
               </Tabs.TabPane>
             );

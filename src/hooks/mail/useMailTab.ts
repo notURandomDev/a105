@@ -43,6 +43,9 @@ export const useMailTab = () => {
     production,
   });
 
+  // 获取第一页数据的时候，需要调用该函数
+  const disablePagination = () => (autoPagination.current = false);
+
   // 更加简洁地更新状态
   const updateMailsData = async (
     autoPagination: boolean,
@@ -135,6 +138,6 @@ export const useMailTab = () => {
     mailsData,
     fetchMails,
     fetchUserMusicians,
-    autoPagination,
+    disablePagination,
   };
 };
