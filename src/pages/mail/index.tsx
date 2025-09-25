@@ -20,6 +20,7 @@ export default function MailPage() {
     mailsData,
     fetchMails,
     fetchUserMusicians,
+    autoPagination,
   } = useMailTab();
 
   const [loading, setLoading] = useState(false);
@@ -31,13 +32,10 @@ export default function MailPage() {
 
   // 页面出现时，刷新数据；不进行自动分页
   useDidShow(() => {
-    const refreshData = async () => {
-      // 用户离开邮箱界面之后，有可能去创建了乐队
-      // 这就导致用户的乐手身份数据有可能过时了
-      await fetchUserMusicians();
-      fetchMails(false);
-    };
-    refreshData();
+    // 用户离开邮箱界面之后，有可能去创建了乐队
+    // 这就导致用户的乐手身份数据有可能过时了
+    autoPagination.current = false;
+    fetchUserMusicians();
   });
 
   // 点击按钮，加载更多数据
@@ -85,7 +83,10 @@ export default function MailPage() {
                         applicantPosition:
                           applyingMusician?.position || "bassist",
                         readonly,
-                        onStatusChange: () => fetchMails(false),
+                        onStatusChange: async () => {
+                          autoPagination.current = false;
+                          fetchMails();
+                        },
                       };
                       return <JXMailCard {...mailCardData} />;
                     })}

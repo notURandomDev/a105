@@ -34,6 +34,7 @@ export const useMailTab = () => {
 
   // 记录上次是为哪个 tab 获取的数据
   const lastFetchedMailTabKey = useRef<MailTabKey | null>(null);
+  const autoPagination = useRef<boolean>(true);
 
   const [mailsData, setMailsData] = useState<MailsData>(DefaultMailsData);
 
@@ -72,7 +73,7 @@ export const useMailTab = () => {
   };
 
   // 根据所处tab获取乐队数据
-  const fetchMails = async (autoPagination = true) => {
+  const fetchMails = async () => {
     // 如果用户还没有任何的乐手身份，那么：
     // - 不可能发出申请：在乐队详情界面加入乐队时，会被提示先创建自己的乐手身份
     // - 不可能收到申请：用户必须加入乐队，才能管理乐队；如果没有乐手身份，代表无法加入乐队
@@ -80,7 +81,8 @@ export const useMailTab = () => {
 
     // 如果当前的 tab 变了，那么重置页数，获取 tab 第一页的数据
     let pageIndex =
-      activeMailTabKey === lastFetchedMailTabKey.current && autoPagination
+      activeMailTabKey === lastFetchedMailTabKey.current &&
+      autoPagination.current
         ? mailsData.pagination.pageIndex
         : 0;
 
@@ -88,7 +90,7 @@ export const useMailTab = () => {
     // 用户 -> 乐手 -> 所有用户在的乐队 -> 申请记录 -> 邮件
     if (activeMailTabKey === "incomingApplications") {
       const targetBandIDs = extractMusicianBaseBandIDs(userMusicians); // 获取用户所在的乐队ID
-      await updateMailsData(autoPagination, () =>
+      await updateMailsData(autoPagination.current, () =>
         getApplicationsByField({
           query: {
             targetBandID: targetBandIDs,
@@ -103,7 +105,7 @@ export const useMailTab = () => {
     // 用户 -> 用户的所有乐手身份 -> 申请记录 -> 邮件
     if (activeMailTabKey === "myApplications") {
       const applyingMusicianIDs = mapMusiciansIntoIds(userMusicians); // 获取用户所有乐手身份的ID
-      await updateMailsData(autoPagination, () =>
+      await updateMailsData(autoPagination.current, () =>
         getApplicationsByField({
           query: {
             applyingMusicianID: applyingMusicianIDs,
@@ -113,6 +115,9 @@ export const useMailTab = () => {
         })
       );
     }
+
+    // 重置自动分页的状态
+    if (!autoPagination.current) autoPagination.current = true;
 
     // 更新上次获取的数据类型
     lastFetchedMailTabKey.current = activeMailTabKey;
@@ -130,5 +135,6 @@ export const useMailTab = () => {
     mailsData,
     fetchMails,
     fetchUserMusicians,
+    autoPagination,
   };
 };
