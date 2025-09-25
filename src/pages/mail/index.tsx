@@ -50,7 +50,7 @@ export default function MailPage() {
     if (!hasMore) return <Divider>已加载全部数据</Divider>;
 
     return (
-      <JXButton disabled={loading} onClick={handleFetchMoreData}>
+      <JXButton fullWidth disabled={loading} onClick={handleFetchMoreData}>
         {loading ? <Loading size={12}>加载中...</Loading> : "加载更多申请记录"}
       </JXButton>
     );
