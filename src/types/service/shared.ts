@@ -5,3 +5,8 @@ export type TcbServiceResult<T> = Promise<{
   hasMore: boolean;
   error: Error | null;
 }>;
+
+export type JxReqParamsBase = {
+  production?: boolean;
+  pageIndex?: number;
+};
