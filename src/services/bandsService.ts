@@ -7,8 +7,8 @@ import {
   BandStatusLog,
   CreateBandRequest,
 } from "@/models/band";
+import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult, PageSize } from "@/utils/database";
-import { DB } from "@tarojs/taro";
 
 const bandsCollection = db.collection("band");
 /* CREATE */
@@ -60,32 +60,35 @@ export const getAllBands = async ({
   }
 };
 
-interface GetBandsByStatusParams {
+interface GetBandsByStatusParams extends JxReqParamsBase {
   status: BandStatus;
-  production?: boolean;
 }
-export const getBandsByStatus = async ({
-  status,
-  production = true,
-}: GetBandsByStatusParams): Promise<Band[] | null> => {
-  if (!production) return MOCK_BANDS[status];
+
+export type GetBandsByStatus = TcbService<GetBandsByStatusParams, Band[]>;
+
+export const getBandsByStatus: GetBandsByStatus = async (params) => {
+  const { status, production = true, pageIndex = 0 } = params;
+  let hasMore = false;
+  if (!production) return { data: [] as Band[], hasMore, error: null };
 
   try {
-    let res: DB.Query.IQueryResult;
-    if (!status) {
-      res = await bandsCollection.get();
-    } else {
-      res = await bandsCollection
-        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
-        .where({ status: _.eq(status) })
-        .get();
-    }
+    const res = await bandsCollection
+      .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
+      .where({ status: _.eq(status) })
+      .skip(PageSize * pageIndex)
+      .get();
 
-    handleDBResult(res, "get", `根据乐队状态(${status})获取乐队数据`);
-    return res.data as Band[];
+    handleDBResult(
+      res,
+      "get",
+      `根据乐队状态(${status})获取${res.data.length}条乐队数据`
+    );
+
+    hasMore = res.data.length === PageSize;
+    return { data: res.data as Band[], hasMore, error: null };
   } catch (error) {
     console.error(error);
-    return null;
+    return { data: [] as Band[], hasMore, error };
   }
 };
 

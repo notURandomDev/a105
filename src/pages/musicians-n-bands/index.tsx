@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ScrollView, View } from "@tarojs/components";
-import { useDidShow } from "@tarojs/taro";
-import { Tabs } from "@taroify/core";
+import { useDidShow, usePageScroll } from "@tarojs/taro";
+import { Divider, Loading, PullRefresh, Tabs } from "@taroify/core";
 import { BandTabKey, MusicianTabKey } from "@/types/components";
 import { useMusicianTab } from "@/hooks/musician/useMusicianTab";
 import { useBandTab } from "@/hooks/band/useBandTab";
@@ -11,6 +11,7 @@ import JXBandCard from "@/components/Cards/JXBandCard";
 import JXEmoji from "@/components/JXEmoji";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
 import "./index.scss";
+import JXButton from "@/components/JXButton";
 
 export const MUSICIAN_TAB_CONFIG: Record<
   MusicianTabKey,
@@ -34,13 +35,17 @@ export const BAND_TAB_CONFIG: Record<BandTabKey, { label: string }> = {
 
 export default function MusiciansNBands() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+
   const {
     activeBandTabKey,
     setActiveBandTabKey,
-    bands,
+    bandsData,
     fetchBands,
     handleCreateBand,
   } = useBandTab();
+
+  const { bands } = bandsData;
+
   const {
     activeMusicianTabKey,
     setActiveMusicianTabKey,
@@ -49,9 +54,37 @@ export default function MusiciansNBands() {
   } = useMusicianTab();
 
   useDidShow(() => {
-    fetchBands(activeBandTabKey);
+    // TODO: 判断如果是第一次加载页面（载入内存），useEffect 已经处理；此处是重复调用
+    fetchBands(activeBandTabKey, true);
     fetchMusicians(activeMusicianTabKey);
   });
+
+  const [reachTop, setReachTop] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
+
+  const handlePullRefresh = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
+
+  const handleFetchMoreData = () => {
+    if (activeTabIndex === 0) {
+      fetchBands(activeBandTabKey);
+    }
+  };
+
+  const Bottom = () => {
+    if (!bandsData.pagination.hasMore) return <Divider>已加载全部数据</Divider>;
+    return (
+      <JXButton fullWidth disabled={loading} onClick={handleFetchMoreData}>
+        {loading ? <Loading size={12}>加载中...</Loading> : "加载更多申请记录"}
+      </JXButton>
+    );
+  };
 
   const renderTab = () => {
     if (activeTabIndex === 0) {
@@ -59,11 +92,17 @@ export default function MusiciansNBands() {
       return Object.entries(BAND_TAB_CONFIG).map(([key, tab]) => (
         <Tabs.TabPane value={key} title={tab.label}>
           <ScrollView scrollY className="scrollable">
-            <View className="tab-container page-padding-compensate">
+            <PullRefresh
+              className="tab-container page-padding-compensate"
+              loading={loading}
+              reachTop={reachTop}
+              onRefresh={handlePullRefresh}
+            >
               {bands.map((band) => (
                 <JXBandCard band={band} />
               ))}
-            </View>
+              <Bottom />
+            </PullRefresh>
           </ScrollView>
         </Tabs.TabPane>
       ));
@@ -75,11 +114,16 @@ export default function MusiciansNBands() {
           title={<JXEmoji size="sm">{tab.emoji}</JXEmoji>}
         >
           <ScrollView scrollY className="scrollable">
-            <View className="tab-container page-padding-compensate">
+            <PullRefresh
+              className="tab-container page-padding-compensate"
+              loading={loading}
+              reachTop={reachTop}
+              onRefresh={handlePullRefresh}
+            >
               {musicians.map((m) => (
                 <JXMusicianCard musician={m} />
               ))}
-            </View>
+            </PullRefresh>
           </ScrollView>
         </Tabs.TabPane>
       ));
