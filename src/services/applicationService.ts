@@ -4,7 +4,7 @@ import {
   ApplicationStatus,
   CreateApplicationRequest,
 } from "@/models/application";
-import { TcbService } from "@/types/service/shared";
+import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult, PageSize } from "@/utils/database";
 import { DB } from "@tarojs/taro";
 
@@ -68,14 +68,12 @@ type ApplicationRequestField =
   | "targetBandID"
   | "status";
 
-interface GetApplicationsByFieldParams {
+interface GetApplicationsByFieldParams extends JxReqParamsBase {
   // Not all fields in the query need to be used.
   // e.g.: { "targetBandID": [] }
   query: Partial<
     Record<ApplicationRequestField, (ApplicationStatus | string | number)[]>
   >;
-  pageIndex?: number;
-  production?: boolean;
 }
 
 type GetApplicationsByField = TcbService<
@@ -115,9 +113,7 @@ export const getApplicationsByField: GetApplicationsByField = async (
     );
 
     // 如果返回数据的长度与分页数据限制相同，代表可能有更多数据（也可能刚好没有更多数据了）
-    hasMore = Boolean(res.data.length === PageSize);
-    console.log("[getApplicationsByField] hasMore:", hasMore);
-
+    hasMore = res.data.length === PageSize;
     return { data: res.data as Application[], hasMore, error: null };
   } catch (error) {
     console.error(error);

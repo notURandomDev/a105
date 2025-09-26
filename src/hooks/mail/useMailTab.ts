@@ -7,15 +7,12 @@ import { Mail } from "@/models/mail";
 import { useUserMusicians } from "../user/useUserMusicians";
 import { Application } from "@/models/application";
 import { TcbServiceResult } from "@/types/service/shared";
+import { PaginatedState } from "@/types/ui/shared";
 
 const production = true;
 
-interface MailsData {
+interface MailsData extends PaginatedState {
   mails: Mail[];
-  pagination: {
-    hasMore: boolean;
-    pageIndex: number;
-  };
 }
 
 export const DefaultMailTabKey: MailTabKey = "myApplications";
@@ -61,16 +58,15 @@ export const useMailTab = () => {
       ),
     }));
 
-    setMailsData((prev) => {
-      // tab变化：重新从第一页的数据开始获取
-      // tab没变：追加分页数据
-      const tabChanged = activeMailTabKey !== lastFetchedMailTabKey.current;
-      // 如果禁用了 `autoPagination`，说明是页面二次初始化；需要重新获取第一页数据
-      const resetData = tabChanged || !autoPagination;
+    // tab变化：重新从第一页的数据开始获取
+    // tab没变：追加分页数据
+    const tabChanged = activeMailTabKey !== lastFetchedMailTabKey.current;
+    // 如果禁用了 `autoPagination`，说明是页面二次初始化；需要重新获取第一页数据
+    const resetData = tabChanged || !autoPagination;
 
+    setMailsData((prev) => {
       const pageIndex = resetData ? 1 : prev.pagination.pageIndex + 1;
       const mails = resetData ? newMails : [...prev.mails, ...newMails];
-
       return { mails, pagination: { pageIndex, hasMore } };
     });
   };
