@@ -21,27 +21,25 @@ export default function MailPage() {
     mailsData,
     fetchMails,
     fetchUserMusicians,
-    disablePagination,
+    userMusicians,
   } = useMailTab();
 
-  const { mails } = mailsData;
+  const { data: mails } = mailsData;
 
   // 页面出现时，刷新数据；不进行自动分页
   useDidShow(() => {
-    // 用户离开邮箱界面之后，有可能去创建了乐队
-    // 这就导致用户的乐手身份数据有可能过时了
-    disablePagination();
-    fetchUserMusicians();
+    const refreshData = async () => {
+      // 重新获取用户的乐手身份数据
+      const musicians = await fetchUserMusicians();
+      fetchMails({ userMusicians: musicians });
+    };
+
+    // 用户离开邮箱界面之后，有可能去创建了乐队；这就导致用户的乐手身份数据有可能过时了
+    refreshData();
   });
 
   const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
   const { mutexPullRefresh, pullRefreshing, reachTop } = usePullRefresh();
-
-  // 审批状态更新，重新获取第一页数据
-  const handleStatusChange = () => {
-    disablePagination();
-    fetchMails();
-  };
 
   return (
     <View className="mail page">
@@ -64,12 +62,9 @@ export default function MailPage() {
                     className="tab-container page-padding-compensate"
                     loading={pullRefreshing}
                     reachTop={reachTop}
-                    onRefresh={() => {
-                      mutexPullRefresh(() => {
-                        disablePagination();
-                        return fetchMails();
-                      });
-                    }}
+                    onRefresh={() =>
+                      mutexPullRefresh(() => fetchMails({ userMusicians }))
+                    }
                   >
                     {mails.map((mail) => {
                       const { application, applyingMusician } = mail;
@@ -80,7 +75,8 @@ export default function MailPage() {
                         applicantPosition:
                           applyingMusician?.position || "bassist",
                         readonly,
-                        onStatusChange: handleStatusChange,
+                        // 审批状态更新，重新获取第一页数据
+                        onStatusChange: () => fetchMails({ userMusicians }),
                       };
                       return <JXMailCard {...mailCardData} />;
                     })}
@@ -88,7 +84,11 @@ export default function MailPage() {
                       <JXListBottom
                         loadMoreText="加载更多申请记录"
                         loading={fetchingMore}
-                        onFetchMore={() => mutexFetchMore(() => fetchMails())}
+                        onFetchMore={() =>
+                          mutexFetchMore(() =>
+                            fetchMails({ userMusicians, autoPagination: true })
+                          )
+                        }
                         hasMore={mailsData.pagination.hasMore}
                       />
                     </View>
