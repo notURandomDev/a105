@@ -28,11 +28,11 @@ export const useBandTab = () => {
 
   const { userMusicians } = useUserMusicians();
 
-  // reset：是否强制获取第一分页数据
-  const fetchBands = async (tabKey: BandTabKey, reset = false) => {
+  // auto(-pagination): 是否启用自动分页，获取下一页数据
+  const fetchBands = async (tabKey: BandTabKey, auto = false) => {
     let fetchedData;
 
-    const pageIndex = reset ? 0 : bandsData.pagination.pageIndex;
+    const pageIndex = auto ? bandsData.pagination.pageIndex : 0;
 
     if (tabKey === "activeBands")
       fetchedData = await getBandsByStatus({ status: "active", pageIndex });
@@ -42,14 +42,14 @@ export const useBandTab = () => {
 
     const { data: fetchedBands, hasMore } = fetchedData;
     setBandsData((prev) => {
-      const bands = reset ? fetchedBands : [...prev.bands, ...fetchedBands];
+      const bands = auto ? [...prev.bands, ...fetchedBands] : fetchedBands;
       return { bands, pagination: { hasMore, pageIndex: pageIndex + 1 } };
     });
   };
 
   // 监听乐队Tab类型的变化，更新乐队数据
   useEffect(() => {
-    fetchBands(activeBandTabKey, true);
+    fetchBands(activeBandTabKey);
   }, [activeBandTabKey]);
 
   // 处理创建乐队的函数

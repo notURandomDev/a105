@@ -55,7 +55,7 @@ export default function MusiciansNBands() {
 
   useDidShow(() => {
     // TODO: 判断如果是第一次加载页面（载入内存），useEffect 已经处理；此处是重复调用
-    fetchBands(activeBandTabKey, true);
+    fetchBands(activeBandTabKey);
     fetchMusicians(activeMusicianTabKey);
   });
 
@@ -64,16 +64,19 @@ export default function MusiciansNBands() {
 
   usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
 
-  const handlePullRefresh = () => {
-    setLoading(true);
-    setTimeout(() => {
+  const handlePullRefresh = async () => {
+    if (activeTabIndex === 0) {
+      setLoading(true);
+      await fetchBands(activeBandTabKey);
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleFetchMoreData = () => {
     if (activeTabIndex === 0) {
-      fetchBands(activeBandTabKey);
+      setLoading(true);
+      fetchBands(activeBandTabKey, true);
+      setLoading(false);
     }
   };
 
