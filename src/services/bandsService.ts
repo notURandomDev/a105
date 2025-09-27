@@ -64,7 +64,7 @@ interface GetBandsByStatusParams extends JxReqParamsBase {
   status: BandStatus;
 }
 
-export type GetBandsByStatus = TcbService<GetBandsByStatusParams, Band[]>;
+export type GetBandsByStatus = TcbService<GetBandsByStatusParams, Band>;
 
 export const getBandsByStatus: GetBandsByStatus = async (params) => {
   const { status, production = true, pageIndex = 0 } = params;

@@ -80,7 +80,7 @@ interface GetMusiciansByPositionParams extends JxReqParamsBase {
 
 export type GetMusiciansByPosition = TcbService<
   GetMusiciansByPositionParams,
-  Musician[]
+  Musician
 >;
 
 export const getMusiciansByPositions: GetMusiciansByPosition = async (

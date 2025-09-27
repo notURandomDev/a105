@@ -78,7 +78,7 @@ interface GetApplicationsByFieldParams extends JxReqParamsBase {
 
 type GetApplicationsByField = TcbService<
   GetApplicationsByFieldParams,
-  Application[]
+  Application
 >;
 
 // 通用函数，能够根据字段筛选返回申请记录
