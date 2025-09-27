@@ -52,7 +52,7 @@ export default function MusiciansNBands() {
     handleCreateBand,
   } = useBandTab();
 
-  const { bands } = bandsData;
+  const { data: bands } = bandsData;
 
   const {
     activeMusicianTabKey,

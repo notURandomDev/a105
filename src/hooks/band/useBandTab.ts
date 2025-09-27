@@ -1,22 +1,10 @@
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
-import { Band } from "@/models/band";
+import { Band, BandStatus } from "@/models/band";
 import { getBandsByStatus } from "@/services/bandsService";
 import { BandTabKey } from "@/types/components";
 import { useUserMusicians } from "../user/useUserMusicians";
-import { PaginatedState } from "@/types/ui/shared";
-
-interface BandsData extends PaginatedState {
-  bands: Band[];
-}
-
-const DefaultBandsData: BandsData = {
-  bands: [],
-  pagination: {
-    hasMore: false,
-    pageIndex: 0,
-  },
-};
+import { usePaginatedData } from "../util/usePaginatedData";
 
 // Tab初始值：活跃乐队
 const DefaultBandTabKey = "recruitingBands";
@@ -24,26 +12,18 @@ const DefaultBandTabKey = "recruitingBands";
 export const useBandTab = () => {
   const [activeBandTabKey, setActiveBandTabKey] =
     useState<BandTabKey>(DefaultBandTabKey);
-  const [bandsData, setBandsData] = useState<BandsData>(DefaultBandsData);
 
   const { userMusicians } = useUserMusicians();
 
-  // auto(-pagination): 是否启用自动分页，获取下一页数据
-  const fetchBands = async (auto = false) => {
-    let fetchedData;
+  const { data: bandsData, fetchPaginatedData } = usePaginatedData<Band>();
 
-    const pageIndex = auto ? bandsData.pagination.pageIndex : 0;
-
-    if (activeBandTabKey === "activeBands")
-      fetchedData = await getBandsByStatus({ status: "active", pageIndex });
-
-    if (activeBandTabKey === "recruitingBands")
-      fetchedData = await getBandsByStatus({ status: "recruiting", pageIndex });
-
-    const { data: fetchedBands, hasMore } = fetchedData;
-    setBandsData((prev) => {
-      const bands = auto ? [...prev.bands, ...fetchedBands] : fetchedBands;
-      return { bands, pagination: { hasMore, pageIndex: pageIndex + 1 } };
+  const fetchBands = (autoPagination = false) => {
+    return fetchPaginatedData({
+      autoPagination,
+      fetchFn: (pageIndex: number) => {
+        const status = activeBandTabKey.replace("Bands", "") as BandStatus;
+        return getBandsByStatus({ status, pageIndex });
+      },
     });
   };
 
