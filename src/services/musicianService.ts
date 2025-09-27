@@ -6,7 +6,8 @@ import {
   UpdateMusicianRequest,
 } from "@/models/musician";
 import { PositionType } from "@/models/position";
-import { handleDBResult } from "@/utils/database";
+import { JxReqParamsBase, TcbService } from "@/types/service/shared";
+import { handleDBResult, PageSize } from "@/utils/database";
 
 const musiciansCollection = db.collection("musician");
 
@@ -73,27 +74,40 @@ export const getMusiciansByUserID = async ({
   }
 };
 
-interface GetMusiciansByPosition {
+interface GetMusiciansByPositionParams extends JxReqParamsBase {
   positions: PositionType[];
-  production?: boolean;
 }
 
-export const getMusiciansByPositions = async ({
-  positions,
-  production = true,
-}: GetMusiciansByPosition): Promise<Musician[] | undefined> => {
-  if (!production)
-    return [{ ...MOCK_MUSICIAN_PROFILE, position: positions[0] }];
+export type GetMusiciansByPosition = TcbService<
+  GetMusiciansByPositionParams,
+  Musician[]
+>;
+
+export const getMusiciansByPositions: GetMusiciansByPosition = async (
+  params
+) => {
+  const { production = true, positions, pageIndex = 0 } = params;
+  let hasMore = false;
+  if (!production) return { data: [] as Musician[], hasMore, error: null };
 
   try {
     const res = await musiciansCollection
       .where({ position: _.in(positions) })
+      .skip(PageSize * pageIndex)
       .get();
-    handleDBResult(res, "get", `获取(${positions.toString()})类型乐手`);
-    return res.data as Musician[];
+
+    handleDBResult(
+      res,
+      "get",
+      `根据乐手类型(${positions.toString()})获取${res.data.length}条乐手收据`
+    );
+
+    hasMore = res.data.length === PageSize;
+
+    return { data: res.data as Musician[], hasMore, error: null };
   } catch (error) {
     console.error(error);
-    return;
+    return { data: [] as Musician[], hasMore, error };
   }
 };
 

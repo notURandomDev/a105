@@ -17,10 +17,7 @@ import { usePullRefresh } from "@/hooks/util/usePullRefresh";
 
 export const MUSICIAN_TAB_CONFIG: Record<
   MusicianTabKey,
-  {
-    label: string;
-    emoji: string;
-  }
+  { label: string; emoji: string }
 > = {
   vocalist: { label: "主唱", emoji: "🎤" },
   guitarist: { label: "吉他手", emoji: "🎸" },
@@ -36,7 +33,7 @@ export const BAND_TAB_CONFIG: Record<BandTabKey, { label: string }> = {
 };
 
 export default function MusiciansNBands() {
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [activeTabIndex, setActiveTabIndex] = useState(1);
 
   const {
     activeBandTabKey,
@@ -51,9 +48,11 @@ export default function MusiciansNBands() {
   const {
     activeMusicianTabKey,
     setActiveMusicianTabKey,
-    musicians,
+    musicianData,
     fetchMusicians,
   } = useMusicianTab();
+
+  const { musicians } = musicianData;
 
   useDidShow(() => {
     // TODO: 判断如果是第一次加载页面（载入内存），useEffect 已经处理；此处是重复调用
@@ -67,12 +66,16 @@ export default function MusiciansNBands() {
   const handlePullRefresh = async () => {
     if (activeTabIndex === 0) {
       mutexPullRefresh(() => fetchBands(activeBandTabKey));
+    } else {
+      mutexPullRefresh(() => fetchMusicians(activeMusicianTabKey));
     }
   };
 
   const handleFetchMoreData = () => {
     if (activeTabIndex === 0) {
       mutexFetchMore(() => fetchBands(activeBandTabKey, true));
+    } else {
+      mutexFetchMore(() => fetchMusicians(activeMusicianTabKey, true));
     }
   };
 
@@ -118,6 +121,12 @@ export default function MusiciansNBands() {
               {musicians.map((m) => (
                 <JXMusicianCard musician={m} />
               ))}
+              <JXListBottom
+                loadMoreText="加载更多乐手"
+                loading={fetchingMore}
+                hasMore={musicianData.pagination.hasMore}
+                onFetchMore={handleFetchMoreData}
+              />
             </PullRefresh>
           </ScrollView>
         </Tabs.TabPane>
