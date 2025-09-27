@@ -13,7 +13,7 @@ export const useBandTab = () => {
   const [activeBandTabKey, setActiveBandTabKey] =
     useState<BandTabKey>(DefaultBandTabKey);
 
-  const { userMusicians } = useUserMusicians();
+  const { fetchUserMusicians } = useUserMusicians({ lazyLoad: true });
 
   const { data: bandsData, fetchPaginatedData } = usePaginatedData<Band>();
 
@@ -34,9 +34,10 @@ export const useBandTab = () => {
 
   // 处理创建乐队的函数
   const handleCreateBand = async () => {
-    // 获取用户的所有乐手身份
+    // 重新获取用户的所有乐手身份
+    const userMusicians = await fetchUserMusicians();
+    // 如果用户没有任何乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
     if (!userMusicians.length) {
-      // 如果用户没有任何乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
       const res = await Taro.showModal({
         title: "你暂时还没有任何乐手身份",
         content: "请先创建乐手信息",
