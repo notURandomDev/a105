@@ -5,10 +5,12 @@ import { usePaginatedData } from "../util/usePaginatedData";
 import { PositionType } from "@/models/position";
 import { Musician } from "@/models/musician";
 
+// Tab初始值：主唱
+const DefaultMusicianTabKey = "vocalist";
+
 export const useMusicianTab = () => {
-  // Tab初始值：主唱
   const [activeMusicianTabKey, setActiveMusicianTabKey] =
-    useState<MusicianTabKey>("vocalist");
+    useState<MusicianTabKey>(DefaultMusicianTabKey);
 
   const { data: musiciansData, fetchPaginatedData } =
     usePaginatedData<Musician>();
