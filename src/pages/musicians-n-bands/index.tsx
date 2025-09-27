@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ScrollView, View } from "@tarojs/components";
 import { useDidShow, usePageScroll } from "@tarojs/taro";
-import { Divider, Loading, PullRefresh, Tabs } from "@taroify/core";
+import { PullRefresh, Tabs } from "@taroify/core";
 import { BandTabKey, MusicianTabKey } from "@/types/components";
 import { useMusicianTab } from "@/hooks/musician/useMusicianTab";
 import { useBandTab } from "@/hooks/band/useBandTab";
@@ -11,7 +11,7 @@ import JXBandCard from "@/components/Cards/JXBandCard";
 import JXEmoji from "@/components/JXEmoji";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
 import "./index.scss";
-import JXButton from "@/components/JXButton";
+import JXListBottom from "@/components/JXListBottom";
 
 export const MUSICIAN_TAB_CONFIG: Record<
   MusicianTabKey,
@@ -77,15 +77,6 @@ export default function MusiciansNBands() {
     }
   };
 
-  const Bottom = () => {
-    if (!bandsData.pagination.hasMore) return <Divider>已加载全部数据</Divider>;
-    return (
-      <JXButton fullWidth disabled={loading} onClick={handleFetchMoreData}>
-        {loading ? <Loading size={12}>加载中...</Loading> : "加载更多申请记录"}
-      </JXButton>
-    );
-  };
-
   const renderTab = () => {
     if (activeTabIndex === 0) {
       // 渲染乐队Tab数据
@@ -101,7 +92,12 @@ export default function MusiciansNBands() {
               {bands.map((band) => (
                 <JXBandCard band={band} />
               ))}
-              <Bottom />
+              <JXListBottom
+                loadMoreText="加载更多乐队"
+                loading={loading}
+                hasMore={bandsData.pagination.hasMore}
+                onFetchMore={handleFetchMoreData}
+              />
             </PullRefresh>
           </ScrollView>
         </Tabs.TabPane>

@@ -1,12 +1,12 @@
 import { ScrollView, View } from "@tarojs/components";
 import "./index.scss";
 import JXMailCard, { JXMailCardProps } from "@/components/Cards/JXMailCard";
-import { Divider, Loading, PullRefresh, Tabs } from "@taroify/core";
+import { PullRefresh, Tabs } from "@taroify/core";
 import { MailTabKey } from "@/types/components";
 import { DefaultMailTabKey, useMailTab } from "@/hooks/mail/useMailTab";
 import { useDidShow, usePageScroll } from "@tarojs/taro";
 import { useState } from "react";
-import JXButton from "@/components/JXButton";
+import JXListBottom from "@/components/JXListBottom";
 
 const MAIL_TAB_CONFIG: Record<MailTabKey, { label: string }> = {
   incomingApplications: { label: "待审批申请" },
@@ -28,10 +28,7 @@ export default function MailPage() {
 
   usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
 
-  const {
-    mails,
-    pagination: { hasMore },
-  } = mailsData;
+  const { mails } = mailsData;
 
   // 页面出现时，刷新数据；不进行自动分页
   useDidShow(() => {
@@ -60,17 +57,6 @@ export default function MailPage() {
   const handleStatusChange = () => {
     disablePagination();
     fetchMails();
-  };
-
-  // 根据不同场景，返回不同的底部组件
-  const Bottom = () => {
-    if (!hasMore) return <Divider>已加载全部数据</Divider>;
-
-    return (
-      <JXButton fullWidth disabled={loading} onClick={handleFetchMoreData}>
-        {loading ? <Loading size={12}>加载中...</Loading> : "加载更多申请记录"}
-      </JXButton>
-    );
   };
 
   return (
@@ -110,7 +96,12 @@ export default function MailPage() {
                       return <JXMailCard {...mailCardData} />;
                     })}
                     <View className="flex grow" style={{ paddingTop: 12 }}>
-                      <Bottom />
+                      <JXListBottom
+                        loadMoreText="加载更多申请记录"
+                        loading={loading}
+                        onFetchMore={handleFetchMoreData}
+                        hasMore={mailsData.pagination.hasMore}
+                      />
                     </View>
                   </PullRefresh>
                 </ScrollView>
