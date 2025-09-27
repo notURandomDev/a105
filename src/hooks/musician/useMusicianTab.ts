@@ -1,50 +1,29 @@
-import { Musician } from "@/models/musician";
 import { getMusiciansByPositions } from "@/services/musicianService";
 import { MusicianTabKey } from "@/types/components";
-import { PaginatedState } from "@/types/ui/shared";
 import { useEffect, useState } from "react";
-
-interface MusiciansData extends PaginatedState {
-  musicians: Musician[];
-}
-
-const DefaultMusiciansData: MusiciansData = {
-  musicians: [],
-  pagination: {
-    hasMore: false,
-    pageIndex: 0,
-  },
-};
+import { usePaginatedData } from "../util/usePaginatedData";
+import { PositionType } from "@/models/position";
+import { Musician } from "@/models/musician";
 
 export const useMusicianTab = () => {
   // Tab初始值：主唱
   const [activeMusicianTabKey, setActiveMusicianTabKey] =
     useState<MusicianTabKey>("vocalist");
-  const [musicianData, setMusicianData] =
-    useState<MusiciansData>(DefaultMusiciansData);
 
-  // 根据类型获取乐手数据
-  const fetchMusicians = async (auto = false) => {
-    let fetchedData;
+  const { data: musiciansData, fetchPaginatedData } =
+    usePaginatedData<Musician>();
 
-    const pageIndex = auto ? musicianData.pagination.pageIndex : 0;
-
-    if (activeMusicianTabKey === "guitarist") {
-      fetchedData = await getMusiciansByPositions({
-        positions: ["guitarist_lead", "guitarist_rhythm"],
-      });
-    } else {
-      fetchedData = await getMusiciansByPositions({
-        positions: [activeMusicianTabKey],
-      });
-    }
-
-    const { data: fetchedMusicians, hasMore } = fetchedData;
-    setMusicianData((prev) => {
-      const musicians = auto
-        ? [...prev.musicians, ...fetchedMusicians]
-        : fetchedMusicians;
-      return { musicians, pagination: { hasMore, pageIndex: pageIndex + 1 } };
+  const fetchMusicians = async (autoPagination = false) => {
+    return fetchPaginatedData({
+      autoPagination,
+      fetchFn: (pageIndex: number) => {
+        const positions =
+          activeMusicianTabKey === "guitarist"
+            ? (["guitarist_lead", "guitarist_rhythm"] as PositionType[])
+            : ([activeMusicianTabKey] as PositionType[]);
+        // 根据类型获取乐手数据
+        return getMusiciansByPositions({ positions, pageIndex });
+      },
     });
   };
 
@@ -56,7 +35,7 @@ export const useMusicianTab = () => {
   return {
     activeMusicianTabKey,
     setActiveMusicianTabKey,
-    musicianData,
+    musiciansData,
     fetchMusicians,
   };
 };

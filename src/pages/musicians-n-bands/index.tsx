@@ -57,11 +57,11 @@ export default function MusiciansNBands() {
   const {
     activeMusicianTabKey,
     setActiveMusicianTabKey,
-    musicianData,
+    musiciansData,
     fetchMusicians,
   } = useMusicianTab();
 
-  const { musicians } = musicianData;
+  const { data: musicians } = musiciansData;
 
   // 简化判断逻辑
   const routeDataFetching: RouteDataFetching = (params) => {
@@ -139,7 +139,7 @@ export default function MusiciansNBands() {
               <JXListBottom
                 loadMoreText="加载更多乐手"
                 loading={fetchingMore}
-                hasMore={musicianData.pagination.hasMore}
+                hasMore={musiciansData.pagination.hasMore}
                 onFetchMore={handleFetchMoreData}
               />
             </PullRefresh>
