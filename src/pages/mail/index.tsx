@@ -4,10 +4,10 @@ import JXMailCard, { JXMailCardProps } from "@/components/Cards/JXMailCard";
 import { PullRefresh, Tabs } from "@taroify/core";
 import { MailTabKey } from "@/types/components";
 import { DefaultMailTabKey, useMailTab } from "@/hooks/mail/useMailTab";
-import { useDidShow, usePageScroll } from "@tarojs/taro";
-import { useState } from "react";
+import { useDidShow } from "@tarojs/taro";
 import JXListBottom from "@/components/JXListBottom";
 import { useMutexLoad } from "@/hooks/util/useMutexLoad";
+import { usePullRefresh } from "@/hooks/util/usePullRefresh";
 
 const MAIL_TAB_CONFIG: Record<MailTabKey, { label: string }> = {
   incomingApplications: { label: "待审批申请" },
@@ -24,9 +24,6 @@ export default function MailPage() {
     disablePagination,
   } = useMailTab();
 
-  const [reachTop, setReachTop] = useState(true);
-  usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
-
   const { mails } = mailsData;
 
   // 页面出现时，刷新数据；不进行自动分页
@@ -38,21 +35,7 @@ export default function MailPage() {
   });
 
   const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
-  const { mutexLoad: mutexPullRefresh, loading: pullRefreshing } =
-    useMutexLoad();
-
-  // 点击按钮，加载更多数据
-  const handleFetchMoreData = async () => {
-    mutexFetchMore(() => fetchMails());
-  };
-
-  // 下拉刷新，重新获取第一页的数据
-  const handlePullRefresh = async () => {
-    mutexPullRefresh(() => {
-      disablePagination();
-      return fetchMails();
-    });
-  };
+  const { mutexPullRefresh, pullRefreshing, reachTop } = usePullRefresh();
 
   // 审批状态更新，重新获取第一页数据
   const handleStatusChange = () => {
@@ -81,7 +64,12 @@ export default function MailPage() {
                     className="tab-container page-padding-compensate"
                     loading={pullRefreshing}
                     reachTop={reachTop}
-                    onRefresh={handlePullRefresh}
+                    onRefresh={() => {
+                      mutexPullRefresh(() => {
+                        disablePagination();
+                        return fetchMails();
+                      });
+                    }}
                   >
                     {mails.map((mail) => {
                       const { application, applyingMusician } = mail;
@@ -100,7 +88,7 @@ export default function MailPage() {
                       <JXListBottom
                         loadMoreText="加载更多申请记录"
                         loading={fetchingMore}
-                        onFetchMore={handleFetchMoreData}
+                        onFetchMore={() => mutexFetchMore(() => fetchMails())}
                         hasMore={mailsData.pagination.hasMore}
                       />
                     </View>

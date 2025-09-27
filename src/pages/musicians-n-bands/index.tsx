@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ScrollView, View } from "@tarojs/components";
-import { useDidShow, usePageScroll } from "@tarojs/taro";
+import { useDidShow } from "@tarojs/taro";
 import { PullRefresh, Tabs } from "@taroify/core";
 import { BandTabKey, MusicianTabKey } from "@/types/components";
 import { useMusicianTab } from "@/hooks/musician/useMusicianTab";
@@ -13,6 +13,7 @@ import JXFloatingBubble from "@/components/JXFloatingBubble";
 import "./index.scss";
 import JXListBottom from "@/components/JXListBottom";
 import { useMutexLoad } from "@/hooks/util/useMutexLoad";
+import { usePullRefresh } from "@/hooks/util/usePullRefresh";
 
 export const MUSICIAN_TAB_CONFIG: Record<
   MusicianTabKey,
@@ -60,11 +61,7 @@ export default function MusiciansNBands() {
     fetchMusicians(activeMusicianTabKey);
   });
 
-  const [reachTop, setReachTop] = useState(true);
-  usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
-
-  const { mutexLoad: mutexPullRefresh, loading: pullRefreshing } =
-    useMutexLoad();
+  const { mutexPullRefresh, pullRefreshing, reachTop } = usePullRefresh();
   const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
 
   const handlePullRefresh = async () => {
