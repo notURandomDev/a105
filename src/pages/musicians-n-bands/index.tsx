@@ -12,6 +12,7 @@ import JXEmoji from "@/components/JXEmoji";
 import JXFloatingBubble from "@/components/JXFloatingBubble";
 import "./index.scss";
 import JXListBottom from "@/components/JXListBottom";
+import { useMutexLoad } from "@/hooks/util/useMutexLoad";
 
 export const MUSICIAN_TAB_CONFIG: Record<
   MusicianTabKey,
@@ -60,23 +61,21 @@ export default function MusiciansNBands() {
   });
 
   const [reachTop, setReachTop] = useState(true);
-  const [loading, setLoading] = useState(false);
-
   usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
+
+  const { mutexLoad: mutexPullRefresh, loading: pullRefreshing } =
+    useMutexLoad();
+  const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
 
   const handlePullRefresh = async () => {
     if (activeTabIndex === 0) {
-      setLoading(true);
-      await fetchBands(activeBandTabKey);
-      setLoading(false);
+      mutexPullRefresh(() => fetchBands(activeBandTabKey));
     }
   };
 
   const handleFetchMoreData = () => {
     if (activeTabIndex === 0) {
-      setLoading(true);
-      fetchBands(activeBandTabKey, true);
-      setLoading(false);
+      mutexFetchMore(() => fetchBands(activeBandTabKey, true));
     }
   };
 
@@ -88,7 +87,7 @@ export default function MusiciansNBands() {
           <ScrollView scrollY className="scrollable">
             <PullRefresh
               className="tab-container page-padding-compensate"
-              loading={loading}
+              loading={pullRefreshing}
               reachTop={reachTop}
               onRefresh={handlePullRefresh}
             >
@@ -97,7 +96,7 @@ export default function MusiciansNBands() {
               ))}
               <JXListBottom
                 loadMoreText="加载更多乐队"
-                loading={loading}
+                loading={fetchingMore}
                 hasMore={bandsData.pagination.hasMore}
                 onFetchMore={handleFetchMoreData}
               />
@@ -115,7 +114,7 @@ export default function MusiciansNBands() {
           <ScrollView scrollY className="scrollable">
             <PullRefresh
               className="tab-container page-padding-compensate"
-              loading={loading}
+              loading={pullRefreshing}
               reachTop={reachTop}
               onRefresh={handlePullRefresh}
             >

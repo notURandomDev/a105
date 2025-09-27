@@ -7,6 +7,7 @@ import { DefaultMailTabKey, useMailTab } from "@/hooks/mail/useMailTab";
 import { useDidShow, usePageScroll } from "@tarojs/taro";
 import { useState } from "react";
 import JXListBottom from "@/components/JXListBottom";
+import { useMutexLoad } from "@/hooks/util/useMutexLoad";
 
 const MAIL_TAB_CONFIG: Record<MailTabKey, { label: string }> = {
   incomingApplications: { label: "待审批申请" },
@@ -23,9 +24,7 @@ export default function MailPage() {
     disablePagination,
   } = useMailTab();
 
-  const [loading, setLoading] = useState(false);
   const [reachTop, setReachTop] = useState(true);
-
   usePageScroll(({ scrollTop }) => setReachTop(scrollTop === 0));
 
   const { mails } = mailsData;
@@ -38,19 +37,21 @@ export default function MailPage() {
     fetchUserMusicians();
   });
 
+  const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
+  const { mutexLoad: mutexPullRefresh, loading: pullRefreshing } =
+    useMutexLoad();
+
   // 点击按钮，加载更多数据
   const handleFetchMoreData = async () => {
-    setLoading(true);
-    await fetchMails();
-    setLoading(false);
+    mutexFetchMore(() => fetchMails());
   };
 
   // 下拉刷新，重新获取第一页的数据
   const handlePullRefresh = async () => {
-    setLoading(true);
-    disablePagination();
-    await fetchMails();
-    setLoading(false);
+    mutexPullRefresh(() => {
+      disablePagination();
+      return fetchMails();
+    });
   };
 
   // 审批状态更新，重新获取第一页数据
@@ -78,7 +79,7 @@ export default function MailPage() {
                 <ScrollView scrollY className="scrollable">
                   <PullRefresh
                     className="tab-container page-padding-compensate"
-                    loading={loading}
+                    loading={pullRefreshing}
                     reachTop={reachTop}
                     onRefresh={handlePullRefresh}
                   >
@@ -98,7 +99,7 @@ export default function MailPage() {
                     <View className="flex grow" style={{ paddingTop: 12 }}>
                       <JXListBottom
                         loadMoreText="加载更多申请记录"
-                        loading={loading}
+                        loading={fetchingMore}
                         onFetchMore={handleFetchMoreData}
                         hasMore={mailsData.pagination.hasMore}
                       />
