@@ -32,6 +32,15 @@ export const BAND_TAB_CONFIG: Record<BandTabKey, { label: string }> = {
   recruitingBands: { label: "招募中" },
 };
 
+type RouteDataFetchingParams = {
+  bandFn: () => Promise<void>;
+  musicianFn: () => Promise<void>;
+};
+
+interface RouteDataFetching {
+  (params: RouteDataFetchingParams): void;
+}
+
 export default function MusiciansNBands() {
   const [activeTabIndex, setActiveTabIndex] = useState(1);
 
@@ -54,29 +63,35 @@ export default function MusiciansNBands() {
 
   const { musicians } = musicianData;
 
+  // 简化判断逻辑
+  const routeDataFetching: RouteDataFetching = (params) => {
+    const { bandFn, musicianFn } = params;
+    activeTabIndex === 0 ? bandFn() : musicianFn();
+  };
+
   useDidShow(() => {
     // TODO: 判断如果是第一次加载页面（载入内存），useEffect 已经处理；此处是重复调用
-    fetchBands(activeBandTabKey);
-    fetchMusicians(activeMusicianTabKey);
+    routeDataFetching({
+      bandFn: fetchBands,
+      musicianFn: fetchMusicians,
+    });
   });
 
   const { mutexPullRefresh, pullRefreshing, reachTop } = usePullRefresh();
   const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
 
-  const handlePullRefresh = async () => {
-    if (activeTabIndex === 0) {
-      mutexPullRefresh(() => fetchBands(activeBandTabKey));
-    } else {
-      mutexPullRefresh(() => fetchMusicians(activeMusicianTabKey));
-    }
+  const handlePullRefresh = () => {
+    routeDataFetching({
+      bandFn: () => mutexPullRefresh(() => fetchBands()),
+      musicianFn: () => mutexPullRefresh(() => fetchMusicians()),
+    });
   };
 
   const handleFetchMoreData = () => {
-    if (activeTabIndex === 0) {
-      mutexFetchMore(() => fetchBands(activeBandTabKey, true));
-    } else {
-      mutexFetchMore(() => fetchMusicians(activeMusicianTabKey, true));
-    }
+    routeDataFetching({
+      bandFn: () => mutexFetchMore(() => fetchBands(true)),
+      musicianFn: () => mutexFetchMore(() => fetchMusicians(true)),
+    });
   };
 
   const renderTab = () => {
