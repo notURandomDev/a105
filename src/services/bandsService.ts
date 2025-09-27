@@ -9,6 +9,7 @@ import {
 } from "@/models/band";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult, PageSize } from "@/utils/database";
+import { getPaginatedData } from "./shared";
 
 const bandsCollection = db.collection("band");
 /* CREATE */
@@ -66,30 +67,19 @@ interface GetBandsByStatusParams extends JxReqParamsBase {
 
 export type GetBandsByStatus = TcbService<GetBandsByStatusParams, Band>;
 
-export const getBandsByStatus: GetBandsByStatus = async (params) => {
-  const { status, production = true, pageIndex = 0 } = params;
-  let hasMore = false;
-  if (!production) return { data: [] as Band[], hasMore, error: null };
-
-  try {
-    const res = await bandsCollection
-      .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
-      .where({ status: _.eq(status) })
-      .skip(PageSize * pageIndex)
-      .get();
-
-    handleDBResult(
-      res,
-      "get",
-      `根据乐队状态(${status})获取${res.data.length}条乐队数据`
-    );
-
-    hasMore = res.data.length === PageSize;
-    return { data: res.data as Band[], hasMore, error: null };
-  } catch (error) {
-    console.error(error);
-    return { data: [] as Band[], hasMore, error };
-  }
+export const getBandsByStatus: GetBandsByStatus = (params) => {
+  const { status } = params;
+  return getPaginatedData<Band>({
+    apiServiceFn: async (pageIndex: number) => {
+      return bandsCollection
+        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
+        .where({ status: _.eq(status) })
+        .skip(PageSize * pageIndex)
+        .get();
+    },
+    logEntity: `乐队状态(${status})`,
+    ...params,
+  });
 };
 
 interface GetBandByIdParams {
