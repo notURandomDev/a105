@@ -8,6 +8,7 @@ import {
 import { PositionType } from "@/models/position";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult, PageSize } from "@/utils/database";
+import { getPaginatedData } from "./shared";
 
 const musiciansCollection = db.collection("musician");
 
@@ -86,29 +87,18 @@ export type GetMusiciansByPosition = TcbService<
 export const getMusiciansByPositions: GetMusiciansByPosition = async (
   params
 ) => {
-  const { production = true, positions, pageIndex = 0 } = params;
-  let hasMore = false;
-  if (!production) return { data: [] as Musician[], hasMore, error: null };
-
-  try {
-    const res = await musiciansCollection
-      .where({ position: _.in(positions) })
-      .skip(PageSize * pageIndex)
-      .get();
-
-    handleDBResult(
-      res,
-      "get",
-      `根据乐手类型(${positions.toString()})获取${res.data.length}条乐手收据`
-    );
-
-    hasMore = res.data.length === PageSize;
-
-    return { data: res.data as Musician[], hasMore, error: null };
-  } catch (error) {
-    console.error(error);
-    return { data: [] as Musician[], hasMore, error };
-  }
+  const { positions } = params;
+  return getPaginatedData<Musician>({
+    apiServiceFn: async (pageIndex: number) => {
+      return musiciansCollection
+        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
+        .where({ position: _.in(positions) })
+        .skip(PageSize * pageIndex)
+        .get();
+    },
+    logEntity: `乐手类型(${positions.toString()})`,
+    ...params,
+  });
 };
 
 interface GetMatchingMusicianParams {

@@ -42,7 +42,7 @@ interface RouteDataFetching {
 }
 
 export default function MusiciansNBands() {
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [activeTabIndex, setActiveTabIndex] = useState(1);
 
   const {
     activeBandTabKey,
