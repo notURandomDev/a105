@@ -7,6 +7,7 @@ import {
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult, PageSize } from "@/utils/database";
 import { DB } from "@tarojs/taro";
+import { getPaginatedData } from "./shared";
 
 const applicationCollection = db.collection("application");
 
@@ -85,9 +86,7 @@ type GetApplicationsByField = TcbService<
 export const getApplicationsByField: GetApplicationsByField = async (
   params
 ) => {
-  const { query, production = true, pageIndex = 0 } = params;
-  let hasMore = false;
-  if (!production) return { data: [] as Application[], hasMore, error: null };
+  const { query } = params;
 
   // 逐个添加查询条件：{ [field]: _.in(value) }
   const queryConditions = Object.entries(query).reduce(
@@ -98,27 +97,17 @@ export const getApplicationsByField: GetApplicationsByField = async (
     {} as Record<ApplicationRequestField, DB.Query.IStringQueryCondition>
   );
 
-  try {
-    const res = await applicationCollection
-      .where(queryConditions)
-      .skip(PageSize * pageIndex)
-      .orderBy("appliedAt", "desc") // 按申请的时间降序
-      .get();
-    handleDBResult(
-      res,
-      "get",
-      `根据字段 ${Object.keys(queryConditions).join(", ")} 获取 ${
-        res.data.length
-      } 条申请记录数据`
-    );
-
-    // 如果返回数据的长度与分页数据限制相同，代表可能有更多数据（也可能刚好没有更多数据了）
-    hasMore = res.data.length === PageSize;
-    return { data: res.data as Application[], hasMore, error: null };
-  } catch (error) {
-    console.error(error);
-    return { data: [] as Application[], hasMore, error };
-  }
+  return getPaginatedData<Application>({
+    apiServiceFn: async (pageIndex: number) => {
+      return applicationCollection
+        .where(queryConditions)
+        .skip(PageSize * pageIndex)
+        .orderBy("appliedAt", "desc") // 按申请的时间降序
+        .get();
+    },
+    logEntity: `字段 ${Object.keys(queryConditions).join(", ")}`,
+    ...params,
+  });
 };
 
 // UPDATE
