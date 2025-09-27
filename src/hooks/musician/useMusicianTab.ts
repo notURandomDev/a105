@@ -24,18 +24,18 @@ export const useMusicianTab = () => {
     useState<MusiciansData>(DefaultMusiciansData);
 
   // 根据类型获取乐手数据
-  const fetchMusicians = async (tabKey: MusicianTabKey, auto = false) => {
+  const fetchMusicians = async (auto = false) => {
     let fetchedData;
 
     const pageIndex = auto ? musicianData.pagination.pageIndex : 0;
 
-    if (tabKey === "guitarist") {
+    if (activeMusicianTabKey === "guitarist") {
       fetchedData = await getMusiciansByPositions({
         positions: ["guitarist_lead", "guitarist_rhythm"],
       });
     } else {
       fetchedData = await getMusiciansByPositions({
-        positions: [tabKey],
+        positions: [activeMusicianTabKey],
       });
     }
 
@@ -50,7 +50,7 @@ export const useMusicianTab = () => {
 
   // 监听乐手Tab类型的变化，更新乐队数据
   useEffect(() => {
-    fetchMusicians(activeMusicianTabKey);
+    fetchMusicians();
   }, [activeMusicianTabKey]);
 
   return {
