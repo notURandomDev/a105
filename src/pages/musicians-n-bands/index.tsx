@@ -15,6 +15,11 @@ import JXListBottom from "@/components/JXListBottom";
 import { useMutexLoad } from "@/hooks/util/useMutexLoad";
 import { usePullRefresh } from "@/hooks/util/usePullRefresh";
 
+interface TabExeRouterParams {
+  bandFn: () => void | Promise<void>;
+  musicianFn: () => void | Promise<void>;
+}
+
 export const MUSICIAN_TAB_CONFIG: Record<
   MusicianTabKey,
   { label: string; emoji: string }
@@ -32,17 +37,21 @@ export const BAND_TAB_CONFIG: Record<BandTabKey, { label: string }> = {
   recruitingBands: { label: "招募中" },
 };
 
-type RouteDataFetchingParams = {
-  bandFn: () => Promise<void>;
-  musicianFn: () => Promise<void>;
-};
-
-interface RouteDataFetching {
-  (params: RouteDataFetchingParams): void;
-}
-
 export default function MusiciansNBands() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+  const isBandTab = () => activeTabIndex === 0;
+  const isMusicianTab = () => activeTabIndex === 1;
+
+  const tabValueRouter = (bandValue, musicianValue) => {
+    return activeTabIndex === 0 ? bandValue : musicianValue;
+  };
+
+  // 简化 callsite 对于当前所处 tab 的判断逻辑
+  const tabExeRouter = (params: TabExeRouterParams) => {
+    const { bandFn, musicianFn } = params;
+    return activeTabIndex === 0 ? bandFn() : musicianFn();
+  };
 
   const {
     activeBandTabKey,
@@ -63,15 +72,9 @@ export default function MusiciansNBands() {
 
   const { data: musicians } = musiciansData;
 
-  // 简化判断逻辑
-  const routeDataFetching: RouteDataFetching = (params) => {
-    const { bandFn, musicianFn } = params;
-    activeTabIndex === 0 ? bandFn() : musicianFn();
-  };
-
   useDidShow(() => {
     // TODO: 判断如果是第一次加载页面（载入内存），useEffect 已经处理；此处是重复调用
-    routeDataFetching({
+    tabExeRouter({
       bandFn: fetchBands,
       musicianFn: fetchMusicians,
     });
@@ -81,23 +84,23 @@ export default function MusiciansNBands() {
   const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
 
   const handlePullRefresh = () => {
-    routeDataFetching({
+    tabExeRouter({
       bandFn: () => mutexPullRefresh(() => fetchBands()),
       musicianFn: () => mutexPullRefresh(() => fetchMusicians()),
     });
   };
 
   const handleFetchMoreData = () => {
-    routeDataFetching({
+    tabExeRouter({
       bandFn: () => mutexFetchMore(() => fetchBands(true)),
       musicianFn: () => mutexFetchMore(() => fetchMusicians(true)),
     });
   };
 
   const renderTab = () => {
-    if (activeTabIndex === 0) {
-      // 渲染乐队Tab数据
-      return Object.entries(BAND_TAB_CONFIG).map(([key, tab]) => (
+    // 渲染乐队Tab数据
+    const renderBandTab = () =>
+      Object.entries(BAND_TAB_CONFIG).map(([key, tab]) => (
         <Tabs.TabPane value={key} title={tab.label}>
           <ScrollView scrollY className="scrollable">
             <PullRefresh
@@ -120,9 +123,10 @@ export default function MusiciansNBands() {
           </ScrollView>
         </Tabs.TabPane>
       ));
-    } else {
-      // 渲染乐手Tab数据
-      return Object.entries(MUSICIAN_TAB_CONFIG).map(([key, tab]) => (
+
+    // 渲染乐手Tab数据
+    const renderMusicianTab = () =>
+      Object.entries(MUSICIAN_TAB_CONFIG).map(([key, tab]) => (
         <Tabs.TabPane
           value={key}
           title={<JXEmoji size="sm">{tab.emoji}</JXEmoji>}
@@ -148,49 +152,57 @@ export default function MusiciansNBands() {
           </ScrollView>
         </Tabs.TabPane>
       ));
-    }
+
+    return isBandTab() ? renderBandTab() : renderMusicianTab();
+  };
+
+  const renderCountDisplay = () => {
+    return (
+      <View style={{ padding: "0 24px" }} className="container-h card-gap">
+        <JXMetricCard
+          label={tabValueRouter(
+            `${BAND_TAB_CONFIG[activeBandTabKey].label}乐队`,
+            "查看所有乐队"
+          )}
+          emoji={"🤘"}
+          value={tabValueRouter(bands.length, "")}
+          active={isBandTab()}
+          onClick={() => setActiveTabIndex(0)}
+        />
+        <JXMetricCard
+          label={tabValueRouter(
+            "查看所有乐手",
+            `${MUSICIAN_TAB_CONFIG[activeMusicianTabKey].label}人数`
+          )}
+          emoji={"🧑‍🎤"}
+          value={tabValueRouter("", musicians.length)}
+          active={isMusicianTab()}
+          onClick={() => setActiveTabIndex(1)}
+        />
+      </View>
+    );
   };
 
   return (
     <View className="musicians-n-bands page card-gap">
-      <View style={{ padding: "0 24px" }} className="container-h card-gap">
-        <JXMetricCard
-          label={
-            activeTabIndex === 0
-              ? `${BAND_TAB_CONFIG[activeBandTabKey].label}乐队`
-              : "查看所有乐队"
-          }
-          emoji={"🤘"}
-          value={activeTabIndex === 0 ? bands.length : ""}
-          active={activeTabIndex === 0}
-          onClick={() => setActiveTabIndex(0)}
-        />
-        <JXMetricCard
-          label={
-            activeTabIndex === 1
-              ? `${MUSICIAN_TAB_CONFIG[activeMusicianTabKey].label}人数`
-              : "查看所有乐手"
-          }
-          emoji={"🧑‍🎤"}
-          value={activeTabIndex === 1 ? musicians.length : ""}
-          active={activeTabIndex === 1}
-          onClick={() => setActiveTabIndex(1)}
-        />
-      </View>
+      {renderCountDisplay()}
       <View className="flex">
         <Tabs
           lazyRender
           animated
           swipeable
-          value={activeTabIndex ? activeMusicianTabKey : activeBandTabKey}
-          onChange={
-            activeTabIndex ? setActiveMusicianTabKey : setActiveBandTabKey
+          value={tabValueRouter(activeBandTabKey, activeMusicianTabKey)}
+          onChange={(value) =>
+            tabExeRouter({
+              bandFn: () => setActiveBandTabKey(value),
+              musicianFn: () => setActiveMusicianTabKey(value),
+            })
           }
         >
           {renderTab()}
         </Tabs>
       </View>
-      {activeTabIndex === 0 && <JXFloatingBubble onClick={handleCreateBand} />}
+      {isBandTab() && <JXFloatingBubble onClick={handleCreateBand} />}
     </View>
   );
 }
