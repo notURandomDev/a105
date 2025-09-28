@@ -157,25 +157,29 @@ export default function MusiciansNBands() {
   };
 
   const renderCountDisplay = () => {
+    const bandCount = bandsData.pagination.hasMore
+      ? `${bands.length}+`
+      : bands.length;
+    const musicianCount = musiciansData.pagination.hasMore
+      ? `${musicians.length}+`
+      : musicians.length;
+
+    const bandLabel = BAND_TAB_CONFIG[activeBandTabKey].label;
+    const musicianLabel = MUSICIAN_TAB_CONFIG[activeMusicianTabKey].label;
+
     return (
       <View style={{ padding: "0 24px" }} className="container-h card-gap">
         <JXMetricCard
-          label={tabValueRouter(
-            `${BAND_TAB_CONFIG[activeBandTabKey].label}乐队`,
-            "查看所有乐队"
-          )}
+          label={tabValueRouter(`${bandLabel}乐队`, "查看所有乐队")}
           emoji={"🤘"}
-          value={tabValueRouter(bands.length, "")}
+          value={tabValueRouter(bandCount, "")}
           active={isBandTab()}
           onClick={() => setActiveTabIndex(0)}
         />
         <JXMetricCard
-          label={tabValueRouter(
-            "查看所有乐手",
-            `${MUSICIAN_TAB_CONFIG[activeMusicianTabKey].label}人数`
-          )}
+          label={tabValueRouter("查看所有乐手", `${musicianLabel}人数`)}
           emoji={"🧑‍🎤"}
-          value={tabValueRouter("", musicians.length)}
+          value={tabValueRouter("", musicianCount)}
           active={isMusicianTab()}
           onClick={() => setActiveTabIndex(1)}
         />
