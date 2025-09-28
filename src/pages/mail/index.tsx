@@ -82,6 +82,7 @@ export default function MailPage() {
                     })}
                     <View className="flex grow" style={{ paddingTop: 12 }}>
                       <JXListBottom
+                        loadedText={`已加载全部申请记录${mails.length}条`}
                         loadMoreText="加载更多申请记录"
                         loading={fetchingMore}
                         onFetchMore={() =>
