@@ -42,7 +42,7 @@ interface RouteDataFetching {
 }
 
 export default function MusiciansNBands() {
-  const [activeTabIndex, setActiveTabIndex] = useState(1);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   const {
     activeBandTabKey,
@@ -101,20 +101,21 @@ export default function MusiciansNBands() {
         <Tabs.TabPane value={key} title={tab.label}>
           <ScrollView scrollY className="scrollable">
             <PullRefresh
-              className="tab-container page-padding-compensate"
               loading={pullRefreshing}
               reachTop={reachTop}
               onRefresh={handlePullRefresh}
             >
-              {bands.map((band) => (
-                <JXBandCard band={band} />
-              ))}
-              <JXListBottom
-                loadMoreText="加载更多乐队"
-                loading={fetchingMore}
-                hasMore={bandsData.pagination.hasMore}
-                onFetchMore={handleFetchMoreData}
-              />
+              <View className="tab-container page-padding-compensate">
+                {bands.map((band) => (
+                  <JXBandCard band={band} />
+                ))}
+                <JXListBottom
+                  loadMoreText="加载更多乐队"
+                  loading={fetchingMore}
+                  hasMore={bandsData.pagination.hasMore}
+                  onFetchMore={handleFetchMoreData}
+                />
+              </View>
             </PullRefresh>
           </ScrollView>
         </Tabs.TabPane>
@@ -128,20 +129,21 @@ export default function MusiciansNBands() {
         >
           <ScrollView scrollY className="scrollable">
             <PullRefresh
-              className="tab-container page-padding-compensate"
               loading={pullRefreshing}
               reachTop={reachTop}
               onRefresh={handlePullRefresh}
             >
-              {musicians.map((m) => (
-                <JXMusicianCard musician={m} />
-              ))}
-              <JXListBottom
-                loadMoreText="加载更多乐手"
-                loading={fetchingMore}
-                hasMore={musiciansData.pagination.hasMore}
-                onFetchMore={handleFetchMoreData}
-              />
+              <View className="tab-container page-padding-compensate">
+                {musicians.map((m) => (
+                  <JXMusicianCard musician={m} />
+                ))}
+                <JXListBottom
+                  loadMoreText="加载更多乐手"
+                  loading={fetchingMore}
+                  hasMore={musiciansData.pagination.hasMore}
+                  onFetchMore={handleFetchMoreData}
+                />
+              </View>
             </PullRefresh>
           </ScrollView>
         </Tabs.TabPane>

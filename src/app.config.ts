@@ -1,7 +1,7 @@
 export default defineAppConfig({
   pages: [
-    "pages/mail/index",
     "pages/musicians-n-bands/index",
+    "pages/mail/index",
     "pages/demo/index",
     "pages/calendar/index",
     "pages/profile/index",
