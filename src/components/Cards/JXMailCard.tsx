@@ -29,7 +29,7 @@ export interface JXMailCardProps {
   applicantName: string;
   applicantPosition: PositionType;
   readonly?: boolean;
-  onStatusChange: () => {};
+  onStatusChange: () => void;
 }
 export default function JXMailCard({
   application,

@@ -3,22 +3,22 @@ import { BandWithPositions } from "@/models/band";
 import { getApplicationsByField } from "@/services/applicationService";
 import { getBandPositionsByBand } from "@/services/bandPositionService";
 import { getBandById } from "@/services/bandsService";
-import { getMusiciansByUserID } from "@/services/musicianService";
-import { useUserStore } from "@/stores/userStore";
 import { filterPositionsByStatus } from "@/utils/band-position";
 import { mapMusiciansIntoIds } from "@/utils/musician";
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
+import { useUserMusicians } from "../user/useUserMusicians";
 
 export const useBandProfile = () => {
   const [bandID, setBandID] = useState<string | number | null>(null);
   const [bandProfile, setBandProfile] = useState<BandWithPositions | null>(
     null
   );
-  // 用户对这个乐队的位置发送过的申请记录
+  // [用户] 对 [这个乐队] 的位置发送过的 [正在处理] 的申请记录
   const [applications, setApplications] = useState<Application[]>([]);
 
-  const { userInfo } = useUserStore();
+  // 获取用户的乐手身份
+  const { userMusicians } = useUserMusicians();
 
   // Derived from `bandProfile`：正在招募的乐队位置
   const recruitingPositions = filterPositionsByStatus(
@@ -45,27 +45,21 @@ export const useBandProfile = () => {
 
   // 聚合操作：获取用户对乐队位置的申请记录
   const fetchApplications = async (bandID: string | number) => {
-    if (!userInfo?._id) return;
-    // 1. 获取用户的乐手身份
     // 如果用户暂时没有乐手身份，代表根本没有发出过申请；直接退出
-    const musicians =
-      (await getMusiciansByUserID({ userID: userInfo._id })) || [];
-    if (!musicians.length) return;
-    const musicianIDs = mapMusiciansIntoIds(musicians);
+    if (!userMusicians.length) return;
+    const musicianIDs = mapMusiciansIntoIds(userMusicians);
 
-    // 2. 获取对这个乐队的所有申请记录
-    const fetchedApplications =
-      (await getApplicationsByField({
-        field: "targetBandID",
-        value: [bandID],
-      })) || [];
+    // 获取用户对这个乐队的所有正在处理的申请记录
+    const { data } = await getApplicationsByField({
+      query: {
+        targetBandID: [bandID],
+        status: ["pending"],
+        applyingMusicianID: musicianIDs,
+      },
+      pageIndex: 0,
+    });
 
-    // 3. 筛选出由用户发出的申请记录
-    const userSentApplications = fetchedApplications.filter((a) =>
-      musicianIDs.includes(a.applyingMusicianID)
-    );
-
-    setApplications(userSentApplications);
+    setApplications(data);
   };
 
   // 监听：乐队ID变化之后，获取乐队数据
@@ -74,7 +68,7 @@ export const useBandProfile = () => {
     if (!bandID) return;
     fetchBandProfile(bandID);
     fetchApplications(bandID);
-  }, [bandID]);
+  }, [bandID, userMusicians]);
 
   // 监听：获取到乐队信息之后，更新页面标题
   useEffect(() => {

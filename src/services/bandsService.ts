@@ -7,8 +7,9 @@ import {
   BandStatusLog,
   CreateBandRequest,
 } from "@/models/band";
-import { handleDBResult } from "@/utils/database";
-import { DB } from "@tarojs/taro";
+import { JxReqParamsBase, TcbService } from "@/types/service/shared";
+import { handleDBResult, PageSize } from "@/utils/database";
+import { getPaginatedData } from "./shared";
 
 const bandsCollection = db.collection("band");
 /* CREATE */
@@ -32,45 +33,53 @@ interface GetAllBandsParams {
   production?: boolean;
 }
 export const getAllBands = async ({
-  production = false,
+  production = true,
 }: GetAllBandsParams = {}): Promise<Band[] | undefined> => {
   if (!production) return MOCK_BANDS.active;
   try {
-    const res = await bandsCollection.get();
-    handleDBResult(res, "get", "获取全部乐队数据");
-    return res.data as Band[];
+    let pageIndex = 0;
+    let bands: Band[] = [];
+    while (true) {
+      const res =
+        (await bandsCollection.skip(PageSize * pageIndex).get()) || [];
+      handleDBResult(
+        res,
+        "get",
+        `[batch-request-${pageIndex + 1}]获取到${res.data.length}条乐队数据`
+      );
+      bands.push(...(res.data as Band[]));
+
+      if (res.data.length !== PageSize) break;
+
+      pageIndex++;
+    }
+
+    if (pageIndex) console.log(`批量获取到${bands.length}条乐队数据`);
+    return bands;
   } catch (error) {
     console.error(error);
   }
 };
 
-interface GetBandsByStatusParams {
+interface GetBandsByStatusParams extends JxReqParamsBase {
   status: BandStatus;
-  production?: boolean;
 }
-export const getBandsByStatus = async ({
-  status,
-  production = true,
-}: GetBandsByStatusParams): Promise<Band[] | null> => {
-  if (!production) return MOCK_BANDS[status];
 
-  try {
-    let res: DB.Query.IQueryResult;
-    if (!status) {
-      res = await bandsCollection.get();
-    } else {
-      res = await bandsCollection
+export type GetBandsByStatus = TcbService<GetBandsByStatusParams, Band>;
+
+export const getBandsByStatus: GetBandsByStatus = (params) => {
+  const { status } = params;
+  return getPaginatedData<Band>({
+    apiServiceFn: async (pageIndex: number) => {
+      return bandsCollection
         .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
         .where({ status: _.eq(status) })
+        .skip(PageSize * pageIndex)
         .get();
-    }
-
-    handleDBResult(res, "get", `根据乐队状态(${status})获取乐队数据`);
-    return res.data as Band[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+    },
+    logEntity: `乐队状态(${status})`,
+    ...params,
+  });
 };
 
 interface GetBandByIdParams {

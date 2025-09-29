@@ -4,8 +4,10 @@ import {
   ApplicationStatus,
   CreateApplicationRequest,
 } from "@/models/application";
-import { handleDBResult } from "@/utils/database";
+import { JxReqParamsBase, TcbService } from "@/types/service/shared";
+import { handleDBResult, PageSize } from "@/utils/database";
 import { DB } from "@tarojs/taro";
+import { getPaginatedData } from "./shared";
 
 const applicationCollection = db.collection("application");
 
@@ -61,34 +63,51 @@ export const getApplicationsByStatus = async ({
   }
 };
 
-interface GetApplicationsByFieldParams {
-  field: "applyingBandPositionID" | "applyingMusicianID" | "targetBandID";
-  value: (string | number)[];
-  production?: boolean;
+type ApplicationRequestField =
+  | "applyingBandPositionID"
+  | "applyingMusicianID"
+  | "targetBandID"
+  | "status";
+
+interface GetApplicationsByFieldParams extends JxReqParamsBase {
+  // Not all fields in the query need to be used.
+  // e.g.: { "targetBandID": [] }
+  query: Partial<
+    Record<ApplicationRequestField, (ApplicationStatus | string | number)[]>
+  >;
 }
 
+type GetApplicationsByField = TcbService<
+  GetApplicationsByFieldParams,
+  Application
+>;
+
 // 通用函数，能够根据字段筛选返回申请记录
-export const getApplicationsByField = async ({
-  field,
-  value,
-  production = true,
-}: GetApplicationsByFieldParams): Promise<Application[] | null> => {
-  if (!production) return [];
-  try {
-    const res = await applicationCollection
-      .where({ [field]: _.in(value) })
-      .orderBy("appliedAt", "desc") // 按申请的时间降序
-      .get();
-    handleDBResult(
-      res,
-      "get",
-      `根据字段 ${field} (${value.length}) 获取 ${res.data.length} 条申请记录数据`
-    );
-    return res.data as Application[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+export const getApplicationsByField: GetApplicationsByField = async (
+  params
+) => {
+  const { query } = params;
+
+  // 逐个添加查询条件：{ [field]: _.in(value) }
+  const queryConditions = Object.entries(query).reduce(
+    (acc, [field, value]) => {
+      acc[field] = _.in(value);
+      return acc;
+    },
+    {} as Record<ApplicationRequestField, DB.Query.IStringQueryCondition>
+  );
+
+  return getPaginatedData<Application>({
+    apiServiceFn: async (pageIndex: number) => {
+      return applicationCollection
+        .where(queryConditions)
+        .skip(PageSize * pageIndex)
+        .orderBy("appliedAt", "desc") // 按申请的时间降序
+        .get();
+    },
+    logEntity: `字段 ${Object.keys(queryConditions).join(", ")}`,
+    ...params,
+  });
 };
 
 // UPDATE

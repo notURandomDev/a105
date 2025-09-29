@@ -1,62 +1,105 @@
-import { View } from "@tarojs/components";
+import { ScrollView, View } from "@tarojs/components";
 import "./index.scss";
 import JXMailCard, { JXMailCardProps } from "@/components/Cards/JXMailCard";
-import { Tabs } from "@taroify/core";
+import { PullRefresh, Tabs } from "@taroify/core";
 import { MailTabKey } from "@/types/components";
-import { useMailTab } from "@/hooks/mail/useMailTab";
+import { DefaultMailTabKey, useMailTab } from "@/hooks/mail/useMailTab";
 import { useDidShow } from "@tarojs/taro";
+import JXListBottom from "@/components/JXListBottom";
+import { useMutexLoad } from "@/hooks/util/useMutexLoad";
+import { usePullRefresh } from "@/hooks/util/usePullRefresh";
 
 const MAIL_TAB_CONFIG: Record<MailTabKey, { label: string }> = {
   incomingApplications: { label: "待审批申请" },
   myApplications: { label: "我的申请" },
 };
 
-export default function Mail() {
-  const { activeMailTabKey, setActiveMailTabKey, mails, fetchMails } =
-    useMailTab();
+export default function MailPage() {
+  const {
+    activeMailTabKey,
+    setActiveMailTabKey,
+    mailsData,
+    fetchMails,
+    fetchUserMusicians,
+    userMusicians,
+  } = useMailTab();
 
-  // 页面出现时，刷新数据
+  const { data: mails } = mailsData;
+
+  // 页面出现时，刷新数据；不进行自动分页
   useDidShow(() => {
-    fetchMails(activeMailTabKey);
+    const refreshData = async () => {
+      // 重新获取用户的乐手身份数据
+      const musicians = await fetchUserMusicians();
+      fetchMails({ userMusicians: musicians });
+    };
+
+    // 用户离开邮箱界面之后，有可能去创建了乐队；这就导致用户的乐手身份数据有可能过时了
+    refreshData();
   });
 
-  return (
-    <Tabs
-      value={activeMailTabKey}
-      onChange={setActiveMailTabKey}
-      sticky
-      lazyRender
-      animated
-      swipeable
-    >
-      {Object.entries(MAIL_TAB_CONFIG).map(([tabKey, config]) => {
-        const readonly = tabKey === "myApplications";
+  const { mutexLoad: mutexFetchMore, loading: fetchingMore } = useMutexLoad();
+  const { mutexPullRefresh, pullRefreshing, reachTop } = usePullRefresh();
 
-        return (
-          <Tabs.TabPane
-            value={tabKey}
-            title={config.label}
-            className="tab-pane"
-          >
-            <View
-              className="tab-container"
-              style={{ paddingLeft: 24, paddingRight: 24 }}
-            >
-              {mails.map((mail) => {
-                const { application, applyingMusician } = mail;
-                const mailCardData: JXMailCardProps = {
-                  application,
-                  applicantName: applyingMusician?.nickname || "applicantName", // 为application实体添加冗余字段处理
-                  applicantPosition: applyingMusician?.position || "bassist",
-                  readonly,
-                  onStatusChange: () => fetchMails(activeMailTabKey),
-                };
-                return <JXMailCard {...mailCardData} />;
-              })}
-            </View>
-          </Tabs.TabPane>
-        );
-      })}
-    </Tabs>
+  return (
+    <View className="mail page">
+      <View className="flex">
+        <Tabs
+          defaultValue={DefaultMailTabKey}
+          value={activeMailTabKey}
+          onChange={setActiveMailTabKey}
+          sticky
+          lazyRender
+          animated
+          swipeable
+        >
+          {Object.entries(MAIL_TAB_CONFIG).map(([tabKey, config]) => {
+            const readonly = tabKey === "myApplications";
+            return (
+              <Tabs.TabPane value={tabKey} title={config.label}>
+                <ScrollView scrollY className="scrollable">
+                  <PullRefresh
+                    className="tab-container page-padding-compensate"
+                    loading={pullRefreshing}
+                    reachTop={reachTop}
+                    onRefresh={() =>
+                      mutexPullRefresh(() => fetchMails({ userMusicians }))
+                    }
+                  >
+                    {mails.map((mail) => {
+                      const { application, applyingMusician } = mail;
+                      const mailCardData: JXMailCardProps = {
+                        application,
+                        applicantName:
+                          applyingMusician?.nickname || "applicantName", // 为application实体添加冗余字段处理
+                        applicantPosition:
+                          applyingMusician?.position || "bassist",
+                        readonly,
+                        // 审批状态更新，重新获取第一页数据
+                        onStatusChange: () => fetchMails({ userMusicians }),
+                      };
+                      return <JXMailCard {...mailCardData} />;
+                    })}
+                    <View className="flex grow" style={{ paddingTop: 12 }}>
+                      <JXListBottom
+                        loadedText={`已加载全部申请记录${mails.length}条`}
+                        loadMoreText="加载更多申请记录"
+                        loading={fetchingMore}
+                        onFetchMore={() =>
+                          mutexFetchMore(() =>
+                            fetchMails({ userMusicians, autoPagination: true })
+                          )
+                        }
+                        hasMore={mailsData.pagination.hasMore}
+                      />
+                    </View>
+                  </PullRefresh>
+                </ScrollView>
+              </Tabs.TabPane>
+            );
+          })}
+        </Tabs>
+      </View>
+    </View>
   );
 }

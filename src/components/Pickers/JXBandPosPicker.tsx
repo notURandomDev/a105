@@ -1,4 +1,7 @@
-import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
+import {
+  MUSICIAN_DISPLAY_CONFIG,
+  MusicianDisplayConfig,
+} from "@/constants/utils/musician";
 import { PositionType } from "@/models/position";
 import { Picker, Popup } from "@taroify/core";
 
@@ -22,6 +25,7 @@ interface JXBandPosPickerProps {
   onCancel?: () => void;
   exclude?: PositionType[];
   include?: PositionType[];
+  defaultPosition?: PositionType;
 }
 
 function JXBandPosPicker({
@@ -31,12 +35,20 @@ function JXBandPosPicker({
   onCancel = () => {},
   exclude,
   include = allPositions,
+  defaultPosition,
 }: JXBandPosPickerProps) {
   let columns = mapPositionsIntoColumns(include);
 
   // 过滤掉显式声明需要排除的内容
   if (exclude?.length)
     columns = columns.filter((p) => !exclude.includes(p.value as PositionType));
+
+  // 将默认位置放在 picker 的第一个选项，这样能和表单的值对齐
+  if (defaultPosition) {
+    const firstOption = columns.find((c) => c.value === defaultPosition);
+    if (!firstOption) return;
+    columns = [...new Set([firstOption, ...columns])];
+  }
 
   const handleConfirm = (position: string) => {
     onConfirm(position as PositionType);

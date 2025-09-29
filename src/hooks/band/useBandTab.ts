@@ -1,39 +1,43 @@
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
-import { Band } from "@/models/band";
+import { Band, BandStatus } from "@/models/band";
 import { getBandsByStatus } from "@/services/bandsService";
 import { BandTabKey } from "@/types/components";
 import { useUserMusicians } from "../user/useUserMusicians";
+import { usePaginatedData } from "../util/usePaginatedData";
+
+// Tab初始值：活跃乐队
+const DefaultBandTabKey = "recruitingBands";
 
 export const useBandTab = () => {
-  // Tab初始值：活跃乐队
   const [activeBandTabKey, setActiveBandTabKey] =
-    useState<BandTabKey>("recruitingBands");
-  const [bands, setBands] = useState<Band[]>([]);
+    useState<BandTabKey>(DefaultBandTabKey);
 
-  const { userMusicians } = useUserMusicians();
+  const { fetchUserMusicians } = useUserMusicians({ lazyLoad: true });
 
-  // 根据类型获取乐队数据
-  const fetchBands = async (tabKey: BandTabKey) => {
-    let fetchedBands;
-    if (tabKey === "activeBands")
-      fetchedBands = await getBandsByStatus({ status: "active" });
-    if (tabKey === "recruitingBands")
-      fetchedBands = await getBandsByStatus({ status: "recruiting" });
+  const { data: bandsData, fetchPaginatedData } = usePaginatedData<Band>();
 
-    if (fetchedBands) setBands(fetchedBands);
+  const fetchBands = (autoPagination = false) => {
+    return fetchPaginatedData({
+      autoPagination,
+      fetchFn: (pageIndex: number) => {
+        const status = activeBandTabKey.replace("Bands", "") as BandStatus;
+        return getBandsByStatus({ status, pageIndex });
+      },
+    });
   };
 
   // 监听乐队Tab类型的变化，更新乐队数据
   useEffect(() => {
-    fetchBands(activeBandTabKey);
+    fetchBands();
   }, [activeBandTabKey]);
 
   // 处理创建乐队的函数
   const handleCreateBand = async () => {
-    // 获取用户的所有乐手身份
+    // 重新获取用户的所有乐手身份
+    const userMusicians = await fetchUserMusicians();
+    // 如果用户没有任何乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
     if (!userMusicians.length) {
-      // 如果用户没有任何乐手身份，应该引导用户创建该乐手身份；不能直接更新乐队位置信息
       const res = await Taro.showModal({
         title: "你暂时还没有任何乐手身份",
         content: "请先创建乐手信息",
@@ -53,7 +57,7 @@ export const useBandTab = () => {
     activeBandTabKey,
     setActiveBandTabKey,
     handleCreateBand,
-    bands,
+    bandsData,
     fetchBands,
   };
 };

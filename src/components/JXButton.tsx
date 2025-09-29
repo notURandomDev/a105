@@ -7,6 +7,7 @@ interface JXButtonProps {
   onClick?: (event: ITouchEvent) => void;
   variant?: "solid" | "outlined";
   disabled?: boolean;
+  fullWidth?: boolean;
 }
 
 function JXButton({
@@ -14,6 +15,7 @@ function JXButton({
   onClick,
   variant = "solid",
   disabled = false,
+  fullWidth = false,
 }: JXButtonProps) {
   const isSolid = variant === "solid";
 
@@ -29,6 +31,7 @@ function JXButton({
         height: "auto",
         fontWeight: 500,
         borderRadius: 8,
+        width: fullWidth ? "100%" : undefined,
       }}
     >
       {children}

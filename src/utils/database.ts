@@ -17,3 +17,5 @@ export const handleDBResult = <T extends { errMsg: string }>(
 
   console.log("【API】" + msg + "成功：", res);
 };
+
+export const PageSize = 20;

@@ -1,8 +1,9 @@
 export default defineAppConfig({
   pages: [
-    "pages/calendar/index",
     "pages/musicians-n-bands/index",
     "pages/mail/index",
+    "pages/demo/index",
+    "pages/calendar/index",
     "pages/profile/index",
     "pages/pay/index",
     "pages/index/index",
@@ -55,9 +56,15 @@ export default defineAppConfig({
         iconPath: "assets/icons/tab/mail.png",
         selectedIconPath: "assets/icons/tab/mail-active.png",
       },
+      // {
+      //   pagePath: "pages/profile/index",
+      //   text: "我的",
+      //   iconPath: "assets/icons/tab/profile.png",
+      //   selectedIconPath: "assets/icons/tab/profile-active.png",
+      // },
       {
-        pagePath: "pages/profile/index",
-        text: "我的",
+        pagePath: "pages/demo/index",
+        text: "测试",
         iconPath: "assets/icons/tab/profile.png",
         selectedIconPath: "assets/icons/tab/profile-active.png",
       },

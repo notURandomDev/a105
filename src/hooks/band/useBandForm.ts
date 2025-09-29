@@ -1,16 +1,13 @@
 import { getAllBands } from "@/services/bandsService";
 import Taro from "@tarojs/taro";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { PositionType } from "@/models/position";
-import {
-  CreateBandPositionRequest,
-  PositionStatus,
-} from "@/models/band-position";
+import { CreateBandPositionRequest } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserMusicians } from "../user/useUserMusicians";
 
-const DEFAULT_FORM_BASE_DATA = {
-  name: "JOINT", // 乐队名
+const DefaultFormDataBase = {
+  name: "", // 乐队名
   description: "这是一段乐队简介",
 };
 
@@ -24,44 +21,42 @@ type ActivePickerState = "recruiting" | "occupied" | null;
 
 // 在创建乐队时使用的表单数据
 export const useBandForm = () => {
-  const bandNamesRef = useRef<string[]>([]);
   const [feedback, setFeedback] = useState({ name: "" }); // 将来可扩展
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
+  const [bandNameConflicted, setBandNameConflicted] = useState(true);
 
   // 获取用户的所有乐手身份，作为 picker 的数据来源
   // picker 不能展示用户没有注册过的乐手身份！
   const { userInfo, userMusicians } = useUserMusicians();
 
-  const occupiedMusicianBaseData = {
-    status: "occupied" as PositionStatus,
-    nickname: userInfo?.nickName ?? "replace-this-with-actual-user-nickname",
-  };
-
   const [formData, setFormData] = useState<FormData>({
-    ...DEFAULT_FORM_BASE_DATA,
-    positions: [
-      {
-        ...occupiedMusicianBaseData,
-        position: "vocalist",
-        joinedAt: new Date(),
-      },
-      {
-        position: "bassist",
-        status: "recruiting",
-        recruitNote: "律动强",
-      },
-    ],
+    ...DefaultFormDataBase,
+    positions: [],
   });
 
   useEffect(() => {
-    fetchBands();
-  }, []); // 只需要初始化一次
+    if (!userMusicians.length) return;
+    // 根据用户的乐手信息，对表单数据进行初始化
+    setFormData({
+      ...DefaultFormDataBase,
+      positions: [
+        {
+          status: "occupied",
+          position: userMusicians[0].position,
+        },
+        {
+          position: "bassist",
+          status: "recruiting",
+          recruitNote: "律动强",
+        },
+      ],
+    });
+  }, [userMusicians]);
 
   // 获取全部乐队，判断用户起的乐队名是否已经存在
-  const fetchBands = async () => {
-    const bands = (await getAllBands({ production: true })) || [];
-    const names = bands.map((b) => b.name);
-    bandNamesRef.current = names; // 用一个 ref 存储所有存在的乐队名
+  const fetchBandNames = async () => {
+    const bands = (await getAllBands()) || [];
+    return bands.map((b) => b.name);
   };
 
   // 获取 picker 标题文案
@@ -83,20 +78,10 @@ export const useBandForm = () => {
   const updatePositions = async (position: PositionType) => {
     // 更新用户的乐手位置
     if (activePicker === "occupied") {
-      const joinedAt = new Date();
       setFormData((prev) => ({
         ...prev,
         positions: prev.positions.map((p) =>
-          p.status === "occupied"
-            ? {
-                ...occupiedMusicianBaseData,
-                position,
-                joinedAt,
-                // 能进入创建乐队的前提，是用于已经有乐手身份了
-                // 因此这里访问下标的操作是安全的
-                musicianID: userMusicians[0]._id,
-              }
-            : p
+          p.status === "occupied" ? { ...p, position } : p
         ),
       }));
     }
@@ -135,6 +120,10 @@ export const useBandForm = () => {
 
   // 提交表单回调函数
   const handleSubmit = async () => {
+    // 再次判断乐队名是否冲突
+    const isBandNameUnique = !(await checkDuplicateBandName(formData.name));
+    if (!isBandNameUnique) return;
+
     const now = new Date();
     const { positions, ...createInput } = formData;
 
@@ -145,7 +134,20 @@ export const useBandForm = () => {
         statusUpdatedAt: now,
         statusLogs: [{ at: now, status: "recruiting" }],
       },
-      positions,
+      positions: positions.map((p) =>
+        p.status === "occupied"
+          ? {
+              ...p,
+              joinedAt: new Date(),
+              nickname: userInfo?.nickName ?? "something-is-wrong",
+              // 能进入创建乐队的前提，是用于已经有乐手身份了；因此这里访问下标的操作是安全的
+              musicianID: userMusicians[0]._id,
+            }
+          : {
+              ...p,
+              recruitNote: "喜欢就申请加入吧！",
+            }
+      ),
     });
 
     Taro.showToast({ icon: "success", title: "乐队创建成功" });
@@ -164,17 +166,33 @@ export const useBandForm = () => {
       name?.length > 0 &&
       description?.length > 0 &&
       recruitingPositions.length > 0 &&
-      occupiedPositions.length > 0
+      occupiedPositions.length > 0 &&
+      !bandNameConflicted
     );
   };
 
   // 检查用户取的乐队名是否和当前已经存在的乐队名冲突
   // 调用时机：乐队名输入控件的 onBlur 事件
-  const checkDuplicateBandName = (name: string) => {
-    if (!name.trim()) return;
-    const exists = bandNamesRef.current.includes(name);
-    let feedbackContent = exists ? "乐队名已存在" : "";
-    setFeedback((prev) => ({ ...prev, name: feedbackContent }));
+  const checkDuplicateBandName = async (name: string) => {
+    let duplicateBandName;
+    let exists = false;
+    const bandNameEmpty = !name.trim().length;
+
+    // 乐队名非空，进行查重
+    if (!bandNameEmpty) {
+      const bandNames = await fetchBandNames();
+      duplicateBandName = bandNames.find(
+        (bn) => bn.toLowerCase() === name.toLowerCase()
+      );
+      exists = Boolean(duplicateBandName);
+    }
+
+    setFeedback((prev) => ({
+      ...prev,
+      name: exists ? `乐队名已存在（${duplicateBandName}）` : "",
+    }));
+    setBandNameConflicted(exists);
+    return exists;
   };
 
   return {
@@ -184,7 +202,6 @@ export const useBandForm = () => {
     setActivePicker,
     feedback,
     setFeedback,
-    bandNamesRef,
     getPickerTitle,
     updatePositions,
     handleSubmit,
@@ -196,5 +213,7 @@ export const useBandForm = () => {
     updateDescription,
     updateName,
     userMusicians,
+    bandNameConflicted,
+    setBandNameConflicted,
   };
 };
