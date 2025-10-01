@@ -16,7 +16,7 @@ import {
 } from "@/services/bandPositionService";
 import { updateMusicianBandIDs } from "@/services/musicianService";
 import { isBandFull } from "@/utils/band";
-import { getBandById, updateBand } from "@/services/bandsService";
+import { getBandsByIDs, updateBand } from "@/services/bandsService";
 
 const ColorMap: Record<ApplicationStatus, JXColor> = {
   pending: "gray",
@@ -38,7 +38,7 @@ export default function JXMailCard({
   readonly = false,
   onStatusChange,
 }: JXMailCardProps) {
-  const { status, appliedAt, _id, targetBandID } = application;
+  const { status, appliedAt, _id, targetBandID: bandID } = application;
 
   // ✅ 审批申请：同意
   const handleApprove = async () => {
@@ -48,7 +48,7 @@ export default function JXMailCard({
     // 2. [Musician] 更新乐手所在乐队信息（ bandIDs列表中添加一项 ）
     await updateMusicianBandIDs({
       _id: application.applyingMusicianID,
-      bandID: targetBandID,
+      bandID,
     });
 
     // 3. [BandPosition] 更新乐队位置信息（ recruiting -> occupied ）
@@ -63,20 +63,20 @@ export default function JXMailCard({
     });
 
     // 4. [BandPosition] 查询更新乐队位置信息后，该乐队最新的乐队位置信息情况
-    const bandPositions =
-      (await getBandPositionsByBand({ bandID: targetBandID })) || [];
+    const { data: bandPositions } = await getBandPositionsByBand({ bandID });
 
     // 5. ^[Band] 可选，判断是否需要更新乐队状态
     // 同意申请的前提，是乐队还有空余的位置；因此状态肯定是 recruiting 而不是 active
     if (isBandFull(bandPositions)) {
       // 5.1. 获取乐队信息(statusLogs历史)
-      const band = await getBandById({ _id: targetBandID });
-      if (!band) return;
+      const { data } = await getBandsByIDs({ bandIDs: [bandID] });
+      if (!data.length) return;
+      const band = data[0];
 
       // 5.2. 更新乐队信息
       const now = new Date();
       await updateBand({
-        bandID: targetBandID,
+        bandID,
         data: {
           formedAt: now,
           status: "active",

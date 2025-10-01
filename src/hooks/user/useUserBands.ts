@@ -17,7 +17,7 @@ export const useUserBands = () => {
     const fetchData = async () => {
       // 从用户乐手身份中，提取出所在的全部乐队ID
       const bandIDs = extractMusicianBaseBandIDs(userMusicians);
-      const bands = (await getBandsByIDs({ bandIDs })) || [];
+      const { data: bands } = await getBandsByIDs({ bandIDs });
       setUserBands(bands);
     };
 

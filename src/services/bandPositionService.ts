@@ -4,8 +4,11 @@ import {
   BandPosition,
   CreateBandPositionRequest,
 } from "@/models/band-position";
+import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult } from "@/utils/database";
+import { JxDbCollection, sendJxRequest } from "./shared";
 
+const collection: JxDbCollection = "band_position";
 const bandPositionCollection = db.collection("band_position");
 
 // CREATE
@@ -34,42 +37,27 @@ export const createBandPositions = async ({
 
 // READ
 
-export const getAllBandPositions = async (): Promise<
-  BandPosition[] | undefined
-> => {
-  try {
-    const res = await bandPositionCollection.limit(100).get();
-    handleDBResult(res, "get", "获取全部乐队位置(bandPosition)数据");
-    return res.data as BandPosition[];
-  } catch (error) {
-    console.error(error);
-  }
-};
+type GetBandPositionsByBand = TcbService<
+  JxReqParamsBase & { bandID: string | number },
+  BandPosition
+>;
 
-interface GetBandPositionsByBandParams {
-  bandID: string | number;
-  production?: boolean;
-}
-export const getBandPositionsByBand = async ({
-  bandID,
-  production = true,
-}: GetBandPositionsByBandParams): Promise<BandPosition[] | null> => {
-  if (!production)
-    return [MOCK_BAND_POSITIONS.occupied[0], ...MOCK_BAND_POSITIONS.recruiting];
+export const getBandPositionsByBand: GetBandPositionsByBand = async (
+  params
+) => {
+  const { production = true, bandID } = params;
 
-  try {
-    const res = await bandPositionCollection
-      .where({
-        bandID: _.eq(bandID),
-      })
-      .get();
+  const res = await sendJxRequest<BandPosition>({
+    collection,
+    conditions: [{ name: "乐队ID", field: "bandID", cmd: _.eq(bandID) }],
+    production,
+    mockData: [
+      MOCK_BAND_POSITIONS.occupied[0],
+      ...MOCK_BAND_POSITIONS.recruiting,
+    ],
+  });
 
-    handleDBResult(res, "get", `根据乐队ID(${bandID})获取乐队位置记录`);
-    return res.data as BandPosition[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  return res;
 };
 
 // UPDATE

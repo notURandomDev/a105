@@ -1,5 +1,5 @@
 import { _, db } from "@/cloud/cloudClient";
-import { MOCK_BAND_ACTIVE, MOCK_BANDS } from "@/constants/database/bands";
+import { MOCK_BANDS } from "@/constants/database/bands";
 
 import {
   Band,
@@ -8,10 +8,12 @@ import {
   CreateBandRequest,
 } from "@/models/band";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
-import { handleDBResult, PageSize } from "@/utils/database";
-import { getPaginatedData } from "./shared";
+import { handleDBResult } from "@/utils/database";
+import { JxDbCollection, sendJxRequest } from "./shared";
 
+const collection: JxDbCollection = "band";
 const bandsCollection = db.collection("band");
+
 /* CREATE */
 
 export const createBand = async (
@@ -29,100 +31,57 @@ export const createBand = async (
 
 /* READ */
 
-interface GetAllBandsParams {
-  production?: boolean;
-}
-export const getAllBands = async ({
-  production = true,
-}: GetAllBandsParams = {}): Promise<Band[] | undefined> => {
-  if (!production) return MOCK_BANDS.active;
-  try {
-    let pageIndex = 0;
-    let bands: Band[] = [];
-    while (true) {
-      const res =
-        (await bandsCollection.skip(PageSize * pageIndex).get()) || [];
-      handleDBResult(
-        res,
-        "get",
-        `[batch-request-${pageIndex + 1}]获取到${res.data.length}条乐队数据`
-      );
-      bands.push(...(res.data as Band[]));
+type GetAllBands = TcbService<JxReqParamsBase, Band>;
 
-      if (res.data.length !== PageSize) break;
+export const getAllBands: GetAllBands = async (params = {}) => {
+  const { production = true } = params;
 
-      pageIndex++;
-    }
-
-    if (pageIndex) console.log(`批量获取到${bands.length}条乐队数据`);
-    return bands;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-interface GetBandsByStatusParams extends JxReqParamsBase {
-  status: BandStatus;
-}
-
-export type GetBandsByStatus = TcbService<GetBandsByStatusParams, Band>;
-
-export const getBandsByStatus: GetBandsByStatus = (params) => {
-  const { status } = params;
-  return getPaginatedData<Band>({
-    apiServiceFn: async (pageIndex: number) => {
-      return bandsCollection
-        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
-        .where({ status: _.eq(status) })
-        .skip(PageSize * pageIndex)
-        .get();
-    },
-    logEntity: `乐队状态(${status})`,
-    ...params,
+  const res = await sendJxRequest<Band>({
+    mode: "batch",
+    collection,
+    production,
+    mockData: MOCK_BANDS.active,
   });
+
+  return res;
 };
 
-interface GetBandByIdParams {
-  _id: string | number;
-  production?: boolean;
-}
+export type GetBandsByStatus = TcbService<
+  JxReqParamsBase & { status: BandStatus },
+  Band
+>;
 
-export const getBandById = async ({
-  _id,
-  production = true,
-}: GetBandByIdParams): Promise<Band | undefined> => {
-  if (!production) return MOCK_BAND_ACTIVE;
+export const getBandsByStatus: GetBandsByStatus = async (params) => {
+  const { status, pageIndex, production = true } = params;
 
-  try {
-    const res = await bandsCollection.where({ _id: _.eq(_id) }).get();
-    handleDBResult(res, "get", `根据乐队ID(${_id})获取乐队数据`);
-    return res.data[0] as Band;
-  } catch (error) {
-    console.error(error);
-  }
+  const res = await sendJxRequest<Band>({
+    mode: "paginated",
+    collection,
+    conditions: [{ name: "乐队状态", field: "status", cmd: _.eq(status) }],
+    // 优先展示最新的乐队招募帖子
+    order: { field: "statusUpdatedAt", mode: "desc" },
+    pageIndex,
+    production,
+  });
+
+  return res;
 };
 
-interface GetBandsByIDsParams {
-  production?: boolean;
-  bandIDs: (string | number)[];
-}
-export const getBandsByIDs = async ({
-  production = true,
-  bandIDs,
-}: GetBandsByIDsParams): Promise<Band[] | null> => {
-  if (!production) return null;
-  try {
-    const res = await bandsCollection.where({ _id: _.in(bandIDs) }).get();
-    handleDBResult(
-      res,
-      "get",
-      `根据乐队ID(${bandIDs.length})获取${res.data.length}条乐队数据`
-    );
-    return res.data as Band[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+type GetBandsByIDs = TcbService<
+  JxReqParamsBase & { bandIDs: (string | number)[] },
+  Band
+>;
+
+export const getBandsByIDs: GetBandsByIDs = async (params) => {
+  const { production = true, bandIDs } = params;
+
+  const res = await sendJxRequest<Band>({
+    collection,
+    conditions: [{ name: "乐队ID", field: "_id", cmd: _.in(bandIDs) }],
+    production,
+  });
+
+  return res;
 };
 
 /* UPDATE */

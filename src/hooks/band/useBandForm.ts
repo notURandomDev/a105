@@ -55,7 +55,7 @@ export const useBandForm = () => {
 
   // 获取全部乐队，判断用户起的乐队名是否已经存在
   const fetchBandNames = async () => {
-    const bands = (await getAllBands()) || [];
+    const { data: bands } = await getAllBands({});
     return bands.map((b) => b.name);
   };
 

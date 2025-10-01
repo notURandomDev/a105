@@ -7,9 +7,10 @@ import {
 } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
-import { handleDBResult, PageSize } from "@/utils/database";
-import { getPaginatedData } from "./shared";
+import { handleDBResult } from "@/utils/database";
+import { JxDbCollection, sendJxRequest } from "./shared";
 
+const collection: JxDbCollection = "musician";
 const musiciansCollection = db.collection("musician");
 
 interface CreateMusicianParams {
@@ -33,103 +34,45 @@ export const createMusicians = async ({ musicians }: CreateMusicianParams) => {
 
 // READ
 
-interface GetAllMusiciansParams {
-  production?: boolean;
-}
-export const getAllMusicians = async ({
-  production = false,
-}: GetAllMusiciansParams = {}): Promise<Musician[] | undefined> => {
-  try {
-    if (!production) return [MOCK_MUSICIAN_PROFILE, MOCK_MUSICIAN_PROFILE];
+type GetMusiciansByUserID = TcbService<
+  JxReqParamsBase & { userID: string | number },
+  Musician
+>;
 
-    const res = await musiciansCollection.get();
-    handleDBResult(res, "get", `获取全部乐手数据${res.data.length}条`);
-    return res.data as Musician[];
-  } catch (error) {
-    console.error(error);
-    return;
-  }
+export const getMusiciansByUserID: GetMusiciansByUserID = async (params) => {
+  const { userID, production = true } = params;
+
+  const res = await sendJxRequest<Musician>({
+    collection,
+    conditions: [{ name: "用户ID", field: "userID", cmd: _.eq(userID) }],
+    production,
+    mockData: [MOCK_MUSICIAN_PROFILE],
+  });
+
+  return res;
 };
-
-interface GetMusiciansByUserIDParams {
-  userID: string | number;
-  production?: boolean;
-}
-export const getMusiciansByUserID = async ({
-  userID,
-  production = true,
-}: GetMusiciansByUserIDParams): Promise<Musician[] | null> => {
-  if (!production) return [MOCK_MUSICIAN_PROFILE];
-
-  try {
-    const res = await musiciansCollection.where({ userID: _.eq(userID) }).get();
-    handleDBResult(
-      res,
-      "get",
-      `根据用户ID${userID}获取${res.data.length}条乐手档案数据`
-    );
-    return res.data as Musician[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-interface GetMusiciansByPositionParams extends JxReqParamsBase {
-  positions: PositionType[];
-}
 
 export type GetMusiciansByPosition = TcbService<
-  GetMusiciansByPositionParams,
+  JxReqParamsBase & { positions: PositionType[] },
   Musician
 >;
 
 export const getMusiciansByPositions: GetMusiciansByPosition = async (
   params
 ) => {
-  const { positions } = params;
-  return getPaginatedData<Musician>({
-    apiServiceFn: async (pageIndex: number) => {
-      return musiciansCollection
-        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
-        .where({ position: _.in(positions) })
-        .skip(PageSize * pageIndex)
-        .get();
-    },
-    logEntity: `乐手类型(${positions.toString()})`,
-    ...params,
+  const { positions, pageIndex, production = true } = params;
+
+  const res = await sendJxRequest<Musician>({
+    mode: "paginated",
+    collection,
+    conditions: [{ name: "乐手类型", field: "position", cmd: _.in(positions) }],
+    // 优先展示最新的乐队招募帖子
+    order: { field: "statusUpdatedAt", mode: "desc" },
+    pageIndex,
+    production,
   });
-};
 
-interface GetMatchingMusicianParams {
-  userID: string | number;
-  position: PositionType;
-}
-
-// 返回值：匹配的乐手
-export const getMatchingMusician = async ({
-  userID,
-  position,
-}: GetMatchingMusicianParams) => {
-  try {
-    const res = await musiciansCollection
-      .where({
-        userID: _.eq(userID),
-        position: _.eq(position),
-      })
-      .get();
-
-    handleDBResult(
-      res,
-      "get",
-      `根据用户ID(${userID})获取${position}类型乐手记录`
-    );
-
-    return res.data;
-  } catch (error) {
-    console.error(error);
-    return;
-  }
+  return res;
 };
 
 // UPDATE

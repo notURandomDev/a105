@@ -2,7 +2,7 @@ import { Application } from "@/models/application";
 import { BandWithPositions } from "@/models/band";
 import { getApplicationsByField } from "@/services/applicationService";
 import { getBandPositionsByBand } from "@/services/bandPositionService";
-import { getBandById } from "@/services/bandsService";
+import { getBandsByIDs } from "@/services/bandsService";
 import { filterPositionsByStatus } from "@/utils/band-position";
 import { mapMusiciansIntoIds } from "@/utils/musician";
 import Taro from "@tarojs/taro";
@@ -37,9 +37,10 @@ export const useBandProfile = () => {
 
   // 聚合操作：查询乐队 + 查询该乐队的位置情况
   const fetchBandProfile = async (bandID: string | number) => {
-    const band = await getBandById({ _id: bandID });
-    const positions = await getBandPositionsByBand({ bandID });
-    if (!band || !positions) return;
+    const { data: bands } = await getBandsByIDs({ bandIDs: [bandID] });
+    const { data: positions } = await getBandPositionsByBand({ bandID });
+    if (!bands.length || !positions.length) return;
+    const band = bands[0];
     setBandProfile({ info: band, positions: positions });
   };
 

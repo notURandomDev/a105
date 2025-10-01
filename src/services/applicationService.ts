@@ -5,10 +5,10 @@ import {
   CreateApplicationRequest,
 } from "@/models/application";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
-import { handleDBResult, PageSize } from "@/utils/database";
-import { DB } from "@tarojs/taro";
-import { getPaginatedData } from "./shared";
+import { handleDBResult } from "@/utils/database";
+import { JxDbCollection, sendJxRequest } from "./shared";
 
+const collection: JxDbCollection = "application";
 const applicationCollection = db.collection("application");
 
 // CREATE
@@ -27,53 +27,25 @@ export const createApplication = async (
 };
 
 // READ
-export const getAllApplications = async (): Promise<Application[] | null> => {
-  try {
-    const res = await applicationCollection.get();
-    handleDBResult(
-      res,
-      "get",
-      `获取全部申请(application)数据[${res.data.length}条]`
-    );
-    return res.data as Application[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
 
-// 根据申请记录的状态，获取申请记录
-export const getApplicationsByStatus = async ({
-  status,
-}: {
-  status: ApplicationStatus;
-}): Promise<Application[] | null> => {
-  try {
-    let res: DB.Query.IQueryResult;
-    if (!status) {
-      res = await applicationCollection.get();
-    } else {
-      res = await applicationCollection.where({ status: _.eq(status) }).get();
-    }
-    handleDBResult(res, "get", `根据申请状态(${status})获取申请数据`);
-    return res.data as Application[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-type ApplicationRequestField =
+type ApplicationField =
   | "applyingBandPositionID"
   | "applyingMusicianID"
   | "targetBandID"
   | "status";
 
+const ApplicationFieldConfig: Record<ApplicationField, string> = {
+  applyingBandPositionID: "申请乐队位置ID",
+  applyingMusicianID: "申请乐手ID",
+  targetBandID: "申请乐队ID",
+  status: "申请记录状态",
+};
+
+// Not all fields in the query need to be used.
+// e.g.: { "targetBandID": [] }
 interface GetApplicationsByFieldParams extends JxReqParamsBase {
-  // Not all fields in the query need to be used.
-  // e.g.: { "targetBandID": [] }
   query: Partial<
-    Record<ApplicationRequestField, (ApplicationStatus | string | number)[]>
+    Record<ApplicationField, (ApplicationStatus | string | number)[]>
   >;
 }
 
@@ -86,28 +58,23 @@ type GetApplicationsByField = TcbService<
 export const getApplicationsByField: GetApplicationsByField = async (
   params
 ) => {
-  const { query } = params;
+  const { query, pageIndex, production = true } = params;
 
-  // 逐个添加查询条件：{ [field]: _.in(value) }
-  const queryConditions = Object.entries(query).reduce(
-    (acc, [field, value]) => {
-      acc[field] = _.in(value);
-      return acc;
-    },
-    {} as Record<ApplicationRequestField, DB.Query.IStringQueryCondition>
-  );
-
-  return getPaginatedData<Application>({
-    apiServiceFn: async (pageIndex: number) => {
-      return applicationCollection
-        .where(queryConditions)
-        .skip(PageSize * pageIndex)
-        .orderBy("appliedAt", "desc") // 按申请的时间降序
-        .get();
-    },
-    logEntity: `字段 ${Object.keys(queryConditions).join(", ")}`,
-    ...params,
+  const conditions = Object.entries(query).map(([field, value]) => {
+    const name = ApplicationFieldConfig[field];
+    return { name, field, cmd: _.in(value) };
   });
+
+  const res = await sendJxRequest<Application>({
+    mode: "paginated",
+    collection,
+    conditions,
+    order: { field: "appliedAt", mode: "desc" },
+    pageIndex,
+    production,
+  });
+
+  return res;
 };
 
 // UPDATE

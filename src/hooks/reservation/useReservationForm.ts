@@ -121,7 +121,7 @@ export const useReservationForm = () => {
     endTime: Date
   ) => {
     // 获取当天的排练数据
-    const reservationsToday = (await getReservationsByDate(date)) || [];
+    const { data: reservationsToday } = await getReservationsByDate({ date });
     // 任意已经预约的排练如果满足以下条件，则想要预约的排练时间一定没冲突：
     // - 预约的排练开始时间，比已有的排练结束时间晚；那么预约的结束时间一定也比已有的排练结束时间晚
     // - 预约的排练结束时间，比已有的排练开始时间早；那么预约的开始时间一定也比已有的排练开始时间早

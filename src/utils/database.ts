@@ -15,7 +15,7 @@ export const handleDBResult = <T extends { errMsg: string }>(
     throw new Error("【API】" + msg + `失败：${res.errMsg}`);
   }
 
-  console.log("【API】" + msg + "成功：", res);
+  console.log("(API)" + msg + "成功：", res);
 };
 
 export const PageSize = 20;
