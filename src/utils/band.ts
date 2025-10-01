@@ -1,24 +1,11 @@
-import { MOCK_BANDS_WITH_POSITIONS } from "@/constants/database/bands";
-import {
-  Band,
-  BandStatus,
-  BandWithPositions,
-  CreateBandRequest,
-} from "@/models/band";
+import { Band, BandStatus, CreateBandRequest } from "@/models/band";
 import {
   BandPosition,
   CreateBandPositionRequest,
 } from "@/models/band-position";
 import { Musician } from "@/models/musician";
-import {
-  createBandPositions,
-  getBandPositionsByBand,
-} from "@/services/bandPositionService";
-import {
-  createBand,
-  getBandsByIDs,
-  getBandsByStatus,
-} from "@/services/bandsService";
+import { createBandPositions } from "@/services/bandPositionService";
+import { createBand, getBandsByIDs } from "@/services/bandsService";
 import { updateMusicianBandIDs } from "@/services/musicianService";
 
 export const getPositionsByStatus = (
@@ -29,27 +16,6 @@ export const getPositionsByStatus = (
   );
   const occupiedPositions = positions.filter((p) => p.status === "occupied");
   return { recruitingPositions, occupiedPositions };
-};
-
-interface GetBandWithPositionsParams {
-  status: BandStatus;
-  production?: boolean;
-}
-
-export const getBandWithPositions = async ({
-  status,
-  production = false,
-}: GetBandWithPositionsParams) => {
-  if (!production) return MOCK_BANDS_WITH_POSITIONS[status];
-
-  const bands = await getBandsByStatus({ status, production: true });
-  if (!bands) return;
-
-  const bandsWithPositions = await Promise.all(
-    bands.map((b) => mergeBandWithPositions(b))
-  );
-
-  return bandsWithPositions.filter((bp) => bp !== undefined);
 };
 
 interface CreateBandWithPositionsParams {
@@ -78,23 +44,6 @@ export const createBandWithPositions = async ({
   await createBandPositions({ positions, bandID });
 
   return true;
-};
-
-// 更加通用的函数（后期提取到云函数中）
-// 传入的参数：一个从后端获取的乐队实体
-// 逻辑：通过传入的乐队的ID，获取相应的乐队位置信息
-// 返回值：BandWithPosition 类型的乐队实体
-
-export const mergeBandWithPositions = async (
-  band: Band
-): Promise<BandWithPositions | undefined> => {
-  const positions = await getBandPositionsByBand({
-    bandID: band._id,
-    production: true,
-  });
-  if (!positions) return;
-
-  return { info: band, positions };
 };
 
 // 提取乐手所在的所有乐队ID(自动去重)

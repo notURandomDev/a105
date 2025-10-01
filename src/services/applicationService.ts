@@ -6,7 +6,6 @@ import {
 } from "@/models/application";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult } from "@/utils/database";
-import { DB } from "@tarojs/taro";
 import { JxDbCollection, sendJxRequest } from "./shared";
 
 const collection: JxDbCollection = "application";
@@ -28,41 +27,6 @@ export const createApplication = async (
 };
 
 // READ
-export const getAllApplications = async (): Promise<Application[] | null> => {
-  try {
-    const res = await applicationCollection.get();
-    handleDBResult(
-      res,
-      "get",
-      `获取全部申请(application)数据[${res.data.length}条]`
-    );
-    return res.data as Application[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-// 根据申请记录的状态，获取申请记录
-export const getApplicationsByStatus = async ({
-  status,
-}: {
-  status: ApplicationStatus;
-}): Promise<Application[] | null> => {
-  try {
-    let res: DB.Query.IQueryResult;
-    if (!status) {
-      res = await applicationCollection.get();
-    } else {
-      res = await applicationCollection.where({ status: _.eq(status) }).get();
-    }
-    handleDBResult(res, "get", `根据申请状态(${status})获取申请数据`);
-    return res.data as Application[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
 
 type ApplicationField =
   | "applyingBandPositionID"
