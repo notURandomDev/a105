@@ -26,7 +26,7 @@ export const useBandTab = () => {
         return getBandsByField({
           pageIndex,
           conditions: [
-            { name: "乐队状态", field: "statusUpdatedAt", cmd: _.eq(status) },
+            { name: "乐队状态", field: "status", cmd: _.eq(status) },
           ],
         });
       },
