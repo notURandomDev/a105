@@ -16,7 +16,8 @@ import {
 } from "@/services/bandPositionService";
 import { updateMusicianBandIDs } from "@/services/musicianService";
 import { isBandFull } from "@/utils/band";
-import { getBandsByIDs, updateBand } from "@/services/bandsService";
+import { getBandsByField, updateBand } from "@/services/bandsService";
+import { _ } from "@/cloud/cloudClient";
 
 const ColorMap: Record<ApplicationStatus, JXColor> = {
   pending: "gray",
@@ -69,9 +70,11 @@ export default function JXMailCard({
     // 同意申请的前提，是乐队还有空余的位置；因此状态肯定是 recruiting 而不是 active
     if (isBandFull(bandPositions)) {
       // 5.1. 获取乐队信息(statusLogs历史)
-      const { data } = await getBandsByIDs({ bandIDs: [bandID] });
-      if (!data.length) return;
-      const band = data[0];
+      const { data: bands } = await getBandsByField({
+        conditions: [{ name: "乐队ID", field: "_id", cmd: _.eq(bandID) }],
+      });
+      if (!bands.length) return;
+      const band = bands[0];
 
       // 5.2. 更新乐队信息
       const now = new Date();

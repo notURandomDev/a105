@@ -25,7 +25,7 @@ const getCollection = (collection: JxDbCollection) => ({
   dbName: JxCollectionConfig[collection],
 });
 
-type JxDbRequestMode = "default" | "paginated" | "batch";
+export type JxDbRequestMode = "default" | "paginated";
 
 interface JxLogParams {
   collection: JxDbCollection;
@@ -44,7 +44,7 @@ const jxDbLog = (params: JxLogParams) => {
 
   let prefix = `${mode}`;
   const requestCount = pageIndex !== undefined ? pageIndex + 1 : -1;
-  if (mode === "batch") {
+  if (mode === "default") {
     prefix = `batch-request-${requestCount}`;
   } else if (mode === "batched") {
     prefix = `batch-requested-${requestCount}-times`;
@@ -119,8 +119,18 @@ export const sendJxRequest = async <T>(
   try {
     // GET Request
     if (method === "GET") {
-      // [batch] 批量请求模式
-      if (mode === "batch") {
+      // [paginated] 分页请求模式
+      if (mode === "paginated" && params.pageIndex !== undefined) {
+        const res = await cmd.skip(PageSize * params.pageIndex).get();
+        const length = res.data.length;
+        const log = jxDbLog({ mode: "paginated", length, ...logParams });
+        handleDBResult(res, "get", log);
+        hasMore = res.data.length === PageSize;
+        return { data: res.data as T[], hasMore, error: null };
+      }
+
+      // [default] 默认执行批量请求模式
+      else {
         let pageIndex = 0;
         let data: T[] = [];
 
@@ -128,12 +138,7 @@ export const sendJxRequest = async <T>(
         while (true) {
           const res = await cmd.skip(PageSize * pageIndex).get();
           const length = res.data.length;
-          const log = jxDbLog({
-            mode: "batch",
-            length,
-            pageIndex,
-            ...logParams,
-          });
+          const log = jxDbLog({ length, pageIndex, ...logParams });
           handleDBResult(res, "get", log);
           data.push(...(res.data as T[]));
 
@@ -147,24 +152,6 @@ export const sendJxRequest = async <T>(
           jxDbLog({ mode: "batched", length, pageIndex, ...logParams })
         );
         return { data, error: null, hasMore: false };
-      }
-
-      // [paginated] 分页请求模式
-      else if (mode === "paginated" && params.pageIndex !== undefined) {
-        const res = await cmd.skip(PageSize * params.pageIndex).get();
-        const length = res.data.length;
-        const log = jxDbLog({ mode: "paginated", length, ...logParams });
-        handleDBResult(res, "get", log);
-        hasMore = res.data.length === PageSize;
-        return { data: res.data as T[], hasMore, error: null };
-      }
-
-      // [default] 默认执行单页请求模式
-      else {
-        const res = await cmd.get();
-        const log = jxDbLog({ length: res.data.length, ...logParams });
-        handleDBResult(res, "get", log);
-        return { data: res.data as T[], hasMore, error: null };
       }
     }
     // POST Request

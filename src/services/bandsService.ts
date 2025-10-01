@@ -9,7 +9,12 @@ import {
 } from "@/models/band";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult } from "@/utils/database";
-import { JxDbCollection, sendJxRequest } from "./shared";
+import {
+  JxDbCollection,
+  JxDbRequestMode,
+  JxQueryCondition,
+  sendJxRequest,
+} from "./shared";
 
 const collection: JxDbCollection = "band";
 const bandsCollection = db.collection("band");
@@ -35,50 +40,27 @@ type GetAllBands = TcbService<JxReqParamsBase, Band>;
 
 export const getAllBands: GetAllBands = async (params = {}) => {
   const { production = true } = params;
+  const mockData = MOCK_BANDS.active;
 
-  const res = await sendJxRequest<Band>({
-    mode: "batch",
-    collection,
-    production,
-    mockData: MOCK_BANDS.active,
-  });
-
+  const res = await sendJxRequest<Band>({ collection, production, mockData });
   return res;
 };
 
-export type GetBandsByStatus = TcbService<
-  JxReqParamsBase & { status: BandStatus },
+type GetBandsByField = TcbService<
+  JxReqParamsBase & { conditions: JxQueryCondition[]; mode?: JxDbRequestMode },
   Band
 >;
 
-export const getBandsByStatus: GetBandsByStatus = async (params) => {
-  const { status, pageIndex, production = true } = params;
+export const getBandsByField: GetBandsByField = async (params) => {
+  const { conditions, pageIndex, production = true, mode = "default" } = params;
 
   const res = await sendJxRequest<Band>({
-    mode: "paginated",
+    mode,
     collection,
-    conditions: [{ name: "乐队状态", field: "status", cmd: _.eq(status) }],
-    // 优先展示最新的乐队招募帖子
+    production,
     order: { field: "statusUpdatedAt", mode: "desc" },
+    conditions,
     pageIndex,
-    production,
-  });
-
-  return res;
-};
-
-type GetBandsByIDs = TcbService<
-  JxReqParamsBase & { bandIDs: (string | number)[] },
-  Band
->;
-
-export const getBandsByIDs: GetBandsByIDs = async (params) => {
-  const { production = true, bandIDs } = params;
-
-  const res = await sendJxRequest<Band>({
-    collection,
-    conditions: [{ name: "乐队ID", field: "_id", cmd: _.in(bandIDs) }],
-    production,
   });
 
   return res;

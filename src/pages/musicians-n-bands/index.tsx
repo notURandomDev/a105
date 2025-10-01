@@ -43,7 +43,7 @@ export default function MusiciansNBands() {
   const isBandTab = () => activeTabIndex === 0;
   const isMusicianTab = () => activeTabIndex === 1;
 
-  const tabValueRouter = (bandValue, musicianValue) => {
+  const tabValueRouter = (bandValue: any, musicianValue: any) => {
     return activeTabIndex === 0 ? bandValue : musicianValue;
   };
 
@@ -95,6 +95,43 @@ export default function MusiciansNBands() {
       bandFn: () => mutexFetchMore(() => fetchBands(true)),
       musicianFn: () => mutexFetchMore(() => fetchMusicians(true)),
     });
+  };
+
+  const renderCountDisplay = () => {
+    const bandCount = bandsData.pagination.hasMore
+      ? `${bands.length}+`
+      : bands.length;
+    const musicianCount = musiciansData.pagination.hasMore
+      ? `${musicians.length}+`
+      : musicians.length;
+
+    const bandLabel = BAND_TAB_CONFIG[activeBandTabKey].label;
+    const musicianLabel = MUSICIAN_TAB_CONFIG[activeMusicianTabKey].label;
+
+    return (
+      <View style={{ padding: "0 24px" }} className="container-h card-gap">
+        <JXMetricCard
+          label={tabValueRouter(`${bandLabel}乐队`, "查看所有乐队")}
+          emoji={"🤘"}
+          value={tabValueRouter(bandCount, "")}
+          active={isBandTab()}
+          onClick={() => {
+            setActiveTabIndex(0);
+            fetchBands();
+          }}
+        />
+        <JXMetricCard
+          label={tabValueRouter("查看所有乐手", `${musicianLabel}人数`)}
+          emoji={"🧑‍🎤"}
+          value={tabValueRouter("", musicianCount)}
+          active={isMusicianTab()}
+          onClick={() => {
+            setActiveTabIndex(1);
+            fetchMusicians();
+          }}
+        />
+      </View>
+    );
   };
 
   const renderTab = () => {
@@ -154,37 +191,6 @@ export default function MusiciansNBands() {
       ));
 
     return isBandTab() ? renderBandTab() : renderMusicianTab();
-  };
-
-  const renderCountDisplay = () => {
-    const bandCount = bandsData.pagination.hasMore
-      ? `${bands.length}+`
-      : bands.length;
-    const musicianCount = musiciansData.pagination.hasMore
-      ? `${musicians.length}+`
-      : musicians.length;
-
-    const bandLabel = BAND_TAB_CONFIG[activeBandTabKey].label;
-    const musicianLabel = MUSICIAN_TAB_CONFIG[activeMusicianTabKey].label;
-
-    return (
-      <View style={{ padding: "0 24px" }} className="container-h card-gap">
-        <JXMetricCard
-          label={tabValueRouter(`${bandLabel}乐队`, "查看所有乐队")}
-          emoji={"🤘"}
-          value={tabValueRouter(bandCount, "")}
-          active={isBandTab()}
-          onClick={() => setActiveTabIndex(0)}
-        />
-        <JXMetricCard
-          label={tabValueRouter("查看所有乐手", `${musicianLabel}人数`)}
-          emoji={"🧑‍🎤"}
-          value={tabValueRouter("", musicianCount)}
-          active={isMusicianTab()}
-          onClick={() => setActiveTabIndex(1)}
-        />
-      </View>
-    );
   };
 
   return (
