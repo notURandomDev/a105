@@ -74,6 +74,7 @@ interface JxRequestParams extends JxReqParamsBase {
   skip?: number;
   production: boolean;
   pageIndex?: number; // 只会在 `paginated` 模式中使用
+  mockData?: any;
 }
 
 export const sendJxRequest = async <T>(
@@ -85,7 +86,10 @@ export const sendJxRequest = async <T>(
   const { mode = "default", method = "GET" } = params;
 
   // 如果开启了测试模式，则提前返回
-  if (!params.production) return { data: [] as T[], hasMore, error: null };
+  if (!params.production) {
+    const data: T[] = params.mockData ? params.mockData : [];
+    return { data, hasMore, error: null };
+  }
 
   // 变量初始化
   let cmd = getCollection(params.collection).dbCollection;
