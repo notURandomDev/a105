@@ -8,7 +8,7 @@ import {
   CreateBandRequest,
 } from "@/models/band";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
-import { handleDBResult, PageSize } from "@/utils/database";
+import { handleDBResult } from "@/utils/database";
 import { JxDbCollection, sendJxRequest } from "./shared";
 
 const collection: JxDbCollection = "band";
@@ -30,36 +30,19 @@ export const createBand = async (
 
 /* READ */
 
-interface GetAllBandsParams {
-  production?: boolean;
-}
-export const getAllBands = async ({
-  production = true,
-}: GetAllBandsParams = {}): Promise<Band[] | undefined> => {
-  if (!production) return MOCK_BANDS.active;
-  try {
-    let pageIndex = 0;
-    let bands: Band[] = [];
-    while (true) {
-      const res =
-        (await bandsCollection.skip(PageSize * pageIndex).get()) || [];
-      handleDBResult(
-        res,
-        "get",
-        `[batch-request-${pageIndex + 1}]获取到${res.data.length}条乐队数据`
-      );
-      bands.push(...(res.data as Band[]));
+type GetAllBands = TcbService<JxReqParamsBase, Band>;
 
-      if (res.data.length !== PageSize) break;
+export const getAllBands: GetAllBands = async (params = {}) => {
+  const { production = true } = params;
 
-      pageIndex++;
-    }
+  const res = await sendJxRequest<Band>({
+    mode: "batch",
+    collection,
+    production,
+    mockData: MOCK_BANDS.active,
+  });
 
-    if (pageIndex) console.log(`批量获取到${bands.length}条乐队数据`);
-    return bands;
-  } catch (error) {
-    console.error(error);
-  }
+  return res;
 };
 
 export type GetBandsByStatus = TcbService<
