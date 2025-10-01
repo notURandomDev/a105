@@ -41,10 +41,11 @@ const jxDbLog = (params: JxLogParams) => {
     : "全量";
 
   let prefix = `${mode}`;
+  const requestCount = pageIndex !== undefined ? pageIndex + 1 : -1;
   if (mode === "batch") {
-    prefix = `batch-request-${pageIndex ? pageIndex + 1 : -1}`;
+    prefix = `batch-request-${requestCount}`;
   } else if (mode === "batched") {
-    prefix = `batch-requested-${pageIndex}-times`;
+    prefix = `batch-requested-${requestCount}-times`;
   }
 
   return `[${prefix}]${query}获取${length}条${dbName}数据`;
@@ -140,7 +141,9 @@ export const sendJxRequest = async <T>(
 
         // 批量请求完毕，打印总结日志
         const length = data.length;
-        console.log(jxDbLog({ mode: "batched", length, ...logParams }));
+        console.log(
+          jxDbLog({ mode: "batched", length, pageIndex, ...logParams })
+        );
         return { data, error: null, hasMore: false };
       }
 
