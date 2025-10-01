@@ -57,8 +57,9 @@ export const getBandsByField: GetBandsByField = async (params) => {
   const res = await sendJxRequest<Band>({
     mode,
     collection,
-    conditions,
     production,
+    order: { field: "statusUpdatedAt", mode: "desc" },
+    conditions,
     pageIndex,
   });
 
