@@ -5,10 +5,11 @@ import {
   CreateApplicationRequest,
 } from "@/models/application";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
-import { handleDBResult, PageSize } from "@/utils/database";
+import { handleDBResult } from "@/utils/database";
 import { DB } from "@tarojs/taro";
-import { getPaginatedData } from "./shared";
+import { JxDbCollection, sendJxRequest } from "./shared";
 
+const collection: JxDbCollection = "application";
 const applicationCollection = db.collection("application");
 
 // CREATE
@@ -63,17 +64,24 @@ export const getApplicationsByStatus = async ({
   }
 };
 
-type ApplicationRequestField =
+type ApplicationField =
   | "applyingBandPositionID"
   | "applyingMusicianID"
   | "targetBandID"
   | "status";
 
+const ApplicationFieldConfig: Record<ApplicationField, string> = {
+  applyingBandPositionID: "申请乐队位置ID",
+  applyingMusicianID: "申请乐手ID",
+  targetBandID: "申请乐队ID",
+  status: "申请记录状态",
+};
+
+// Not all fields in the query need to be used.
+// e.g.: { "targetBandID": [] }
 interface GetApplicationsByFieldParams extends JxReqParamsBase {
-  // Not all fields in the query need to be used.
-  // e.g.: { "targetBandID": [] }
   query: Partial<
-    Record<ApplicationRequestField, (ApplicationStatus | string | number)[]>
+    Record<ApplicationField, (ApplicationStatus | string | number)[]>
   >;
 }
 
@@ -86,28 +94,23 @@ type GetApplicationsByField = TcbService<
 export const getApplicationsByField: GetApplicationsByField = async (
   params
 ) => {
-  const { query } = params;
+  const { query, pageIndex, production = true } = params;
 
-  // 逐个添加查询条件：{ [field]: _.in(value) }
-  const queryConditions = Object.entries(query).reduce(
-    (acc, [field, value]) => {
-      acc[field] = _.in(value);
-      return acc;
-    },
-    {} as Record<ApplicationRequestField, DB.Query.IStringQueryCondition>
-  );
-
-  return getPaginatedData<Application>({
-    apiServiceFn: async (pageIndex: number) => {
-      return applicationCollection
-        .where(queryConditions)
-        .skip(PageSize * pageIndex)
-        .orderBy("appliedAt", "desc") // 按申请的时间降序
-        .get();
-    },
-    logEntity: `字段 ${Object.keys(queryConditions).join(", ")}`,
-    ...params,
+  const conditions = Object.entries(query).map(([field, value]) => {
+    const name = ApplicationFieldConfig[field];
+    return { name, field, cmd: _.in(value) };
   });
+
+  const res = await sendJxRequest<Application>({
+    mode: "paginated",
+    collection,
+    conditions,
+    order: { field: "appliedAt", mode: "desc" },
+    pageIndex,
+    production,
+  });
+
+  return res;
 };
 
 // UPDATE

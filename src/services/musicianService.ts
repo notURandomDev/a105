@@ -7,9 +7,10 @@ import {
 } from "@/models/musician";
 import { PositionType } from "@/models/position";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
-import { handleDBResult, PageSize } from "@/utils/database";
-import { getPaginatedData } from "./shared";
+import { handleDBResult } from "@/utils/database";
+import { JxDbCollection, sendJxRequest } from "./shared";
 
+const collection: JxDbCollection = "musician";
 const musiciansCollection = db.collection("musician");
 
 interface CreateMusicianParams {
@@ -75,30 +76,27 @@ export const getMusiciansByUserID = async ({
   }
 };
 
-interface GetMusiciansByPositionParams extends JxReqParamsBase {
-  positions: PositionType[];
-}
-
 export type GetMusiciansByPosition = TcbService<
-  GetMusiciansByPositionParams,
+  JxReqParamsBase & { positions: PositionType[] },
   Musician
 >;
 
 export const getMusiciansByPositions: GetMusiciansByPosition = async (
   params
 ) => {
-  const { positions } = params;
-  return getPaginatedData<Musician>({
-    apiServiceFn: async (pageIndex: number) => {
-      return musiciansCollection
-        .orderBy("statusUpdatedAt", "desc") // 优先展示最新的乐队招募帖子
-        .where({ position: _.in(positions) })
-        .skip(PageSize * pageIndex)
-        .get();
-    },
-    logEntity: `乐手类型(${positions.toString()})`,
-    ...params,
+  const { positions, pageIndex, production = true } = params;
+
+  const res = await sendJxRequest<Musician>({
+    mode: "paginated",
+    collection,
+    conditions: [{ name: "乐手类型", field: "position", cmd: _.in(positions) }],
+    // 优先展示最新的乐队招募帖子
+    order: { field: "statusUpdatedAt", mode: "desc" },
+    pageIndex,
+    production,
   });
+
+  return res;
 };
 
 interface GetMatchingMusicianParams {
