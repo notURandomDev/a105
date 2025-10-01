@@ -24,6 +24,7 @@ export const useBandTab = () => {
       fetchFn: (pageIndex: number) => {
         const status = activeBandTabKey.replace("Bands", "") as BandStatus;
         return getBandsByField({
+          mode: "paginated",
           pageIndex,
           conditions: [
             { name: "乐队状态", field: "status", cmd: _.eq(status) },

@@ -9,7 +9,12 @@ import {
 } from "@/models/band";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult } from "@/utils/database";
-import { JxDbCollection, JxQueryCondition, sendJxRequest } from "./shared";
+import {
+  JxDbCollection,
+  JxDbRequestMode,
+  JxQueryCondition,
+  sendJxRequest,
+} from "./shared";
 
 const collection: JxDbCollection = "band";
 const bandsCollection = db.collection("band");
@@ -42,14 +47,15 @@ export const getAllBands: GetAllBands = async (params = {}) => {
 };
 
 type GetBandsByField = TcbService<
-  JxReqParamsBase & { conditions: JxQueryCondition[] },
+  JxReqParamsBase & { conditions: JxQueryCondition[]; mode?: JxDbRequestMode },
   Band
 >;
 
 export const getBandsByField: GetBandsByField = async (params) => {
-  const { conditions, pageIndex, production = true } = params;
+  const { conditions, pageIndex, production = true, mode = "default" } = params;
 
   const res = await sendJxRequest<Band>({
+    mode,
     collection,
     conditions,
     production,

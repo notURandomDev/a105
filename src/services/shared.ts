@@ -25,7 +25,7 @@ const getCollection = (collection: JxDbCollection) => ({
   dbName: JxCollectionConfig[collection],
 });
 
-type JxDbRequestMode = "default" | "paginated";
+export type JxDbRequestMode = "default" | "paginated";
 
 interface JxLogParams {
   collection: JxDbCollection;
