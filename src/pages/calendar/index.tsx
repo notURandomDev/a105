@@ -31,8 +31,10 @@ export default function Calendar() {
 
   // 【更新日历组件数据】获取当前一周的所有排练预约记录
   const fetchCurrentWeekReservations = async () => {
-    const reservations =
-      (await getReservationsByDateRange(today, sunday)) || [];
+    const { data: reservations } = await getReservationsByDateRange({
+      startDate: today,
+      endDate: sunday,
+    });
     setWeekReservations(reservations);
   };
 

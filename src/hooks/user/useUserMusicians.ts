@@ -19,8 +19,10 @@ export const useUserMusicians = (params: UseUserMusiciansProps = {}) => {
 
   const fetchUserMusicians = async () => {
     if (!userID) return [];
-    const musicians =
-      (await getMusiciansByUserID({ userID, production })) || [];
+    const { data: musicians } = await getMusiciansByUserID({
+      userID,
+      production,
+    });
     setUserMusicians(musicians);
     return musicians;
   };

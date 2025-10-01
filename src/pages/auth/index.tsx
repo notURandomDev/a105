@@ -31,8 +31,8 @@ export default function Auth() {
 
     // 获取用户数据
     Taro.showLoading();
-    const user = await getUserByOpenid(openid);
-    if (!user) {
+    const { data: user } = await getUserByOpenid({ openid });
+    if (!user.length) {
       // 用户不存在，说明未注册
       const docId = await signUserUp();
       if (!docId) {
@@ -50,7 +50,7 @@ export default function Auth() {
       });
     } else {
       // 用户已注册，根据返回的用户数据初始化全局 userInfo
-      setUserInfo(user);
+      setUserInfo(user[0]);
     }
 
     Taro.hideLoading();

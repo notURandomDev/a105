@@ -1,5 +1,5 @@
 import { _, db } from "@/cloud/cloudClient";
-import { MOCK_BAND_ACTIVE, MOCK_BANDS } from "@/constants/database/bands";
+import { MOCK_BANDS } from "@/constants/database/bands";
 
 import {
   Band,
@@ -13,6 +13,7 @@ import { JxDbCollection, sendJxRequest } from "./shared";
 
 const collection: JxDbCollection = "band";
 const bandsCollection = db.collection("band");
+
 /* CREATE */
 
 export const createBand = async (
@@ -66,47 +67,21 @@ export const getBandsByStatus: GetBandsByStatus = async (params) => {
   return res;
 };
 
-interface GetBandByIdParams {
-  _id: string | number;
-  production?: boolean;
-}
+type GetBandsByIDs = TcbService<
+  JxReqParamsBase & { bandIDs: (string | number)[] },
+  Band
+>;
 
-export const getBandById = async ({
-  _id,
-  production = true,
-}: GetBandByIdParams): Promise<Band | undefined> => {
-  if (!production) return MOCK_BAND_ACTIVE;
+export const getBandsByIDs: GetBandsByIDs = async (params) => {
+  const { production = true, bandIDs } = params;
 
-  try {
-    const res = await bandsCollection.where({ _id: _.eq(_id) }).get();
-    handleDBResult(res, "get", `根据乐队ID(${_id})获取乐队数据`);
-    return res.data[0] as Band;
-  } catch (error) {
-    console.error(error);
-  }
-};
+  const res = await sendJxRequest<Band>({
+    collection,
+    conditions: [{ name: "乐队ID", field: "_id", cmd: _.in(bandIDs) }],
+    production,
+  });
 
-interface GetBandsByIDsParams {
-  production?: boolean;
-  bandIDs: (string | number)[];
-}
-export const getBandsByIDs = async ({
-  production = true,
-  bandIDs,
-}: GetBandsByIDsParams): Promise<Band[] | null> => {
-  if (!production) return null;
-  try {
-    const res = await bandsCollection.where({ _id: _.in(bandIDs) }).get();
-    handleDBResult(
-      res,
-      "get",
-      `根据乐队ID(${bandIDs.length})获取${res.data.length}条乐队数据`
-    );
-    return res.data as Band[];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  return res;
 };
 
 /* UPDATE */

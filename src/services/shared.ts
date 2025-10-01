@@ -4,6 +4,7 @@ import { handleDBResult, PageSize } from "@/utils/database";
 import { DB } from "@tarojs/taro";
 
 export type JxDbCollection =
+  | "user"
   | "band"
   | "band_position"
   | "musician"
@@ -11,6 +12,7 @@ export type JxDbCollection =
   | "reservation";
 
 const JxCollectionConfig: Record<JxDbCollection, string> = {
+  user: "用户",
   band: "乐队",
   band_position: "乐队位置",
   musician: "乐手",
@@ -62,7 +64,7 @@ type JxDbOrder = { field: string; mode: "asc" | "desc" };
 export type JxQueryCondition = {
   name: string;
   field: string;
-  cmd: DB.Command.DatabaseQueryCommand;
+  cmd: DB.Command.DatabaseQueryCommand | DB.Command.DatabaseLogicCommand;
 };
 
 interface JxRequestParams extends JxReqParamsBase {
@@ -91,11 +93,8 @@ export const sendJxRequest = async <T>(
     return { data, hasMore, error: null };
   }
 
-  // 变量初始化
-  let cmd = getCollection(params.collection).dbCollection;
-  let queryEntities: string[] = [];
-
   // 开始构造指令
+  let cmd = getCollection(params.collection).dbCollection;
 
   // 1. [orderBy] 如果有排序需求，则进行排序
   const order = params.order;
@@ -103,13 +102,12 @@ export const sendJxRequest = async <T>(
 
   // 2. [where] 如果有查询条件，构造 `where` 指令内容
   const conditions = params.conditions;
+  let queryEntities: string[] = [];
   if (conditions?.length) {
-    console.log("db conditions", conditions);
     const query = conditions.reduce((acc, { field, cmd }) => {
       acc[field] = cmd;
       return acc;
     }, {});
-    console.log("db queries", query);
     queryEntities = conditions.map(({ name }) => name);
     cmd = cmd.where(query);
   }

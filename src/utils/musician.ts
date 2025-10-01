@@ -10,7 +10,7 @@ export const matchUserMusician = async (
   position: PositionType
 ) => {
   // 获取用户所有的乐手身份
-  const musicians = (await getMusiciansByUserID({ userID })) || [];
+  const { data: musicians } = await getMusiciansByUserID({ userID });
   // 找到与申请的乐手位置相匹配的乐手身份
   return musicians.find((m) => m.position === position);
 };

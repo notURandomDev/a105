@@ -58,7 +58,7 @@ export const getMusicianBaseBands = async (
 ): Promise<Band[] | null> => {
   // 将乐手数组的 bandIDs 提取出来 (无重叠)
   const uniqueBandIDs = extractMusicianBaseBandIDs(musicians);
-  const bands = await getBandsByIDs({ bandIDs: uniqueBandIDs });
+  const { data: bands } = await getBandsByIDs({ bandIDs: uniqueBandIDs });
   return bands;
 };
 
