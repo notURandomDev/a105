@@ -35,14 +35,9 @@ type GetAllBands = TcbService<JxReqParamsBase, Band>;
 
 export const getAllBands: GetAllBands = async (params = {}) => {
   const { production = true } = params;
+  const mockData = MOCK_BANDS.active;
 
-  const res = await sendJxRequest<Band>({
-    mode: "batch",
-    collection,
-    production,
-    mockData: MOCK_BANDS.active,
-  });
-
+  const res = await sendJxRequest<Band>({ collection, production, mockData });
   return res;
 };
 
