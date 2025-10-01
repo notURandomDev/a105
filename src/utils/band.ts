@@ -1,3 +1,4 @@
+import { _ } from "@/cloud/cloudClient";
 import { Band, BandStatus, CreateBandRequest } from "@/models/band";
 import {
   BandPosition,
@@ -5,7 +6,7 @@ import {
 } from "@/models/band-position";
 import { Musician } from "@/models/musician";
 import { createBandPositions } from "@/services/bandPositionService";
-import { createBand, getBandsByIDs } from "@/services/bandsService";
+import { createBand, getBandsByField } from "@/services/bandsService";
 import { updateMusicianBandIDs } from "@/services/musicianService";
 
 export const getPositionsByStatus = (
@@ -58,7 +59,9 @@ export const getMusicianBaseBands = async (
 ): Promise<Band[] | null> => {
   // 将乐手数组的 bandIDs 提取出来 (无重叠)
   const uniqueBandIDs = extractMusicianBaseBandIDs(musicians);
-  const { data: bands } = await getBandsByIDs({ bandIDs: uniqueBandIDs });
+  const { data: bands } = await getBandsByField({
+    conditions: [{ name: "乐队ID", field: "_id", cmd: _.in(uniqueBandIDs) }],
+  });
   return bands;
 };
 

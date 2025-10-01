@@ -1,10 +1,11 @@
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 import { Band, BandStatus } from "@/models/band";
-import { getBandsByStatus } from "@/services/bandsService";
+import { getBandsByField } from "@/services/bandsService";
 import { BandTabKey } from "@/types/components";
 import { useUserMusicians } from "../user/useUserMusicians";
 import { usePaginatedData } from "../util/usePaginatedData";
+import { _ } from "@/cloud/cloudClient";
 
 // Tab初始值：活跃乐队
 const DefaultBandTabKey = "recruitingBands";
@@ -22,7 +23,12 @@ export const useBandTab = () => {
       autoPagination,
       fetchFn: (pageIndex: number) => {
         const status = activeBandTabKey.replace("Bands", "") as BandStatus;
-        return getBandsByStatus({ status, pageIndex });
+        return getBandsByField({
+          pageIndex,
+          conditions: [
+            { name: "乐队状态", field: "statusUpdatedAt", cmd: _.eq(status) },
+          ],
+        });
       },
     });
   };

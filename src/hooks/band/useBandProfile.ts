@@ -2,12 +2,13 @@ import { Application } from "@/models/application";
 import { BandWithPositions } from "@/models/band";
 import { getApplicationsByField } from "@/services/applicationService";
 import { getBandPositionsByBand } from "@/services/bandPositionService";
-import { getBandsByIDs } from "@/services/bandsService";
+import { getBandsByField } from "@/services/bandsService";
 import { filterPositionsByStatus } from "@/utils/band-position";
 import { mapMusiciansIntoIds } from "@/utils/musician";
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 import { useUserMusicians } from "../user/useUserMusicians";
+import { _ } from "@/cloud/cloudClient";
 
 export const useBandProfile = () => {
   const [bandID, setBandID] = useState<string | number | null>(null);
@@ -37,7 +38,9 @@ export const useBandProfile = () => {
 
   // 聚合操作：查询乐队 + 查询该乐队的位置情况
   const fetchBandProfile = async (bandID: string | number) => {
-    const { data: bands } = await getBandsByIDs({ bandIDs: [bandID] });
+    const { data: bands } = await getBandsByField({
+      conditions: [{ name: "乐队ID", field: "_id", cmd: _.eq(bandID) }],
+    });
     const { data: positions } = await getBandPositionsByBand({ bandID });
     if (!bands.length || !positions.length) return;
     const band = bands[0];
