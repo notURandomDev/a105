@@ -35,7 +35,7 @@ export default function Reserve() {
     getReservationPreview,
   } = useReservationForm();
 
-  const { userBands, fetchUserBands } = useUserBands();
+  const { userBands, fetchUserBands } = useUserBands({ status: "active" });
 
   return (
     <View className="reserve config-page">

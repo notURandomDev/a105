@@ -1,5 +1,4 @@
 import { Band, BandPickerConfig } from "@/models/band";
-import { filterBandsByStatus } from "@/utils/band";
 import { Picker, Popup } from "@taroify/core";
 import { PickerOptionData } from "@taroify/core/picker/picker.shared";
 
@@ -27,10 +26,8 @@ function JXBandPicker({
     onConfirm({ _id, name: band!.name } as BandPickerConfig);
   };
 
-  // #[Derived(userBands)] 筛选出用户所在的活跃乐队；非活跃乐队不能进行排练预约
-  const activeBands = filterBandsByStatus(bands, "active"); // Derived from `userBands`
   // #[Derived(userBands)] 将活跃乐队数据映射成 Picker 组件接收的数据类型
-  const bandColumns = mapBandsIntoColumns(activeBands); // Derived from `userBands`
+  const bandColumns = mapBandsIntoColumns(bands); // Derived from `userBands`
 
   return (
     <Popup open={open} rounded placement="bottom">

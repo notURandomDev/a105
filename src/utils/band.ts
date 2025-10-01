@@ -1,5 +1,5 @@
 import { _ } from "@/cloud/cloudClient";
-import { Band, BandStatus, CreateBandRequest } from "@/models/band";
+import { Band, CreateBandRequest } from "@/models/band";
 import {
   BandPosition,
   CreateBandPositionRequest,
@@ -87,7 +87,3 @@ export const generateBandNameMap = (
   const uniqueBands = bands.filter((b) => uniqueBandIDs.includes(b._id)); // 找到乐队
   return new Map(uniqueBands.map((b) => [b._id, b.name]));
 };
-
-// 根据乐队状态查找乐队
-export const filterBandsByStatus = (bands: Band[], status: BandStatus) =>
-  bands.filter((b) => b.status === status);
