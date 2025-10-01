@@ -19,7 +19,7 @@ export default function Index() {
   // 获取数据逻辑：
   // 用户 -> 乐手 -> 乐队 -> 预约记录
 
-  // 1. 获取当前登录用户的所有乐手身份 + 所在的乐队
+  // 1. 获取当前登录用户的所有乐手身份 + 所有所在的乐队
   const { userInfo, userBands } = useUserBands();
 
   // 2. 获取用户所在乐队预约的排练（本周）

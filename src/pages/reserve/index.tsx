@@ -8,6 +8,7 @@ import { getHMfromDate, getMDWfromDate } from "@/utils/DatetimeHelper";
 import JXBandPicker from "@/components/Pickers/JXBandPicker";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { useReservationForm } from "@/hooks/reservation/useReservationForm";
+import { useUserBands } from "@/hooks/user/useUserBands";
 
 export default function Reserve() {
   useLoad((options: Record<string, string>) => {
@@ -34,6 +35,8 @@ export default function Reserve() {
     getReservationPreview,
   } = useReservationForm();
 
+  const { userBands, fetchUserBands } = useUserBands();
+
   return (
     <View className="reserve config-page">
       <JXFormLabel px>为你的乐队预约排练</JXFormLabel>
@@ -43,10 +46,12 @@ export default function Reserve() {
             readonly
             value={formData.band?.name ?? ""}
             placeholder="选择乐队"
+            onClick={fetchUserBands}
           />
         </Field>
       </Cell.Group>
       <JXBandPicker
+        bands={userBands}
         open={activePicker === "band"}
         onConfirm={updateBandPicker}
         onCancel={() => setActivePicker(null)}

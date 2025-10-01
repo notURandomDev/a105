@@ -8,7 +8,7 @@ export const useMusicianProfile = () => {
   const [musicianProfile, setMusicianProfile] =
     useState<MusicianProfile | null>(null);
 
-  // 1. 获取用户所有的乐手身份 + 所在的乐队
+  // 1. 获取用户所有的乐手身份 + 所有所在的乐队
   const { userBands, userMusicians } = useUserBands();
 
   useEffect(() => {
