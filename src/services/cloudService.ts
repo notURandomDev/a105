@@ -1,4 +1,5 @@
 import {
+  CLOUD_CALL_FUNCTION_OK,
   CLOUD_CODE_ERRMSG_OK,
   CLOUD_OPENID_ERRMSG_OK,
   CLOUD_USER_PROFILE_OK,
@@ -101,7 +102,7 @@ interface QiniuTokenResponse {
 }
 
 export const getQiniuToken = async (
-  userDocId: string | number
+  userId: string | number
 ): Promise<QiniuTokenResponse | null> => {
   const GET_QINIU_TOKEN = "从云函数获取七牛token";
 
@@ -109,9 +110,10 @@ export const getQiniuToken = async (
     const res = await Taro.cloud.callFunction({
       name: "getQiniuToken",
       data: {
-        fileName: `user/avatar/${userDocId}.png`,
+        fileName: `avatar/${userId}.png`,
       },
     });
+    if (res.errMsg !== CLOUD_CALL_FUNCTION_OK) throw Error(res.errMsg);
 
     console.log(GET_QINIU_TOKEN + "成功：", res);
     return res.result as QiniuTokenResponse;

@@ -9,6 +9,7 @@ import { JXToast } from "@/utils/toast";
 
 import JXAvatar from "@/components/JXAvatar";
 import { getUserAvatarUrl } from "@/utils/user";
+import { uploadToQiniu } from "@/utils/qiniu";
 
 interface ProfileForm {
   nickName: string;
@@ -76,6 +77,11 @@ export default function ProfileEdit() {
     setFormData((prev) => ({ ...prev, avatarUrl }));
   };
 
+  const handleAvatarUpload = async (tempFileUrl: string) => {
+    if (!userInfo) return;
+    uploadToQiniu({ userID: userInfo._id, filePath: tempFileUrl });
+  };
+
   return (
     <View className="profile-edit config-page">
       <View
@@ -90,7 +96,7 @@ export default function ProfileEdit() {
           onChooseAvatar={(e) => {
             const tempFilePath = e.detail.avatarUrl;
             console.log(tempFilePath);
-            uploadToCloud(tempFilePath);
+            handleAvatarUpload(tempFilePath);
           }}
         >
           选择头像

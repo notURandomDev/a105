@@ -12,6 +12,7 @@ node_modules/
 *.local
 project.config.json
 .env*
+cloudbaserc.json
 
 # 系统/编辑器
 .DS_Store
