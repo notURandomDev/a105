@@ -5,6 +5,7 @@ import { PositionType } from "@/models/position";
 import { CreateBandPositionRequest } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserMusicians } from "../user/useUserMusicians";
+import { isFormValid } from "@/utils/form";
 
 const DefaultFormDataBase = {
   name: "", // 乐队名
@@ -158,17 +159,17 @@ export const useBandForm = () => {
 
   // 验证表单有效性
   // 作用：决定是否显示 "创建乐队" 的 CTA 按钮
-  const isFormDataValid = () => {
+  const formValid = () => {
     const { name, description, positions } = formData;
     const { recruitingPositions, occupiedPositions } =
       getPositionsByStatus(positions);
-    return (
-      name?.length > 0 &&
-      description?.length > 0 &&
-      recruitingPositions.length > 0 &&
-      occupiedPositions.length > 0 &&
-      !bandNameConflicted
-    );
+    return isFormValid([
+      name?.length > 0,
+      description?.length > 0,
+      recruitingPositions.length > 0,
+      occupiedPositions.length > 0,
+      !bandNameConflicted,
+    ]);
   };
 
   // 检查用户取的乐队名是否和当前已经存在的乐队名冲突
@@ -205,7 +206,7 @@ export const useBandForm = () => {
     getPickerTitle,
     updatePositions,
     handleSubmit,
-    isFormDataValid,
+    formValid,
     checkDuplicateBandName,
     removeRecruitingPosition,
     getRecruitNote,

@@ -9,6 +9,7 @@ import { updateUser } from "@/services/usersService";
 import JXAvatar from "@/components/JXAvatar";
 import { ossAvatarUpload } from "@/utils/oss";
 import { FormItemStatus } from "@/types/ui/shared";
+import { isFormValid } from "@/utils/form";
 
 interface ProfileFormItem<T> {
   value: T;
@@ -46,10 +47,9 @@ export default function ProfileEdit() {
     }));
   };
 
-  const isFormValid = () => {
+  const formValid = () => {
     const { nickName } = formData;
-    const isNickNameValid = nickName.value.length;
-    return isNickNameValid;
+    return isFormValid([nickName.value.length]);
   };
 
   const isFormEdited = () => {
@@ -60,7 +60,7 @@ export default function ProfileEdit() {
   };
 
   const handleSaveEdit = async () => {
-    if (!userInfo || !isFormValid()) return;
+    if (!userInfo || !formValid()) return;
 
     const { nickName, avatarUrl } = formData;
     if (nickName.status === "pristine" && avatarUrl.status === "pristine")
@@ -144,7 +144,7 @@ export default function ProfileEdit() {
       </Cell.Group>
       <View className="button-container">
         <Button
-          disabled={!isFormValid() || !isFormEdited()}
+          disabled={!formValid() || !isFormEdited()}
           block
           color="success"
           onClick={handleSaveEdit}

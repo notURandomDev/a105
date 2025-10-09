@@ -27,7 +27,7 @@ export default function Reserve() {
     activePicker,
     setActivePicker,
     getPickerTitle,
-    isFormDataValid,
+    formValid,
     submitFormData,
     isDateTimePickerActive,
     updateDatetimePicker,
@@ -88,7 +88,7 @@ export default function Reserve() {
           />
         </Field>
       </Cell.Group>
-      {isFormDataValid() && (
+      {formValid() && (
         <>
           <JXFormLabel px>请确认预约信息</JXFormLabel>
           <View style={{ padding: "0 16px" }}>
@@ -112,7 +112,7 @@ export default function Reserve() {
       <View className="button-container">
         <Button
           className="reserve-btn"
-          disabled={!isFormDataValid()}
+          disabled={!formValid()}
           block
           onClick={submitFormData}
         >

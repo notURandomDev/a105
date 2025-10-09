@@ -20,7 +20,7 @@ export default function BandCreate() {
     getPickerTitle,
     updatePositions,
     handleSubmit,
-    isFormDataValid,
+    formValid,
     checkDuplicateBandName,
     removeRecruitingPosition,
     getRecruitNote,
@@ -153,7 +153,7 @@ export default function BandCreate() {
           userMusicians.length ? userMusicians[0].position : undefined
         }
       />
-      {isFormDataValid() && (
+      {formValid() && (
         <View
           className="page-padding-h container-v"
           style={{ paddingTop: 16, paddingBottom: 16 }}

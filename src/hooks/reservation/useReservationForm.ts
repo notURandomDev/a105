@@ -143,13 +143,13 @@ export const useReservationForm = () => {
   });
 
   // 检查表单数据是否有效 (控制CTA按钮是否禁用)
-  const isFormDataValid = () => {
+  const formValid = () => {
     const { startTime, endTime, band } = formData;
     return (
       startTime !== null &&
       endTime !== null &&
-      band !== null &&
-      startTime.getTime() !== endTime.getTime()
+      startTime.getTime() !== endTime.getTime() &&
+      band !== null
     );
   };
 
@@ -186,7 +186,7 @@ export const useReservationForm = () => {
     activePicker,
     setActivePicker,
     getPickerTitle,
-    isFormDataValid,
+    formValid,
     submitFormData,
     updatePickerValue,
     isDateTimePickerActive,
