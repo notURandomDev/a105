@@ -60,7 +60,7 @@ export default function Profile() {
           horizontal
           style={{ alignItems: "center" }}
         >
-          <JXAvatar src={userInfo?.avatarFileID ?? undefined} />
+          <JXAvatar src={userInfo?.avatarUrl ?? undefined} />
           <View
             className="container-v grow"
             style={{ gap: 0, padding: "0 8px", justifyContent: "center" }}

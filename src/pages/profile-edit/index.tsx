@@ -23,10 +23,10 @@ export default function ProfileEdit() {
   });
 
   useEffect(() => {
-    if (!userInfo?.nickName || !userInfo.avatarFileID) return;
+    if (!userInfo?.nickName || !userInfo.avatarUrl) return;
     setFormData({
       nickName: userInfo.nickName ?? "",
-      avatarUrl: userInfo.avatarFileID,
+      avatarUrl: userInfo.avatarUrl,
     });
   }, [userInfo]);
 
@@ -68,7 +68,7 @@ export default function ProfileEdit() {
     }
 
     // 2. 更新用户表
-    const res = await updateUser(userInfo._id, { avatarFileID: avatarUrl });
+    const res = await updateUser(userInfo._id, { avatarUrl });
     if (!res) {
       Taro.showToast({ title: "头像更新失败", icon: "error" });
       return;
@@ -78,7 +78,7 @@ export default function ProfileEdit() {
     Taro.showToast({ title: "头像更新成功", icon: "success" });
 
     // 3. 更新 userInfo 全局状态，驱动表单数据更新
-    setUserInfo({ ...userInfo, avatarFileID: avatarUrl });
+    setUserInfo({ ...userInfo, avatarUrl });
   };
 
   return (

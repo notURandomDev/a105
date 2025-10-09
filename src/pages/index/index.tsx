@@ -55,7 +55,7 @@ export default function Index() {
       <JXAvatar
         size="xl"
         shape="rounded"
-        src={userInfo?.avatarFileID ?? undefined}
+        src={userInfo?.avatarUrl ?? undefined}
       />
       <JXHugeLabel>
         {reservations.length

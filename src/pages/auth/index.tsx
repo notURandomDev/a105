@@ -46,7 +46,6 @@ export default function Auth() {
         _id: docId,
         avatarUrl: null,
         nickName: null,
-        avatarFileID: null,
       });
     } else {
       // 用户已注册，根据返回的用户数据初始化全局 userInfo

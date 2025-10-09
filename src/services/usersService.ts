@@ -40,7 +40,7 @@ export const getUserByOpenid: GetUserByOpenid = async (params) => {
 
 interface UpdateUserData {
   nickName?: string;
-  avatarFileID?: string;
+  avatarUrl?: string;
 }
 export const updateUser = async (
   docId: string | number,
