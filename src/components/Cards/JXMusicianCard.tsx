@@ -24,7 +24,7 @@ function JXMusicianCard({ musician }: JXMusicianCardProps) {
   return (
     <JXCardContainer onClick={navigate} style={{ gap: 8 }}>
       <View className="container-h" style={{ gap: 12, alignItems: "center" }}>
-        <JXAvatar>{nickname}</JXAvatar>
+        <JXAvatar />
         <View className="container-v">
           <JXTitleLabel>{nickname}</JXTitleLabel>
           <JXSecondaryLabel>

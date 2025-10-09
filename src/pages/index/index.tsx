@@ -52,16 +52,16 @@ export default function Index() {
 
   return (
     <View className="index page page-padding">
-      <JXAvatar size="xl" shape="rounded">
-        {userInfo?.nickName ? userInfo?.nickName[0].toUpperCase() : "?"}
-      </JXAvatar>
-
+      <JXAvatar
+        size="xl"
+        shape="rounded"
+        src={userInfo?.avatarFileID ?? undefined}
+      />
       <JXHugeLabel>
         {reservations.length
           ? `本周 ${reservations.length} 次排练`
           : "本周暂无排练"}
       </JXHugeLabel>
-
       <View className="grow container-v list-gap">
         {sortReservationsOnState(reservations).map((reservation) => (
           <JXReservationCard reservation={reservation} />

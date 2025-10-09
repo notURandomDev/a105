@@ -20,7 +20,6 @@ export default function Profile() {
 
   const getFullNickname = () => {
     if (!userInfo) return "登录/注册";
-
     return userInfo.nickName ?? "请完善资料";
   };
 
@@ -61,7 +60,7 @@ export default function Profile() {
           horizontal
           style={{ alignItems: "center" }}
         >
-          <JXAvatar>{userInfo?.nickName ?? ""}</JXAvatar>
+          <JXAvatar src={userInfo?.avatarFileID ?? undefined} />
           <View
             className="container-v grow"
             style={{ gap: 0, padding: "0 8px", justifyContent: "center" }}

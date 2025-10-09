@@ -107,3 +107,7 @@ page {
 .card-gap {
   gap: 20px;
 }
+
+.no-border-after::after {
+  border: none;
+}

@@ -1,4 +1,4 @@
-import { Image, View } from "@tarojs/components";
+import { Button, CommonEventFunction, Image } from "@tarojs/components";
 
 type JXAvatarShape = "circle" | "rounded";
 
@@ -15,42 +15,42 @@ const JX_AVATAR_SIZE: Record<JXAvatarSize, number> = {
   xl: 125,
 };
 
-const JX_AVATAR_FONT_SIZE: Record<JXAvatarSize, number> = {
-  md: 20,
-  lg: 30,
-  xl: 56,
-};
-
 interface JXAvatarProps {
-  children: string;
   shape?: JXAvatarShape;
   size?: JXAvatarSize;
   src?: string;
+  clickable?: boolean;
+  onChooseAvatar?: CommonEventFunction;
 }
+
 function JXAvatar(props: JXAvatarProps) {
-  const { children, shape = "circle", size = "md", src } = props;
+  const { shape = "circle", size = "md", src, clickable = false } = props;
 
   return (
-    <View
-      className="container-v"
+    <Button
+      disabled={!clickable}
+      className="no-border-after"
+      openType="chooseAvatar"
+      onChooseAvatar={props.onChooseAvatar}
       style={{
-        width: JX_AVATAR_SIZE[size],
+        backgroundColor: "transparent",
+        borderColor: "transparent",
+        padding: 0,
+        margin: 0,
         height: JX_AVATAR_SIZE[size],
-        borderRadius: JX_AVATAR_BORDER_RADIUS[shape],
-        justifyContent: "center",
-        alignItems: "center",
-        overflow: "hidden",
+        width: JX_AVATAR_SIZE[size],
       }}
     >
-      {/* <Text style={{ color: "white", fontSize: JX_AVATAR_FONT_SIZE[size] }}>
-        {children ? children[0].toUpperCase() : "?"}
-      </Text> */}
       <Image
-        style={{ width: "100%", height: "100%" }}
+        style={{
+          width: JX_AVATAR_SIZE[size],
+          height: JX_AVATAR_SIZE[size],
+          borderRadius: JX_AVATAR_BORDER_RADIUS[shape],
+        }}
         src={src ?? require("../assets/images/default-avatar.jpeg")}
         mode="aspectFill"
       />
-    </View>
+    </Button>
   );
 }
 

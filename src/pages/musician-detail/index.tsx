@@ -12,9 +12,7 @@ export default function MusicianDetail() {
 
   return (
     <View className="musician-detail page-padding">
-      <JXAvatar size="xl" shape="rounded">
-        {musicianProfile?.nickname ?? "?"}
-      </JXAvatar>
+      <JXAvatar size="xl" shape="rounded" />
 
       <JXHugeLabel>{musicianProfile?.nickname ?? "暂无昵称"}</JXHugeLabel>
 

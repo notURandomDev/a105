@@ -8,8 +8,7 @@ import { updateUser } from "@/services/usersService";
 import { JXToast } from "@/utils/toast";
 
 import JXAvatar from "@/components/JXAvatar";
-import { getUserAvatarUrl } from "@/utils/user";
-import { uploadToQiniu } from "@/utils/qiniu";
+import { ossAvatarUpload } from "@/utils/oss";
 
 interface ProfileForm {
   nickName: string;
@@ -24,15 +23,15 @@ export default function ProfileEdit() {
   });
 
   useEffect(() => {
-    if (!userInfo) return;
-    setFormData((prev) => ({ ...prev, nickName: userInfo.nickName ?? "" }));
+    if (!userInfo?.nickName || !userInfo.avatarFileID) return;
+    setFormData({
+      nickName: userInfo.nickName ?? "",
+      avatarUrl: userInfo.avatarFileID,
+    });
   }, [userInfo]);
 
   const handleNicknameChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      nickName: value,
-    }));
+    setFormData((prev) => ({ ...prev, nickName: value }));
   };
 
   const handleSaveEdit = async () => {
@@ -57,29 +56,29 @@ export default function ProfileEdit() {
     });
   };
 
-  const uploadToCloud = async (filePath: string) => {
-    if (!userInfo) return;
-
-    // 1. 将文件上传至云存储
-    const cloudRes = await Taro.cloud.uploadFile({
-      cloudPath: `avatars/${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      filePath,
-    });
-    console.log("头像文件成功上传到云端", cloudRes);
-
-    // 获取到头像文件在云存储中的文件ID
-    const fileID = cloudRes.fileID;
-
-    // 更新数据库[用户表]中的用户头像文件ID
-    await updateUser(userInfo._id, { avatarFileID: fileID });
-
-    const avatarUrl = await getUserAvatarUrl(fileID);
-    setFormData((prev) => ({ ...prev, avatarUrl }));
-  };
-
   const handleAvatarUpload = async (tempFileUrl: string) => {
     if (!userInfo) return;
-    uploadToQiniu({ userID: userInfo._id, filePath: tempFileUrl });
+    Taro.showLoading({ title: "加载中" });
+
+    // 1. 上传头像文件至OSS
+    const avatarUrl = await ossAvatarUpload(tempFileUrl);
+    if (!avatarUrl) {
+      Taro.showToast({ title: "头像更新失败", icon: "error" });
+      return;
+    }
+
+    // 2. 更新用户表
+    const res = await updateUser(userInfo._id, { avatarFileID: avatarUrl });
+    if (!res) {
+      Taro.showToast({ title: "头像更新失败", icon: "error" });
+      return;
+    }
+
+    Taro.hideLoading();
+    Taro.showToast({ title: "头像更新成功", icon: "success" });
+
+    // 3. 更新 userInfo 全局状态，驱动表单数据更新
+    setUserInfo({ ...userInfo, avatarFileID: avatarUrl });
   };
 
   return (
@@ -88,19 +87,17 @@ export default function ProfileEdit() {
         style={{ justifyContent: "center", alignItems: "center", height: 160 }}
         className="container-v"
       >
-        <JXAvatar size="lg" shape="rounded" src={formData.avatarUrl}>
-          {formData.nickName}
-        </JXAvatar>
-        <Button
-          openType="chooseAvatar"
+        <JXAvatar
+          clickable
+          size="lg"
+          shape="rounded"
+          src={formData.avatarUrl}
           onChooseAvatar={(e) => {
             const tempFilePath = e.detail.avatarUrl;
             console.log(tempFilePath);
             handleAvatarUpload(tempFilePath);
           }}
-        >
-          选择头像
-        </Button>
+        />
       </View>
       <Cell.Group inset bordered={false}>
         <Field label="昵称">
