@@ -71,7 +71,7 @@ export default function Auth() {
           round
           height={145}
           width={145}
-          src={require("../../../assets/Black-4096x4096.png")}
+          src={require("../../../assets/Black-64x64.png")}
         />
         <Text style={{ fontWeight: 500, fontSize: 20 }}>欢迎登录杭电吉协</Text>
       </View>

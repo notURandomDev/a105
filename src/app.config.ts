@@ -1,5 +1,6 @@
 export default defineAppConfig({
   pages: [
+    "pages/auth/index",
     "pages/profile/index",
     "pages/index/index",
     "pages/musicians-n-bands/index",
@@ -13,7 +14,6 @@ export default defineAppConfig({
     "pages/band-detail/index",
     "pages/reserve/index",
     "pages/profile-edit/index",
-    "pages/auth/index",
     "pages/instruction/index",
   ],
 
