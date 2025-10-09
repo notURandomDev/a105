@@ -12,6 +12,9 @@ import { getReservationsByOptions } from "@/services/reservationsService";
 import { useDidShow } from "@tarojs/taro";
 import { getWeekRange } from "@/utils/DatetimeHelper";
 import { useUserBands } from "@/hooks/user/useUserBands";
+import { SwipeCell } from "@taroify/core";
+import { Pencil, Trash2 } from "lucide";
+import JXActionButton from "@/components/JXActionButton";
 
 export default function Index() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -64,7 +67,27 @@ export default function Index() {
       </JXHugeLabel>
       <View className="grow container-v list-gap">
         {sortReservationsOnState(reservations).map((reservation) => (
-          <JXReservationCard reservation={reservation} />
+          <SwipeCell
+            beforeClose={(position) => {
+              return false;
+            }}
+            defaultOpen="right"
+            open="right"
+          >
+            <JXReservationCard reservation={reservation} />
+            <SwipeCell.Actions
+              className="container-h"
+              side="right"
+              style={{
+                gap: 16,
+                paddingLeft: 16,
+                alignItems: "center",
+              }}
+            >
+              <JXActionButton disabled icon={Pencil} />
+              <JXActionButton disabled icon={Trash2} color="red" />
+            </SwipeCell.Actions>
+          </SwipeCell>
         ))}
       </View>
     </View>
