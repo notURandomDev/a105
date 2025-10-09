@@ -5,49 +5,86 @@ import { Button, Cell, Field, Input } from "@taroify/core";
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/stores/userStore";
 import { updateUser } from "@/services/usersService";
-import { JXToast } from "@/utils/toast";
 
 import JXAvatar from "@/components/JXAvatar";
 import { ossAvatarUpload } from "@/utils/oss";
+import { FormItemStatus } from "@/types/ui/shared";
+
+interface ProfileFormItem<T> {
+  value: T;
+  status: FormItemStatus;
+}
 
 interface ProfileForm {
-  nickName: string;
-  avatarUrl?: string;
+  nickName: ProfileFormItem<string>;
+  avatarUrl: ProfileFormItem<string | undefined>;
 }
 
 export default function ProfileEdit() {
   const { userInfo, setUserInfo } = useUserStore();
   const [formData, setFormData] = useState<ProfileForm>({
-    nickName: "",
-    avatarUrl: undefined,
+    nickName: { value: "", status: "pristine" },
+    avatarUrl: { value: undefined, status: "pristine" },
   });
 
   useEffect(() => {
     if (!userInfo?.nickName || !userInfo.avatarUrl) return;
     setFormData({
-      nickName: userInfo.nickName ?? "",
-      avatarUrl: userInfo.avatarUrl,
+      nickName: { value: userInfo.nickName ?? "", status: "pristine" },
+      avatarUrl: { value: userInfo.avatarUrl, status: "pristine" },
     });
   }, [userInfo]);
 
   const handleNicknameChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, nickName: value }));
+    setFormData((prev) => ({ ...prev, nickName: { value, status: "edited" } }));
+  };
+
+  const handleAvatarChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      avatarUrl: { value, status: "edited" },
+    }));
+  };
+
+  const isFormValid = () => {
+    const { nickName } = formData;
+    const isNickNameValid = nickName.value.length;
+    return isNickNameValid;
+  };
+
+  const isFormEdited = () => {
+    const { avatarUrl, nickName } = formData;
+    const isAvatarEdited = avatarUrl.status === "edited";
+    const isNickNameEdited = nickName.status === "edited";
+    return isAvatarEdited || isNickNameEdited;
   };
 
   const handleSaveEdit = async () => {
-    if (!userInfo || formData.nickName === "") return;
+    if (!userInfo || !isFormValid()) return;
+
+    const { nickName, avatarUrl } = formData;
+    if (nickName.status === "pristine" && avatarUrl.status === "pristine")
+      return;
 
     Taro.showLoading();
-    // 更新远程 userinfo
-    const res = await updateUser(userInfo._id, { nickName: formData.nickName });
-    Taro.hideLoading();
-    if (!res) {
-      JXToast.networkError();
-      return;
+
+    if (nickName.status === "edited") {
+      await updateUser(userInfo._id, { nickName: nickName.value });
     }
 
-    // 更新本地 userinfo
-    setUserInfo({ ...userInfo, nickName: formData.nickName });
+    if (avatarUrl.status === "edited" && avatarUrl.value) {
+      await handleAvatarUpload(avatarUrl.value);
+    }
+
+    // 更新本地全局状态
+    setUserInfo({
+      ...userInfo,
+      nickName: nickName.value,
+      avatarUrl: avatarUrl.value,
+    });
+
+    // 更新远程 userinfo
+    Taro.hideLoading();
 
     Taro.showToast({
       title: "保存成功",
@@ -76,9 +113,6 @@ export default function ProfileEdit() {
 
     Taro.hideLoading();
     Taro.showToast({ title: "头像更新成功", icon: "success" });
-
-    // 3. 更新 userInfo 全局状态，驱动表单数据更新
-    setUserInfo({ ...userInfo, avatarUrl });
   };
 
   return (
@@ -91,11 +125,10 @@ export default function ProfileEdit() {
           clickable
           size="lg"
           shape="rounded"
-          src={formData.avatarUrl}
+          src={formData.avatarUrl.value}
           onChooseAvatar={(e) => {
             const tempFilePath = e.detail.avatarUrl;
-            console.log(tempFilePath);
-            handleAvatarUpload(tempFilePath);
+            handleAvatarChange(tempFilePath);
           }}
         />
       </View>
@@ -105,12 +138,17 @@ export default function ProfileEdit() {
             onChange={(e) => handleNicknameChange(e.detail.value)}
             type="nickname"
             placeholder="请输入昵称"
-            value={formData.nickName}
+            value={formData.nickName.value}
           />
         </Field>
       </Cell.Group>
       <View className="button-container">
-        <Button block color="success" onClick={handleSaveEdit}>
+        <Button
+          disabled={!isFormValid() || !isFormEdited()}
+          block
+          color="success"
+          onClick={handleSaveEdit}
+        >
           保存
         </Button>
       </View>

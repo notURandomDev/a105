@@ -4,3 +4,5 @@ export type PaginatedState = {
     pageIndex: number; // 作为请求参数值
   };
 };
+
+export type FormItemStatus = "new" | "edited" | "pristine";

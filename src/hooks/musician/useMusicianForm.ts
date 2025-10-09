@@ -4,8 +4,7 @@ import { PositionType } from "@/models/position";
 import { createMusicians, updateMusicians } from "@/services/musicianService";
 import { useEffect, useState } from "react";
 import { useUserMusicians } from "../user/useUserMusicians";
-
-type FormItemStatus = "new" | "edited" | "pristine";
+import { FormItemStatus } from "@/types/ui/shared";
 
 export interface MusicianFormItem {
   _id?: string | number; // 更新接口需要使用
