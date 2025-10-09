@@ -2,7 +2,7 @@ export const DB_OK_CODES: Record<DBMethod, string> = {
   add: "collection.add:ok",
   get: "collection.get:ok",
   update: "document.update:ok",
-  remove: "collection.remove:ok",
+  remove: "document.remove:ok",
 };
 
 type DBMethod = "get" | "add" | "update" | "remove";

@@ -112,3 +112,14 @@ export const getReservationsByOptions = async (
 
 /* UPDATE */
 /* DELETE */
+
+export const deleteReservation = async (docId: string | number) => {
+  try {
+    const res = await reservationsCollection.doc(docId).remove({});
+    handleDBResult(res, "remove", "删除预约记录");
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};

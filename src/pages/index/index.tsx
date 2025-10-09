@@ -7,14 +7,21 @@ import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { Band } from "@/models/band";
 import { Reservation } from "@/models/reservation";
 import { mapBandsIntoIds } from "@/utils/band";
-import { sortReservationsOnState } from "@/utils/reservation";
-import { getReservationsByOptions } from "@/services/reservationsService";
+import {
+  getReservationState,
+  sortReservationsOnState,
+} from "@/utils/reservation";
+import {
+  deleteReservation,
+  getReservationsByOptions,
+} from "@/services/reservationsService";
 import { useDidShow } from "@tarojs/taro";
 import { getWeekRange } from "@/utils/DatetimeHelper";
 import { useUserBands } from "@/hooks/user/useUserBands";
 import { SwipeCell } from "@taroify/core";
 import { Pencil, Trash2 } from "lucide";
 import JXActionButton from "@/components/JXActionButton";
+import Taro from "@tarojs/taro";
 
 export default function Index() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -43,6 +50,18 @@ export default function Index() {
     setReservations(reservations);
   };
 
+  const handleDeleteReservation = async (docId: string | number) => {
+    const res = await Taro.showModal({
+      title: "取消排练预约",
+      content: "你确定要取消本次预约的排练?",
+    });
+    if (res.cancel) return;
+    Taro.showLoading();
+    await deleteReservation(docId); // 删除预约记录
+    fetchData(); // 更新预约数据
+    Taro.hideLoading();
+  };
+
   // 页面出现时，重新获取预约数据
   useDidShow(() => {
     fetchData();
@@ -66,29 +85,40 @@ export default function Index() {
           : "本周暂无排练"}
       </JXHugeLabel>
       <View className="grow container-v list-gap">
-        {sortReservationsOnState(reservations).map((reservation) => (
-          <SwipeCell
-            beforeClose={(position) => {
-              return false;
-            }}
-            defaultOpen="right"
-            open="right"
-          >
-            <JXReservationCard reservation={reservation} />
-            <SwipeCell.Actions
-              className="container-h"
-              side="right"
-              style={{
-                gap: 16,
-                paddingLeft: 16,
-                alignItems: "center",
+        {sortReservationsOnState(reservations).map((reservation) => {
+          const { startTime, endTime } = reservation;
+          // 只能删除尚未开始的排练
+          const disabled =
+            getReservationState(startTime, endTime) !== "pending";
+          return (
+            <SwipeCell
+              beforeClose={(position) => {
+                return true;
               }}
+              defaultOpen="right"
+              open="right"
             >
-              <JXActionButton disabled icon={Pencil} />
-              <JXActionButton disabled icon={Trash2} color="red" />
-            </SwipeCell.Actions>
-          </SwipeCell>
-        ))}
+              <JXReservationCard reservation={reservation} />
+              <SwipeCell.Actions
+                className="container-h"
+                side="right"
+                style={{
+                  gap: 16,
+                  paddingLeft: 16,
+                  alignItems: "center",
+                }}
+              >
+                <JXActionButton disabled={disabled} icon={Pencil} />
+                <JXActionButton
+                  disabled={disabled}
+                  onClick={() => handleDeleteReservation(reservation._id ?? "")}
+                  icon={Trash2}
+                  color="red"
+                />
+              </SwipeCell.Actions>
+            </SwipeCell>
+          );
+        })}
       </View>
     </View>
   );
