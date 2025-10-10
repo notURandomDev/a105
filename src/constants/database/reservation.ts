@@ -3,6 +3,7 @@ import { Reservation } from "@/models/reservation";
 export const MOCK_RESERVATIONS: Record<"DEFAULT" | "EMPTY", Reservation[]> = {
   DEFAULT: [
     {
+      _id: "",
       bandID: "eae5dc2d684aca03008393631fc8ab28",
       bandName: "JOINT",
       date: new Date(2025, 5, 12),
@@ -10,6 +11,7 @@ export const MOCK_RESERVATIONS: Record<"DEFAULT" | "EMPTY", Reservation[]> = {
       endTime: new Date(2025, 5, 12, 1, 0),
     },
     {
+      _id: "",
       bandID: "eae5dc2d684aca03008393631fc8ab28",
       bandName: "JOINT",
       date: new Date(2025, 5, 14),
@@ -17,6 +19,7 @@ export const MOCK_RESERVATIONS: Record<"DEFAULT" | "EMPTY", Reservation[]> = {
       endTime: new Date(2025, 5, 14, 12, 0),
     },
     {
+      _id: "",
       bandID: "53c0f997684aca480083e8a9190f1153",
       bandName: "Rockaissance",
       date: new Date(2025, 5, 15),

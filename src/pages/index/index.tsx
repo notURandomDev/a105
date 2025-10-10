@@ -111,7 +111,7 @@ export default function Index() {
                 <JXActionButton disabled={disabled} icon={Pencil} />
                 <JXActionButton
                   disabled={disabled}
-                  onClick={() => handleDeleteReservation(reservation._id ?? "")}
+                  onClick={() => handleDeleteReservation(reservation._id)}
                   icon={Trash2}
                   color="red"
                 />

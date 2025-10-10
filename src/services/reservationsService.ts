@@ -1,6 +1,6 @@
 import { db, _ } from "@/cloud/cloudClient";
 import { MOCK_RESERVATIONS } from "@/constants/database/reservation";
-import { Reservation } from "@/models/reservation";
+import { CreateReservationRequest, Reservation } from "@/models/reservation";
 import { handleDBResult } from "@/utils/database";
 import { JxDbCollection, sendJxRequest } from "./shared";
 import { TcbService, JxReqParamsBase } from "@/types/service/shared";
@@ -10,7 +10,7 @@ const reservationsCollection = db.collection("reservation");
 
 /* CREATE */
 
-export const createReservation = async (data: Reservation) => {
+export const createReservation = async (data: CreateReservationRequest) => {
   try {
     const res = await reservationsCollection.add({ data: { ...data } });
     handleDBResult(res, "add", "新建预约记录");
