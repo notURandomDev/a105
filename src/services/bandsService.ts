@@ -6,6 +6,7 @@ import {
   BandStatus,
   BandStatusLog,
   CreateBandRequest,
+  UpdateBandRequest,
 } from "@/models/band";
 import { JxReqParamsBase, TcbService } from "@/types/service/shared";
 import { handleDBResult } from "@/utils/database";
@@ -68,16 +69,9 @@ export const getBandsByField: GetBandsByField = async (params) => {
 
 /* UPDATE */
 
-interface UpdateBandData {
-  status?: BandStatus;
-  statusLogs?: BandStatusLog[];
-  statusUpdatedAt?: Date;
-  formedAt?: Date;
-}
-
 interface UpdateBandParams {
   bandID: string | number;
-  data: UpdateBandData;
+  data: UpdateBandRequest;
 }
 
 export const updateBand = async ({ bandID, data }: UpdateBandParams) => {
