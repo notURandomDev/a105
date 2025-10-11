@@ -1,6 +1,6 @@
 import { Text, View } from "@tarojs/components";
 
-import { Reservation } from "@/models/reservation";
+import { ReservationBase } from "@/models/reservation";
 import { getHMfromDate, getMDWfromDate } from "@/utils/DatetimeHelper";
 import { getReservationState, JXReservationState } from "@/utils/reservation";
 import { JXColor } from "@/constants/colors/theme";
@@ -20,7 +20,7 @@ const RESERVATION_STATE: Record<JXReservationState, ReservationStateValue> = {
 };
 
 interface JXReservationCardProps {
-  reservation: Reservation;
+  reservation: ReservationBase;
   hideDate?: boolean;
   hideTime?: boolean;
   hideState?: boolean;

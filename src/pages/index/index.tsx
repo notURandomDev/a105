@@ -50,6 +50,12 @@ export default function Index() {
     setReservations(reservations);
   };
 
+  const handleEditReservation = (reservation: Reservation) => {
+    Taro.navigateTo({
+      url: `/pages/reserve/index?reservation=${JSON.stringify(reservation)}`,
+    });
+  };
+
   const handleDeleteReservation = async (docId: string | number) => {
     const res = await Taro.showModal({
       title: "取消排练预约",
@@ -108,7 +114,11 @@ export default function Index() {
                   alignItems: "center",
                 }}
               >
-                <JXActionButton disabled={disabled} icon={Pencil} />
+                <JXActionButton
+                  disabled={disabled}
+                  onClick={() => handleEditReservation(reservation)}
+                  icon={Pencil}
+                />
                 <JXActionButton
                   disabled={disabled}
                   onClick={() => handleDeleteReservation(reservation._id)}

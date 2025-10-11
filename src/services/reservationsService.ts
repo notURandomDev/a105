@@ -1,8 +1,12 @@
 import { db, _ } from "@/cloud/cloudClient";
 import { MOCK_RESERVATIONS } from "@/constants/database/reservation";
-import { CreateReservationRequest, Reservation } from "@/models/reservation";
+import {
+  CreateReservationRequest,
+  Reservation,
+  UpdateReservationRequest,
+} from "@/models/reservation";
 import { handleDBResult } from "@/utils/database";
-import { JxDbCollection, sendJxRequest } from "./shared";
+import { JxDbCollection, JxQueryCondition, sendJxRequest } from "./shared";
 import { TcbService, JxReqParamsBase } from "@/types/service/shared";
 
 const collection: JxDbCollection = "reservation";
@@ -24,16 +28,28 @@ export const createReservation = async (data: CreateReservationRequest) => {
 /* READ */
 
 type GetReservationsByDate = TcbService<
-  JxReqParamsBase & { date: Date },
+  JxReqParamsBase & { date: Date; excludeID?: string | number },
   Reservation
 >;
 
 export const getReservationsByDate: GetReservationsByDate = async (params) => {
-  const { date, production = true } = params;
+  const { date, production = true, excludeID } = params;
+
+  let conditions: JxQueryCondition[] = [
+    { name: "排练日期", field: "date", cmd: _.eq(date) },
+  ];
+
+  if (excludeID) {
+    conditions.push({
+      name: "排除的排练预约记录ID",
+      field: "_id",
+      cmd: _.nin([excludeID]),
+    });
+  }
 
   const res = await sendJxRequest<Reservation>({
     collection,
-    conditions: [{ name: "排练日期", field: "date", cmd: _.eq(date) }],
+    conditions,
     production,
   });
 
@@ -111,6 +127,32 @@ export const getReservationsByOptions = async (
 };
 
 /* UPDATE */
+
+interface UpdateReservation {
+  (params: {
+    reservationID: string | number;
+    data: UpdateReservationRequest;
+  }): Promise<boolean>;
+}
+
+export const updateReservation: UpdateReservation = async (params) => {
+  const { reservationID, data } = params;
+  try {
+    const res = await reservationsCollection
+      .doc(reservationID)
+      .update({ data });
+    handleDBResult(
+      res,
+      "update",
+      `Payload：【${JSON.stringify(data)}】更新预约记录`
+    );
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
 /* DELETE */
 
 export const deleteReservation = async (docId: string | number) => {

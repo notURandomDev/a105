@@ -9,19 +9,48 @@ import JXBandPicker from "@/components/Pickers/JXBandPicker";
 import JXReservationCard from "@/components/Cards/JXReservationCard";
 import { useReservationForm } from "@/hooks/reservation/useReservationForm";
 import { useUserBands } from "@/hooks/user/useUserBands";
+import { BandPickerConfig } from "@/models/band";
+import Taro from "@tarojs/taro";
 
 export default function Reserve() {
   useLoad((options: Record<string, string>) => {
-    const dateIntent = JSON.parse(options.date);
-    // 该日期已经重置到当日凌晨
-    const defaultDate = new Date(dateIntent);
-    setFormData((prev) => ({
-      ...prev,
-      date: defaultDate,
-    }));
+    // 如果接收的参数为 `date`，说明是从日历界面来的，想要创建预约
+    if (options.date) {
+      formMode.current = "create";
+      Taro.setNavigationBarTitle({ title: "创建排练预约" });
+
+      const dateIntent = JSON.parse(options.date);
+      // 该日期已经重置到当日凌晨
+      const defaultDate = new Date(dateIntent);
+
+      setFormData((prev) => ({
+        ...prev,
+        date: defaultDate,
+      }));
+    }
+
+    // 如果接收的参数为 `reservation`，说明是从首页来的，想要编辑已有的预约
+    if (options.reservation) {
+      formMode.current = "edit";
+      Taro.setNavigationBarTitle({ title: "编辑预约记录" });
+
+      const reservation = JSON.parse(options.reservation);
+      const { startTime, endTime, date, bandName, bandID, _id } = reservation;
+      const band: BandPickerConfig = { _id: bandID, name: bandName };
+
+      setFormData({
+        _id,
+        band,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        date: new Date(date),
+      });
+    }
   });
 
   const {
+    formMode,
+    createMode,
     formData,
     setFormData,
     activePicker,
@@ -37,16 +66,34 @@ export default function Reserve() {
 
   const { userBands, fetchUserBands } = useUserBands({ status: "active" });
 
+  const routeLabelText = ({ create, edit }) => {
+    if (createMode) return create;
+    return edit;
+  };
+
   return (
     <View className="reserve config-page">
-      <JXFormLabel px>为你的乐队预约排练</JXFormLabel>
+      <JXFormLabel px>
+        {`为你的乐队${routeLabelText({
+          create: "预约",
+          edit: "修改",
+        })}排练`}
+      </JXFormLabel>
       <Cell.Group inset>
-        <Field isLink label="乐队名称" onClick={() => setActivePicker("band")}>
+        <Field
+          isLink={formMode.current === "create"}
+          label="乐队名称"
+          onClick={async () => {
+            if (!createMode) return;
+
+            await fetchUserBands();
+            setActivePicker("band");
+          }}
+        >
           <Input
             readonly
             value={formData.band?.name ?? ""}
             placeholder="选择乐队"
-            onClick={fetchUserBands}
           />
         </Field>
       </Cell.Group>
@@ -56,7 +103,10 @@ export default function Reserve() {
         onConfirm={updateBandPicker}
         onCancel={() => setActivePicker(null)}
       />
-      <JXFormLabel px>填写排练的时间信息</JXFormLabel>
+      <JXFormLabel px>{`${routeLabelText({
+        create: "填写",
+        edit: "编辑",
+      })}排练的时间信息`}</JXFormLabel>
       <Cell.Group inset>
         <Field label="排练日期" isLink onClick={() => setActivePicker("date")}>
           <Input
@@ -116,7 +166,7 @@ export default function Reserve() {
           block
           onClick={submitFormData}
         >
-          马上预约！
+          {routeLabelText({ create: "马上预约！", edit: "更新预约" })}
         </Button>
       </View>
     </View>

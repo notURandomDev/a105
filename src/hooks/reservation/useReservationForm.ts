@@ -2,21 +2,34 @@ import { BandPickerConfig } from "@/models/band";
 import {
   createReservation,
   getReservationsByDate,
+  updateReservation,
 } from "@/services/reservationsService";
 import { compareHM } from "@/utils/DatetimeHelper";
 import Taro from "@tarojs/taro";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export type PickerType = "startTime" | "endTime" | "date" | "band" | null;
 
+type FormMode = "create" | "edit";
+
 export type FormData = {
+  _id?: string | number;
   startTime: Date | null;
   endTime: Date | null;
   date: Date;
   band: BandPickerConfig | null;
 };
 
+export interface CheckReservationConflict {
+  (params: { date: Date; startTime: Date; endTime: Date }): Promise<boolean>;
+}
+
 export const useReservationForm = () => {
+  // 表示当前表单是为了 [创建] 还是 [预约] 排练
+  const formMode = useRef<FormMode>("create");
+  // [Derived] 从 `formMode` 得出
+  const createMode = formMode.current === "create";
+
   const [formData, setFormData] = useState<FormData>({
     startTime: null,
     endTime: null,
@@ -115,13 +128,20 @@ export const useReservationForm = () => {
   };
 
   // 检查是否与当前已有的排练冲突
-  const checkReservationConflict = async (
-    date: Date,
-    startTime: Date,
-    endTime: Date
-  ) => {
-    // 获取当天的排练数据
-    const { data: reservationsToday } = await getReservationsByDate({ date });
+  const checkReservationConflict: CheckReservationConflict = async (params) => {
+    const { startTime, endTime, date } = params;
+
+    // 在 [Create Mode] 下，`formData._id` 为 `undefined`
+    // 在 [Edit Mode] 下检查冲突时，应该忽略当前在云端的排练记录
+    const excludeID = formData._id;
+    console.log("excludeID", excludeID);
+
+    // 获取当天的排练数据（包含不同模式下查询逻辑的差异）
+    const { data: reservationsToday } = await getReservationsByDate({
+      date,
+      excludeID,
+    });
+
     // 任意已经预约的排练如果满足以下条件，则想要预约的排练时间一定没冲突：
     // - 预约的排练开始时间，比已有的排练结束时间晚；那么预约的结束时间一定也比已有的排练结束时间晚
     // - 预约的排练结束时间，比已有的排练开始时间早；那么预约的开始时间一定也比已有的排练开始时间早
@@ -155,32 +175,49 @@ export const useReservationForm = () => {
 
   // 提交表单数据
   const submitFormData = async () => {
-    const { band, date, startTime, endTime } = formData;
+    const { band, date, startTime, endTime, _id } = formData;
     if (!date || !startTime || !endTime || !band) return;
 
     // 在提交表单的时候再进行检查，减少请求的数量
-    if (await checkReservationConflict(date, startTime, endTime)) {
+    if (await checkReservationConflict({ date, startTime, endTime })) {
       Taro.showToast({ icon: "error", title: "预约时间冲突" });
       return;
     }
 
     Taro.showLoading();
-    const res = await createReservation({
-      bandName: band.name,
-      bandID: band._id,
-      date,
-      startTime,
-      endTime,
-    });
+
+    let res = true;
+
+    if (formMode.current === "create") {
+      res = await createReservation({
+        bandName: band.name,
+        bandID: band._id,
+        date,
+        startTime,
+        endTime,
+      });
+    }
+
+    if (formMode.current === "edit" && _id) {
+      res = await updateReservation({
+        reservationID: _id,
+        data: { startTime, endTime, date },
+      });
+    }
 
     if (res) {
       Taro.hideLoading();
-      Taro.showToast({ icon: "success", title: "预约成功" });
+      Taro.showToast({
+        icon: "success",
+        title: createMode ? "预约成功" : "修改成功",
+      });
       setTimeout(() => Taro.navigateBack(), 1000);
     }
   };
 
   return {
+    formMode,
+    createMode,
     formData,
     setFormData,
     activePicker,

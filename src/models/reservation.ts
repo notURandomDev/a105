@@ -1,4 +1,4 @@
-interface ReservationBase {
+export interface ReservationBase {
   bandName: string;
   bandID: string | number;
   date: Date;
@@ -13,6 +13,13 @@ export interface Reservation extends ReservationBase {
 
 // 用于创建预约
 export type CreateReservationRequest = ReservationBase;
+
+// 用于更新预约，不能更新乐队信息
+export interface UpdateReservationRequest {
+  date?: Date;
+  startTime?: Date;
+  endTime?: Date;
+}
 
 export interface ReservationConfigs {
   bandName?: string;
