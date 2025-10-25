@@ -7,6 +7,7 @@ import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserMusicians } from "../user/useUserMusicians";
 import { isFormValid } from "@/utils/form";
 import { showToast } from "@/utils/showToast";
+import { useMutexLoad } from "../util/useMutexLoad";
 
 const DefaultFormDataBase = {
   name: "", // 乐队名
@@ -26,6 +27,8 @@ export const useBandForm = () => {
   const [feedback, setFeedback] = useState({ name: "" }); // 将来可扩展
   const [activePicker, setActivePicker] = useState<ActivePickerState>(null);
   const [bandNameConflicted, setBandNameConflicted] = useState(true);
+
+  const { mutexLoad } = useMutexLoad({ showLoading: true });
 
   // 获取用户的所有乐手身份，作为 picker 的数据来源
   // picker 不能展示用户没有注册过的乐手身份！
@@ -129,28 +132,31 @@ export const useBandForm = () => {
     const now = new Date();
     const { positions, ...createInput } = formData;
 
-    await createBandWithPositions({
-      band: {
-        ...createInput,
-        status: "recruiting",
-        statusUpdatedAt: now,
-        statusLogs: [{ at: now, status: "recruiting" }],
-      },
-      positions: positions.map((p) =>
-        p.status === "occupied"
-          ? {
-              ...p,
-              joinedAt: new Date(),
-              nickname: userInfo?.nickName ?? "something-is-wrong",
-              // 能进入创建乐队的前提，是用于已经有乐手身份了；因此这里访问下标的操作是安全的
-              musicianID: userMusicians[0]._id,
-            }
-          : {
-              ...p,
-              recruitNote: "喜欢就申请加入吧！",
-            }
-      ),
-    });
+    // 创建乐队时，显示加载控件
+    await mutexLoad(() =>
+      createBandWithPositions({
+        band: {
+          ...createInput,
+          status: "recruiting",
+          statusUpdatedAt: now,
+          statusLogs: [{ at: now, status: "recruiting" }],
+        },
+        positions: positions.map((p) =>
+          p.status === "occupied"
+            ? {
+                ...p,
+                joinedAt: new Date(),
+                nickname: userInfo?.nickName ?? "something-is-wrong",
+                // 能进入创建乐队的前提，是用于已经有乐手身份了；因此这里访问下标的操作是安全的
+                musicianID: userMusicians[0]._id,
+              }
+            : {
+                ...p,
+                recruitNote: "喜欢就申请加入吧！",
+              }
+        ),
+      })
+    );
 
     await showToast.success("乐队创建成功");
     setTimeout(() => Taro.navigateBack(), 2000);
