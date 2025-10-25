@@ -53,15 +53,15 @@ export default function Reserve() {
     createMode,
     formData,
     setFormData,
-    activePicker,
-    setActivePicker,
-    getPickerTitle,
+    getDTPickerTitle,
     formValid,
     submitFormData,
-    isDateTimePickerActive,
     updateDatetimePicker,
     updateBandPicker,
     getReservationPreview,
+    pickerConfig,
+    setPickerConfig,
+    getDTPickerOpenState,
   } = useReservationForm();
 
   const { userBands, fetchUserBands } = useUserBands({ status: "active" });
@@ -85,9 +85,8 @@ export default function Reserve() {
           label="乐队名称"
           onClick={async () => {
             if (!createMode) return;
-
             await fetchUserBands();
-            setActivePicker("band");
+            setPickerConfig((prev) => ({ ...prev, active: "band" }));
           }}
         >
           <Input
@@ -99,16 +98,22 @@ export default function Reserve() {
       </Cell.Group>
       <JXBandPicker
         bands={userBands}
-        open={activePicker === "band"}
+        open={pickerConfig.active === "band"}
         onConfirm={updateBandPicker}
-        onCancel={() => setActivePicker(null)}
+        onCancel={() => setPickerConfig((prev) => ({ ...prev, active: null }))}
       />
       <JXFormLabel px>{`${routeLabelText({
         create: "填写",
         edit: "编辑",
       })}排练的时间信息`}</JXFormLabel>
       <Cell.Group inset>
-        <Field label="排练日期" isLink onClick={() => setActivePicker("date")}>
+        <Field
+          label="排练日期"
+          isLink
+          onClick={() =>
+            setPickerConfig((prev) => ({ ...prev, active: "date" }))
+          }
+        >
           <Input
             readonly
             placeholder="选择日期"
@@ -118,7 +123,9 @@ export default function Reserve() {
         <Field
           label="排练开始时间"
           isLink
-          onClick={() => setActivePicker("startTime")}
+          onClick={() =>
+            setPickerConfig({ active: "startTime", value: formData.startTime })
+          }
         >
           <Input
             readonly
@@ -129,7 +136,9 @@ export default function Reserve() {
         <Field
           label="排练结束时间"
           isLink
-          onClick={() => setActivePicker("endTime")}
+          onClick={() =>
+            setPickerConfig({ active: "endTime", value: formData.endTime })
+          }
         >
           <Input
             readonly
@@ -151,11 +160,11 @@ export default function Reserve() {
       )}
 
       <JXDateTimePicker
-        date={formData.date}
-        type={activePicker === "date" ? "month-day" : "hour-minute"}
-        title={getPickerTitle()}
-        open={isDateTimePickerActive()}
-        onCancel={() => setActivePicker(null)}
+        value={pickerConfig.value}
+        type={pickerConfig.active === "date" ? "month-day" : "hour-minute"}
+        title={getDTPickerTitle()}
+        open={getDTPickerOpenState()}
+        onCancel={() => setPickerConfig((prev) => ({ ...prev, active: null }))}
         onConfirm={updateDatetimePicker}
       />
 

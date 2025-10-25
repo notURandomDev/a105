@@ -20,6 +20,11 @@ export type FormData = {
   band: BandPickerConfig | null;
 };
 
+interface PickerConfig {
+  active: PickerType | null;
+  value: Date | null;
+}
+
 export interface CheckReservationConflict {
   (params: { date: Date; startTime: Date; endTime: Date }): Promise<boolean>;
 }
@@ -36,25 +41,41 @@ export const useReservationForm = () => {
     date: new Date(),
     band: null,
   });
-  const [activePicker, setActivePicker] = useState<PickerType>(null);
+  // const [activePicker, setActivePicker] = useState<PickerType>(null);
 
-  const isDateTimePickerActive = () => {
-    return (
-      activePicker === "startTime" ||
-      activePicker === "endTime" ||
-      activePicker === "date"
-    );
-  };
+  const [pickerConfig, setPickerConfig] = useState<PickerConfig>({
+    active: null,
+    value: new Date(),
+  });
 
-  const getPickerTitle = () => {
-    if (activePicker === "startTime") return "选择排练开始时间";
-    if (activePicker === "endTime") return "选择排练结束时间";
-    if (activePicker === "date") return "选择排练日期";
-
+  const getDTPickerTitle = () => {
+    const { active } = pickerConfig;
+    if (active === "startTime") return "选择排练开始时间";
+    if (active === "endTime") return "选择排练结束时间";
+    if (active === "date") return "选择排练日期";
     return "";
   };
 
+  const getDTPickerInitValue = (type: PickerType) => {
+    if (type === "startTime") return formData.startTime;
+    if (type === "endTime") return formData.endTime;
+
+    // if (type === "date")
+    return formData.date;
+  };
+
+  // 判断 `JXDateTimePicker` 是否应该显示
+  const getDTPickerOpenState = () => {
+    const activePicker = pickerConfig.active;
+    return (
+      activePicker === "date" ||
+      activePicker === "startTime" ||
+      activePicker === "endTime"
+    );
+  };
+
   const updatePickerValue = (time: Date) => {
+    const activePicker = pickerConfig.active;
     if (!activePicker) return;
     const { startTime, endTime } = formData;
 
@@ -115,7 +136,7 @@ export const useReservationForm = () => {
   };
 
   const updateBandPicker = (band: BandPickerConfig) => {
-    setActivePicker(null);
+    setPickerConfig((prev) => ({ ...prev, active: null }));
     setFormData((prev) => ({ ...prev, band }));
   };
 
@@ -124,7 +145,7 @@ export const useReservationForm = () => {
     // 1. 更新表单数据
     updatePickerValue(date);
     // 2. 重置选中的 picker field
-    setActivePicker(null);
+    setPickerConfig((prev) => ({ ...prev, active: null }));
   };
 
   // 检查是否与当前已有的排练冲突
@@ -219,16 +240,17 @@ export const useReservationForm = () => {
     formMode,
     createMode,
     formData,
+    pickerConfig,
+    setPickerConfig,
     setFormData,
-    activePicker,
-    setActivePicker,
-    getPickerTitle,
+    getDTPickerTitle,
     formValid,
     submitFormData,
     updatePickerValue,
-    isDateTimePickerActive,
     updateDatetimePicker,
     updateBandPicker,
     getReservationPreview,
+    getDTPickerInitValue,
+    getDTPickerOpenState,
   };
 };

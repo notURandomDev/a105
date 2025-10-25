@@ -5,7 +5,7 @@ import {
   resetTimewithDate,
 } from "@/utils/DatetimeHelper";
 import { DatetimePicker, Popup } from "@taroify/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type PickerType = "hour-minute" | "month-day";
 
@@ -13,19 +13,15 @@ interface JXPopupPickerProps {
   title: string;
   type: PickerType;
   open: boolean;
-  date?: Date;
+  value: Date | null;
   onConfirm: (value: Date) => void;
   onCancel: () => void;
 }
 
-function JXDateTimePicker({
-  title = "默认标题",
-  type,
-  open = false,
-  date = new Date(),
-  onConfirm,
-  onCancel,
-}: JXPopupPickerProps) {
+// 支持 「Hour-Minute」 和 「Month-Day」 两种时间选择方式
+function JXDateTimePicker(props: JXPopupPickerProps) {
+  const { title = "默认标题", type, open = false, value } = props;
+
   const [time, setTime] = useState(getCurrentTime());
   const { monday: _, sunday } = getWeekRange();
 
@@ -36,11 +32,17 @@ function JXDateTimePicker({
         alignedTime = resetTimewithDate(time);
         break;
       case "hour-minute":
-        alignedTime = alignDateWithTime(date, time);
+        alignedTime = alignDateWithTime(props.value ?? new Date(), time);
         break;
     }
-    onConfirm(alignedTime);
+    props.onConfirm(alignedTime);
   };
+
+  // 由于传入的 `value` 在上层组件中也是一个状态
+  // 因此需要对其进行监听，当其值变化时，更新当前组件中的时间值
+  useEffect(() => {
+    if (value) setTime(value);
+  }, [value]);
 
   return (
     <Popup rounded placement="bottom" open={open} style={{ height: "50%" }}>
@@ -64,7 +66,9 @@ function JXDateTimePicker({
         }}
       >
         <DatetimePicker.Toolbar>
-          <DatetimePicker.Button onClick={onCancel}>取消</DatetimePicker.Button>
+          <DatetimePicker.Button onClick={props.onCancel}>
+            取消
+          </DatetimePicker.Button>
           <DatetimePicker.Title>{title}</DatetimePicker.Title>
           <DatetimePicker.Button onClick={handleConfirm}>
             确认
