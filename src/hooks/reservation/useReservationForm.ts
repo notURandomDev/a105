@@ -158,7 +158,6 @@ export const useReservationForm = () => {
     // 在 [Create Mode] 下，`formData._id` 为 `undefined`
     // 在 [Edit Mode] 下检查冲突时，应该忽略当前在云端的排练记录
     const excludeID = formData._id;
-    console.log("excludeID", excludeID);
 
     // 获取当天的排练数据（包含不同模式下查询逻辑的差异）
     const { data: reservationsToday } = await getReservationsByDate({
@@ -172,7 +171,15 @@ export const useReservationForm = () => {
     return reservationsToday.some((reservation) => {
       const noConflict =
         endTime <= reservation.startTime || startTime >= reservation.endTime;
-      if (!noConflict) console.log("与该预约冲突：", reservation);
+      if (!noConflict) {
+        console.log("预约冲突");
+
+        console.log("有人先预约了这个时间端", reservation);
+        console.log(
+          "你的预约是在这个时间段",
+          `[${date}] ${startTime}-${endTime}`
+        );
+      }
       return !noConflict;
     });
   };
