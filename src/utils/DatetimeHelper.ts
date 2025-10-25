@@ -19,13 +19,13 @@ export const getMDWfromDate = (date: Date) => {
   return `${month}月${_date}号 ${day}`;
 };
 
-export const getCurrentTime = () => {
-  const rawTime = new Date();
+export const getSteppedTime = (time: Date) => {
+  // 定义分割时间（分钟）的步长
   const step = 5;
-  const minutes = rawTime.getMinutes();
+  const minutes = time.getMinutes();
   const alignedMinutes = Math.round(minutes / step) * step;
-  rawTime.setMinutes(alignedMinutes);
-  return rawTime;
+  time.setMinutes(alignedMinutes);
+  return time;
 };
 
 export const getWeekRange = () => {

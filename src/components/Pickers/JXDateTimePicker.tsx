@@ -1,6 +1,6 @@
 import {
   alignDateWithTime,
-  getCurrentTime,
+  getSteppedTime,
   getWeekRange,
   resetTimewithDate,
 } from "@/utils/DatetimeHelper";
@@ -22,7 +22,7 @@ interface JXPopupPickerProps {
 function JXDateTimePicker(props: JXPopupPickerProps) {
   const { title = "默认标题", type, open = false, value } = props;
 
-  const [time, setTime] = useState(getCurrentTime());
+  const [time, setTime] = useState(getSteppedTime(new Date()));
   const { monday: _, sunday } = getWeekRange();
 
   const handleConfirm = () => {
@@ -41,7 +41,7 @@ function JXDateTimePicker(props: JXPopupPickerProps) {
   // 由于传入的 `value` 在上层组件中也是一个状态
   // 因此需要对其进行监听，当其值变化时，更新当前组件中的时间值
   useEffect(() => {
-    if (value) setTime(value);
+    if (value) setTime(getSteppedTime(value));
   }, [value]);
 
   return (
