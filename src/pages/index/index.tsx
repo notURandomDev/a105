@@ -22,9 +22,12 @@ import { SwipeCell } from "@taroify/core";
 import { Pencil, Trash2 } from "lucide";
 import JXActionButton from "@/components/JXActionButton";
 import Taro from "@tarojs/taro";
+import { useMutexLoad } from "@/hooks/util/useMutexLoad";
 
 export default function Index() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
+
+  const { mutexLoad } = useMutexLoad({ showLoading: true });
 
   // 获取数据逻辑：
   // 用户 -> 乐手 -> 乐队 -> 预约记录
@@ -62,10 +65,11 @@ export default function Index() {
       content: "你确定要取消本次预约的排练?",
     });
     if (res.cancel) return;
-    Taro.showLoading();
-    await deleteReservation(docId); // 删除预约记录
-    fetchData(); // 更新预约数据
-    Taro.hideLoading();
+
+    mutexLoad(async () => {
+      await deleteReservation(docId); // 删除预约记录
+      await fetchData(); // 更新预约数据
+    });
   };
 
   // 页面出现时，重新获取预约数据

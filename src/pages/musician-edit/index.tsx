@@ -6,7 +6,8 @@ import JXBandPosPicker from "@/components/Pickers/JXBandPosPicker";
 import JXButton from "@/components/JXButton";
 import { useMusicianForm } from "@/hooks/musician/useMusicianForm";
 import { MUSICIAN_DISPLAY_CONFIG } from "@/constants/utils/musician";
-import { JXToast } from "@/utils/toast";
+import { useMutexLoad } from "@/hooks/util/useMutexLoad";
+import { showToast } from "@/utils/showToast";
 
 export default function MusicianEdit() {
   const {
@@ -19,6 +20,8 @@ export default function MusicianEdit() {
     updateFormData,
     didUserEdit,
   } = useMusicianForm();
+
+  const { mutexLoad } = useMutexLoad({ showLoading: true });
 
   return (
     <View className="musician-edit config-page">
@@ -76,8 +79,8 @@ export default function MusicianEdit() {
         {didUserEdit() && (
           <JXButton
             onClick={async () => {
-              await handleSubmit();
-              JXToast.success("保存成功！");
+              await mutexLoad(handleSubmit);
+              showToast.success("保存成功");
             }}
           >
             保存

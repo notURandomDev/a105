@@ -10,6 +10,8 @@ import JXAvatar from "@/components/JXAvatar";
 import { ossAvatarUpload } from "@/utils/oss";
 import { FormItemStatus } from "@/types/ui/shared";
 import { isFormValid } from "@/utils/form";
+import { useMutexLoad } from "@/hooks/util/useMutexLoad";
+import { showToast } from "@/utils/showToast";
 
 interface ProfileFormItem<T> {
   value: T;
@@ -27,6 +29,8 @@ export default function ProfileEdit() {
     nickName: { value: "", status: "pristine" },
     avatarUrl: { value: undefined, status: "pristine" },
   });
+
+  const { mutexLoad } = useMutexLoad({ showLoading: true });
 
   useEffect(() => {
     if (!userInfo?.nickName || !userInfo.avatarUrl) return;
@@ -66,53 +70,49 @@ export default function ProfileEdit() {
     if (nickName.status === "pristine" && avatarUrl.status === "pristine")
       return;
 
-    Taro.showLoading();
+    await mutexLoad(async () => {
+      if (nickName.status === "edited") {
+        await updateUser(userInfo._id, { nickName: nickName.value });
+      }
 
-    if (nickName.status === "edited") {
-      await updateUser(userInfo._id, { nickName: nickName.value });
-    }
+      if (avatarUrl.status === "edited" && avatarUrl.value) {
+        await handleAvatarUpload(avatarUrl.value);
+      }
 
-    if (avatarUrl.status === "edited" && avatarUrl.value) {
-      await handleAvatarUpload(avatarUrl.value);
-    }
-
-    // 更新本地全局状态
-    setUserInfo({
-      ...userInfo,
-      nickName: nickName.value,
-      avatarUrl: avatarUrl.value,
+      // 更新本地全局状态
+      setUserInfo({
+        ...userInfo,
+        nickName: nickName.value,
+        avatarUrl: avatarUrl.value,
+      });
     });
 
-    // 更新远程 userinfo
-    Taro.hideLoading();
-
-    Taro.showToast({
-      title: "保存成功",
-      icon: "success",
-      success: () => setTimeout(() => Taro.navigateBack(), 500),
-    });
+    await showToast.success("保存成功");
+    setTimeout(() => Taro.navigateBack(), 500);
   };
 
   const handleAvatarUpload = async (tempFileUrl: string) => {
     if (!userInfo) return;
-    Taro.showLoading({ title: "加载中" });
 
     // 1. 上传头像文件至OSS
-    const avatarUrl = await ossAvatarUpload(tempFileUrl);
+    const avatarUrl = await mutexLoad<string | null>(() =>
+      ossAvatarUpload(tempFileUrl)
+    );
     if (!avatarUrl) {
-      Taro.showToast({ title: "头像更新失败", icon: "error" });
+      showToast.error("头像更新失败");
       return;
     }
 
     // 2. 更新用户表
-    const res = await updateUser(userInfo._id, { avatarUrl });
+    const res = await mutexLoad<boolean>(() =>
+      updateUser(userInfo._id, { avatarUrl })
+    );
     if (!res) {
-      Taro.showToast({ title: "头像更新失败", icon: "error" });
+      showToast.error("头像更新失败");
       return;
     }
 
-    Taro.hideLoading();
-    Taro.showToast({ title: "头像更新成功", icon: "success" });
+    showToast.success("头像更新成功");
   };
 
   return (

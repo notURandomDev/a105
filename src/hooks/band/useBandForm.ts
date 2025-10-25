@@ -6,6 +6,7 @@ import { CreateBandPositionRequest } from "@/models/band-position";
 import { createBandWithPositions, getPositionsByStatus } from "@/utils/band";
 import { useUserMusicians } from "../user/useUserMusicians";
 import { isFormValid } from "@/utils/form";
+import { showToast } from "@/utils/showToast";
 
 const DefaultFormDataBase = {
   name: "", // 乐队名
@@ -151,10 +152,8 @@ export const useBandForm = () => {
       ),
     });
 
-    Taro.showToast({ icon: "success", title: "乐队创建成功" });
-    setTimeout(() => {
-      Taro.navigateBack();
-    }, 2000);
+    await showToast.success("乐队创建成功");
+    setTimeout(() => Taro.navigateBack(), 2000);
   };
 
   // 验证表单有效性

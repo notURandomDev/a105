@@ -7,6 +7,8 @@ import {
 import { compareHM } from "@/utils/DatetimeHelper";
 import Taro from "@tarojs/taro";
 import { useRef, useState } from "react";
+import { useMutexLoad } from "../util/useMutexLoad";
+import { showToast } from "@/utils/showToast";
 
 export type PickerType = "startTime" | "endTime" | "date" | "band" | null;
 
@@ -41,12 +43,13 @@ export const useReservationForm = () => {
     date: new Date(),
     band: null,
   });
-  // const [activePicker, setActivePicker] = useState<PickerType>(null);
 
   const [pickerConfig, setPickerConfig] = useState<PickerConfig>({
     active: null,
     value: new Date(),
   });
+
+  const { mutexLoad } = useMutexLoad({ showLoading: true });
 
   const getDTPickerTitle = () => {
     const { active } = pickerConfig;
@@ -228,44 +231,43 @@ export const useReservationForm = () => {
     // 预约的排练开始时间，不能早于当前的时间
     // 可以允许在同一分钟预约
     if (!validateStartTime(startTime)) {
-      Taro.showToast({ icon: "error", title: "开始时间过早" });
+      showToast.error("开始时间过早");
       return;
     }
 
     if (await checkReservationConflict({ date, startTime, endTime })) {
       // 在提交表单的时候再进行检查，减少请求的数量
-      Taro.showToast({ icon: "error", title: "预约时间冲突" });
+      showToast.error("预约时间冲突");
       return;
     }
 
-    Taro.showLoading();
-
     let res = true;
+    await mutexLoad(async () => {
+      // 创建预约
+      if (formMode.current === "create") {
+        res = await createReservation({
+          bandName: band.name,
+          bandID: band._id,
+          date,
+          startTime,
+          endTime,
+        });
+      }
 
-    if (formMode.current === "create") {
-      res = await createReservation({
-        bandName: band.name,
-        bandID: band._id,
-        date,
-        startTime,
-        endTime,
-      });
-    }
-
-    if (formMode.current === "edit" && _id) {
-      res = await updateReservation({
-        reservationID: _id,
-        data: { startTime, endTime, date },
-      });
-    }
+      // 编辑预约
+      if (formMode.current === "edit" && _id) {
+        res = await updateReservation({
+          reservationID: _id,
+          data: { startTime, endTime, date },
+        });
+      }
+    });
 
     if (res) {
-      Taro.hideLoading();
-      Taro.showToast({
-        icon: "success",
-        title: createMode ? "预约成功" : "修改成功",
-      });
+      await showToast.success(createMode ? "预约成功" : "修改成功");
       setTimeout(() => Taro.navigateBack(), 1000);
+    } else {
+      showToast.error(createMode ? "预约失败" : "修改失败");
     }
   };
 

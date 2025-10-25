@@ -4,8 +4,8 @@ import "./index.scss";
 import { Button, Image } from "@taroify/core";
 import { useUserStore } from "@/stores/userStore";
 import { createUser, getUserByOpenid } from "@/services/usersService";
-import { JXToast } from "@/utils/toast";
 import { getOpenid } from "@/services/cloudService";
+import { showToast } from "@/utils/showToast";
 
 export default function Auth() {
   const { setUserInfo } = useUserStore();
@@ -25,7 +25,7 @@ export default function Auth() {
   const handleAuth = async () => {
     const openid = await getOpenid(); // 获取用户openid
     if (!openid) {
-      JXToast.networkError();
+      showToast.error("获取openid失败");
       return;
     }
 
@@ -37,7 +37,7 @@ export default function Auth() {
       const docId = await signUserUp();
       if (!docId) {
         Taro.hideLoading();
-        JXToast.networkError();
+        showToast.error("用户注册失败");
         return; // 提前退出
       }
 
