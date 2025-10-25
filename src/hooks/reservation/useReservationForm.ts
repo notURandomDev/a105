@@ -194,13 +194,46 @@ export const useReservationForm = () => {
     );
   };
 
+  // 检查预约排练的开始时间是否有效
+  const validateStartTime = (startTime: Date) => {
+    const now = new Date();
+
+    if (startTime.getTime() < now.getTime()) {
+      // 精确粒度：分钟
+      const roundedStartTime = startTime.setMinutes(0, 0, 0);
+      const roundedCurTime = now.setMinutes(0, 0, 0);
+
+      // 单独获取分钟值
+      const startMinute = startTime.getMinutes();
+      const curMinute = now.getMinutes();
+
+      // 如果预约开始时间，和当前的时间只有分钟上的差别，是有效的
+      if (roundedStartTime === roundedCurTime && startMinute === curMinute) {
+        return true;
+      }
+
+      // 如果预约开始时间早于当前时间，同时分钟值也不同，是无效的
+      return false;
+    }
+
+    // 开始时间比当前时间晚，一定是有效的
+    return true;
+  };
+
   // 提交表单数据
   const submitFormData = async () => {
     const { band, date, startTime, endTime, _id } = formData;
     if (!date || !startTime || !endTime || !band) return;
 
-    // 在提交表单的时候再进行检查，减少请求的数量
+    // 预约的排练开始时间，不能早于当前的时间
+    // 可以允许在同一分钟预约
+    if (!validateStartTime(startTime)) {
+      Taro.showToast({ icon: "error", title: "开始时间过早" });
+      return;
+    }
+
     if (await checkReservationConflict({ date, startTime, endTime })) {
+      // 在提交表单的时候再进行检查，减少请求的数量
       Taro.showToast({ icon: "error", title: "预约时间冲突" });
       return;
     }
