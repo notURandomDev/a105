@@ -24,7 +24,7 @@ export const useMutexLoad = (props: UseMutexLoadProps = {}) => {
   // 接收一个获取数据的异步回调函数作为参数
   const mutexLoad = async <T,>(fetchFn: () => Promise<T>) => {
     setLoading(true);
-    if (showLoading) Taro.showLoading();
+    if (showLoading) Taro.showLoading({ title: "加载中" });
     const res = await fetchFn();
     if (showLoading) Taro.hideLoading();
     setLoading(false);
